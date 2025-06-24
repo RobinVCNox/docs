@@ -1,58 +1,771 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
+    "title": "NOX Energy API Sandbox",
+    "description": "\n\nAuthentication:\n\n1. Get your API key from [Nox Energy](mailto:support@nox.energy).\n2. Include the API key in your API calls with the header: x-api-key: YOUR_API_KEY.\nIf you want to test the API using the UI, add it in the lock icon in the top right corner.\n\nWithout a valid API key, your requests will be rejected.\n\nBase URL:  [https://api.sandbox.nox.energy](https://api.sandbox.nox.energy)\n",
     "version": "1.0.0"
   },
-  "servers": [
-    {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
   "paths": {
-    "/plants": {
+    "/v1/devices": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
+        "tags": [
+          "Asset Info"
+        ],
+        "summary": "Get Devices",
+        "description": "Get information about all NOX connected devices associated with your energy supplier account.",
+        "operationId": "get_devices_v1_devices_get",
         "parameters": [
           {
             "name": "limit",
             "in": "query",
-            "description": "The maximum number of results to return",
+            "required": false,
             "schema": {
               "type": "integer",
-              "format": "int32"
-            }
+              "maximum": 4000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
           }
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Devices V1 Devices Get"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "model": "model_g",
+                      "brand": "nibe",
+                      "device_id": "01a5c222-5b76-4531-b587-5deeb81a3db3",
+                      "user_id": "user_4",
+                      "device_capacity": "1.33"
+                    },
+                    {
+                      "model": "model_b",
+                      "brand": "nibe",
+                      "device_id": "01bbbaab-159a-4898-bcba-d81acdb2353c",
+                      "user_id": "user_5",
+                      "device_capacity": "0.4"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "eyJkZXZpY2VfaWQiOiAiMDFiYmJhYWItMTU5YS00ODk4LWJjYmEtZDgxYWNkYjIzNTNjIiwgImVuZXJneV9zdXBwbGllciI6ICJFbmVyZ3kgU3VwcGxpZXIgQSJ9",
+                    "device_capacity_unit": "kW"
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/device/consumption/forecast/15min": {
+      "get": {
+        "tags": [
+          "Device Consumption"
+        ],
+        "summary": "Get Device Consumption Forecast Next 15Min",
+        "description": "Get the forecasted consumption for devices associated with your energy supplier account in kWh for the next 15min.",
+        "operationId": "get_device_consumption_forecast_next_15min_v1_device_consumption_forecast_15min_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "aggregated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n",
+              "default": false,
+              "title": "Aggregated"
+            },
+            "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n",
+              "title": "Device Id"
+            },
+            "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Device Consumption Forecast Next 15Min V1 Device Consumption Forecast 15Min Get"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "forecast_time": "2025-04-30 23:15",
+                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
+                      "consumption": "2.56"
+                    },
+                    {
+                      "forecast_time": "2025-04-30 23:15",
+                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
+                      "consumption": "3.58"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
+                    "consumption_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/device/consumption/forecast/24h": {
+      "get": {
+        "tags": [
+          "Device Consumption"
+        ],
+        "summary": "Get Device Consumption Forecast Next 24H",
+        "description": "Get the forecasted consumption for devices associated with your energy supplier account in kWh for the next 24hours with 15min granularity.\n\n This forecast is done everyday at 9:30 am CET/CEST.",
+        "operationId": "get_device_consumption_forecast_next_24h_v1_device_consumption_forecast_24h_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "aggregated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n",
+              "default": false,
+              "title": "Aggregated"
+            },
+            "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n",
+              "title": "Device Id"
+            },
+            "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Device Consumption Forecast Next 24H V1 Device Consumption Forecast 24H Get"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "forecast_time": "2025-05-01 07:45",
+                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
+                      "consumption": "2.61"
+                    },
+                    {
+                      "forecast_time": "2025-05-01 07:45",
+                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
+                      "consumption": "1.75"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
+                    "consumption_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/device/consumption/historical": {
+      "get": {
+        "tags": [
+          "Device Consumption"
+        ],
+        "summary": "Get Device Consumption Historical",
+        "description": "Get the measured historical consumption data for devices associated with your energy supplier account in kWh for a specific timeframe in 15min granularity.",
+        "operationId": "get_device_consumption_historical_v1_device_consumption_historical_get",
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nStart time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "Start Time"
+            },
+            "description": "\nStart time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nEnd time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "End Time"
+            },
+            "description": "\nEnd time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "aggregated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n",
+              "default": false,
+              "title": "Aggregated"
+            },
+            "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n",
+              "title": "Device Id"
+            },
+            "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Device Consumption Historical V1 Device Consumption Historical Get"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "measurement_time": "2025-04-29 16:00",
+                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
+                      "consumption": "2.88"
+                    },
+                    {
+                      "measurement_time": "2025-04-29 16:00",
+                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
+                      "consumption": "1.16"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6NDQxMjA5Mzg3MTExOmtleS80Yzk3N2IxMi02NDA4LTRhNzktYWIyMy1hZTk0Y2Y0YTFmZjQAuAECAQB4KL0",
+                    "consumption_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/house/consumption/forecast": {
+      "get": {
+        "tags": [
+          "House Consumption"
+        ],
+        "summary": "Get House Consumption Forecast Next 72H",
+        "description": "Get the aggregated consumption forecast for all NOX connected houses assosciated with your energy supplier account in kWh for the next 72h with granularity of 15min. \n\n This forecast is done everyday at 10:00 am CET/CEST.",
+        "operationId": "get_house_consumption_forecast_next_72h_v1_house_consumption_forecast_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get House Consumption Forecast Next 72H V1 House Consumption Forecast Get"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "forecast_time": "2025-04-30 08:15",
+                      "consumption": "24116.25"
+                    },
+                    {
+                      "forecast_time": "2025-04-30 08:30",
+                      "consumption": "19407.76"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
+                    "consumption_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/house/consumption/forecast/historical": {
+      "get": {
+        "tags": [
+          "House Consumption"
+        ],
+        "summary": "Get House Consumption Forecast Historical",
+        "description": "Get the aggregated historical consumption forecast for all NOX connected houses assosciated with your energy supplier account in kWh for the next 72h with granularity of 15min. \n\n New forecasst are added everyday at 10:00 am CET/CEST. \n\n Note that the start and end time refer to the time when the forecasts were generated.",
+        "operationId": "get_house_consumption_forecast_historical_v1_house_consumption_forecast_historical_get",
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nStart time when the forecasts were generated.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "Start Time"
+            },
+            "description": "\nStart time when the forecasts were generated.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nEnd time when the forecasts were generated.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "End Time"
+            },
+            "description": "\nEnd time when the forecasts were generated.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "forecast_generation_timestamp",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, query based on the datetime when the forecast was generated. Additionally,\n the output will include each day's coming 72 hour forecast instead of the 24 hour forecast\n if you would query based on forecast time.\n\nIf `false`, query based on the datetime of the forecast time and\n not when the forecasts were generated. You query based on for what time the consumption forecast is predicting.\n\n\n\n**Note**: If `false`, the output will not include the forecast for the coming 3 days.\n          But it could include the forecast of the current day if queried on current day.\n",
+              "default": false,
+              "title": "Forecast Generation Timestamp"
+            },
+            "description": "\nIf `true`, query based on the datetime when the forecast was generated. Additionally,\n the output will include each day's coming 72 hour forecast instead of the 24 hour forecast\n if you would query based on forecast time.\n\nIf `false`, query based on the datetime of the forecast time and\n not when the forecasts were generated. You query based on for what time the consumption forecast is predicting.\n\n\n\n**Note**: If `false`, the output will not include the forecast for the coming 3 days.\n          But it could include the forecast of the current day if queried on current day.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get House Consumption Forecast Historical V1 House Consumption Forecast Historical Get"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "forecast_generation_time": "2025-04-29 08:00",
+                      "forecast_time": "2025-04-29 08:15",
+                      "consumption": "20008.7"
+                    },
+                    {
+                      "forecast_generation_time": "2025-04-29 08:00",
+                      "forecast_time": "2025-04-29 08:30:00",
+                      "consumption": "15755.8"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
+                    "consumption_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/flex/up": {
+      "get": {
+        "tags": [
+          "Flex"
+        ],
+        "summary": "Get Device Flex Up",
+        "description": "Get the current potential flex up data for devices associated with your energy supplier account in kWh. You can execute this flex up in the flex POST endpoints.\n\n Flex up means reducing device consumption or increasing device generation.",
+        "operationId": "get_device_flex_up_v1_flex_up_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "aggregated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, sum the flex of the devices.\n\nIf `false`, return the flex of each device separately.\n",
+              "default": false,
+              "title": "Aggregated"
+            },
+            "description": "\nIf `true`, sum the flex of the devices.\n\nIf `false`, return the flex of each device separately.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n",
+              "title": "Device Id"
+            },
+            "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Device Flex Up V1 Flex Up Get"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
+                      "flex_up": "2.56"
+                    },
+                    {
+                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
+                      "flex_up": "3.58"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
+                    "flex_unit": "kWh"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -60,35 +773,51 @@
         }
       },
       "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
+        "tags": [
+          "Flex"
+        ],
+        "summary": "Execute Flex Up Across Devices",
+        "description": "Execute an amount of flex up across NOX connected devices associated with your energy supplier account in kWh.\n\n Flex up means reducing device consumption or increasing device generation.",
+        "operationId": "execute_flex_up_across_devices_v1_flex_up_post",
+        "parameters": [
+          {
+            "name": "energy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "\nThe amount of energy you want to use for flex in kWh.\n",
+              "default": 0.0,
+              "title": "Energy"
+            },
+            "description": "\nThe amount of energy you want to use for flex in kWh.\n"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Execute Flex Up Across Devices V1 Flex Up Post"
+                },
+                "example": {
+                  "message": "Flex up operation successful across all devices for 500.0 kWh.",
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A"
+                  }
                 }
               }
             }
           },
-          "400": {
-            "description": "unexpected error",
+          "422": {
+            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -96,57 +825,162 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+    "/v1/flex/down": {
+      "get": {
+        "tags": [
+          "Flex"
+        ],
+        "summary": "Get Device Flex Down",
+        "description": "Get the current potential flex down data for devices associated with your energy supplier account in kWh. You can execute this flex down in the flex POST endpoints.\n\n Flex down means increasing device consumption or decreasing device generation.",
+        "operationId": "get_device_flex_down_v1_flex_down_get",
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
+            "name": "limit",
+            "in": "query",
+            "required": false,
             "schema": {
               "type": "integer",
-              "format": "int64"
-            }
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "aggregated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, sum the flex of the devices.\n\nIf `false`, return the flex of each device separately.\n",
+              "default": false,
+              "title": "Aggregated"
+            },
+            "description": "\nIf `true`, sum the flex of the devices.\n\nIf `false`, return the flex of each device separately.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n",
+              "title": "Device Id"
+            },
+            "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n"
           }
         ],
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
+          "200": {
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Device Flex Down V1 Flex Down Get"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
+                      "flex_down": "2.56"
+                    },
+                    {
+                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
+                      "flex_down": "3.58"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
+                    "flex_unit": "kWh"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
           }
         }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
+      },
       "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
+        "tags": [
+          "Flex"
+        ],
+        "summary": "Execute Flex Up Across Devices",
+        "description": "Execute an amount of flex down across NOX connected devices associated with your energy supplier account in kWh.\n\n Flex down means increasing device consumption or decrease device generation.",
+        "operationId": "execute_flex_up_across_devices_v1_flex_down_post",
+        "parameters": [
+          {
+            "name": "energy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "\nThe amount of energy you want to use for flex in kWh.\n",
+              "default": 0.0,
+              "title": "Energy"
+            },
+            "description": "\nThe amount of energy you want to use for flex in kWh.\n"
           }
-        },
+        ],
         "responses": {
           "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Execute Flex Up Across Devices V1 Flex Down Post"
+                },
+                "example": {
+                  "message": "Flex down operation successful across all devices for 500.0 kWh.",
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
           }
         }
       }
@@ -154,64 +988,89 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
+      "HTTPValidationError": {
         "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
           }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+        },
         "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ValidationError": {
         "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
           },
-          "message": {
-            "type": "string"
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
           }
-        }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
       }
     },
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API Key authentication. Enter your API key in the format: YOUR_API_KEY"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Asset Info",
+      "description": "API to get basic information about your assets."
+    },
+    {
+      "name": "Device Consumption",
+      "description": "API to get consumption data of your devices."
+    },
+    {
+      "name": "House Consumption",
+      "description": "API to get consumption data of your house."
+    },
+    {
+      "name": "Flex",
+      "description": "API to get/execute flex on your devices."
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api.sandbox.nox.energy",
+      "description": "Production Sandbox Server"
+    }
+  ]
 }

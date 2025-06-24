@@ -1,0 +1,28 @@
+---
+title: 'Authentication'
+description: 'How to get access to our API'
+---
+
+## Getting an API Key
+
+If you want to be able to call our API's, you will need to request an API key
+from our [support email: support@nox.energy](mailto:support@nox.energy) .
+
+<Warning>
+Make sure to keep your API key secure and never expose it in client-side code or public repositories.
+If it does get exposed. Contact us as quickly as possible.
+</Warning>
+
+## Using the API key
+
+Include the API key in your API calls with the header:
+```json
+x-api-key: YOUR_API_KEY
+```
+
+If you want to test the API using the UI of the documentation website, add it in the `x-api-key` field in
+ the `Authorization` dropdown when you clicked on `Try it ►`.  
+Without a valid API key, your requests will be rejected.
+
+Base URL Sandbox: https://api.sandbox.nox.energy  
+Base URL Production: https://api.nox.energy
