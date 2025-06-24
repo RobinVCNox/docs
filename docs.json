@@ -16,8 +16,8 @@
           {
             "group": "Get Started",
             "pages": [
-              "get-started/introduction",
-              "get-started/get-started"
+              "guides/introduction",
+              "guides/get-started"
             ]
           }
         ]
@@ -75,8 +75,8 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.nox.energy/"
+      "label": "Dashboard Demo",
+      "href": "https://nox-supplier.vercel.app/"
     }
   },
   "footer": {
