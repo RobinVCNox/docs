@@ -461,7 +461,7 @@
           "House Consumption"
         ],
         "summary": "Get House Consumption Forecast Next 72H",
-        "description": "Get the aggregated/individual consumption forecast for all/specific NOX connected houses assosciated with your energy supplier account in kW for the next 72h with starting from midnight 00:00 CET/CEST granularity of 15min. \n\n This forecast is done everyday at 9:45 am CET/CEST.",
+        "description": "Get the aggregated/individual consumption forecast for all/specific NOX connected houses assosciated with your energy supplier account in kWh for the next 72h with starting from midnight 00:00 CET/CEST granularity of 15min. \n\n This forecast is done everyday at 9:45 am CET/CEST.",
         "operationId": "get_house_consumption_forecast_next_72h_v1_house_consumption_forecast_get",
         "parameters": [
           {
@@ -539,7 +539,7 @@
                   "meta": {
                     "energy_supplier": "Energy Supplier A",
                     "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
-                    "consumption_unit": "kW",
+                    "consumption_unit": "kWh",
                     "granularity": "15min",
                     "output_timezone": "UTC",
                     "house_id": "12345"
@@ -567,7 +567,7 @@
           "House Consumption"
         ],
         "summary": "Get House Consumption Forecast Historical",
-        "description": "Get the aggregated/individual historical consumption forecast for all/specific NOX connected houses assosciated with your energy supplier account in kW with a granularity of 15min. \n\n New forecasst are added everyday at 9:45 am CET/CEST. \n\n Note that the start and end time refer to the time when the forecasts were generated.",
+        "description": "Get the aggregated/individual historical consumption forecast for all/specific NOX connected houses assosciated with your energy supplier account in kWh with a granularity of 15min. \n\n New forecasst are added everyday at 9:45 am CET/CEST. \n\n Note that the start and end time refer to the time when the forecasts were generated.",
         "operationId": "get_house_consumption_forecast_historical_v1_house_consumption_forecast_historical_get",
         "parameters": [
           {
@@ -681,7 +681,7 @@
                   "meta": {
                     "energy_supplier": "Energy Supplier A",
                     "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
-                    "consumption_unit": "kW",
+                    "consumption_unit": "kWh",
                     "granularity": "15min",
                     "output_timezone": "UTC",
                     "house_id": "12345"
