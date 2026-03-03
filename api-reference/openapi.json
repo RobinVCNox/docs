@@ -1,8 +1,8 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "NOX Energy API Sandbox",
-    "description": "\n\nAuthentication:\n\n1. Get your API key from [Nox Energy](mailto:support@nox.energy).\n2. Include the API key in your API calls with the header: x-api-key: YOUR_API_KEY.\nIf you want to test the API using the UI, add it in the lock icon in the top right corner.\n\nWithout a valid API key, your requests will be rejected.\n\nBase URL:  [https://api.sandbox.nox.energy](https://api.sandbox.nox.energy)\n",
+    "title": "NOX Energy API",
+    "description": "\n\nAuthentication:\n\n1. Get your API key from [Nox Energy](mailto:support@nox.energy).\n2. Include the API key in your API calls with the header: x-api-key: YOUR_API_KEY.\nIf you want to test the API using the UI, add it in the lock icon in the top right corner.\n\nWithout a valid API key, your requests will be rejected.\n\nBase URL:  [https://api.nox.energy](https://api.nox.energy)\n",
     "version": "1.0.0"
   },
   "paths": {
@@ -12,8 +12,1303 @@
           "Asset Info"
         ],
         "summary": "Get Devices",
-        "description": "Get information about all NOX connected devices associated with your energy supplier account.",
+        "description": "Get information about all NOX connected devices associated with your energy supplier account. If you want to know the response structure or possible enum values, like steerable reasons, you can check it in the response model `schema`.",
         "operationId": "get_devices_v1_devices_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 4000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "steerable_status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, return only data related to the device's current steerable status.\n\nIf `false` or not given, return all available device data including its status.\n",
+              "default": false,
+              "title": "Steerable Status"
+            },
+            "description": "\nIf `true`, return only data related to the device's current steerable status.\n\nIf `false` or not given, return all available device data including its status.\n"
+          },
+          {
+            "name": "steering_enabled",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, return only data related to the device's which has `steering_enabled` = `true`.\n\nIf `false` or not given, do not filter on `steering_enabled` field.\n",
+              "default": false,
+              "title": "Steering Enabled"
+            },
+            "description": "\nIf `true`, return only data related to the device's which has `steering_enabled` = `true`.\n\nIf `false` or not given, do not filter on `steering_enabled` field.\n"
+          },
+          {
+            "name": "steerable",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, return only data related to the device's which has `steerable` = `true`.\n\nIf `false` or not given, do not filter on `steerable` field.\n",
+              "default": false,
+              "title": "Steerable"
+            },
+            "description": "\nIf `true`, return only data related to the device's which has `steerable` = `true`.\n\nIf `false` or not given, do not filter on `steerable` field.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n",
+              "title": "Device Id"
+            },
+            "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe ID of the user to filter on. If not provided, all users are returned.\n",
+              "title": "User Id"
+            },
+            "description": "\nThe ID of the user to filter on. If not provided, all users are returned.\n"
+          },
+          {
+            "name": "needs_reauthentication",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nIf `True`, filter devices that need reauthentication.\n",
+              "default": false,
+              "title": "Needs Reauthentication"
+            },
+            "description": "\nIf `True`, filter devices that need reauthentication.\n"
+          },
+          {
+            "name": "learning_period_ended",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nIf `True`, filter devices for which the learning period of gathering data has ended. \n\nIf `False`, filter devices for which the learning period of gathering data has not ended. \n\nIf `None`, do not filter based on learning period status. \n\n",
+              "title": "Learning Period Ended"
+            },
+            "description": "\nIf `True`, filter devices for which the learning period of gathering data has ended. \n\nIf `False`, filter devices for which the learning period of gathering data has not ended. \n\nIf `None`, do not filter based on learning period status. \n\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response for thermal-control API",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DevicesResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "model": "model_g",
+                      "brand": "nibe",
+                      "country": "BE",
+                      "device_id": "01a5c222-5b76-4531-b587-5deeb81a3db3",
+                      "user_id": "user_4",
+                      "device_type": "heat_pump",
+                      "legionella_config": {
+                        "frequency_per_weeks": 1,
+                        "capacity": 20,
+                        "duration_minutes": 60
+                      },
+                      "cycle_config": {
+                        "max_cycles_per_day": 8
+                      },
+                      "steerable_status": {
+                        "steering_enabled": true,
+                        "steerable": true,
+                        "DHW": {
+                          "can_activate_action": true,
+                          "in_active_action": false,
+                          "reason": "Device is ready to receive an action."
+                        },
+                        "room": {
+                          "can_activate_action": true,
+                          "in_active_action": false,
+                          "reason": "Device is ready to receive an action."
+                        }
+                      },
+                      "needs_reauthentication": false
+                    },
+                    {
+                      "model": "model_b",
+                      "brand": "nibe",
+                      "device_id": "01bbbaab-159a-4898-bcba-d81acdb2353c",
+                      "user_id": "user_5",
+                      "device_type": "heat_pump",
+                      "legionella_config": {
+                        "frequency_per_weeks": 2,
+                        "capacity": 20,
+                        "duration_minutes": 60
+                      },
+                      "cycle_config": {
+                        "max_cycles_per_day": 6
+                      },
+                      "steerable_status": {
+                        "steering_enabled": true,
+                        "steerable": true,
+                        "DHW": {
+                          "can_activate_action": true,
+                          "in_active_action": false,
+                          "reason": "Device is ready to receive an action."
+                        },
+                        "room": {
+                          "can_activate_action": true,
+                          "in_active_action": false,
+                          "reason": "Device is ready to receive an action."
+                        }
+                      },
+                      "needs_reauthentication": false
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "capacity_unit": "kWh",
+                    "next_token": "eyJkZXZpY2VfaWQiOiAiMDFiYmJhYWItMTU5YS00ODk4LWJjYmEtZDgxYWNkYjIzNTNjIiwgImVuZXJneV9zdXBwbGllciI6ICJFbmVyZ3kgU3VwcGxpZXIgQSJ9"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/device/consumption/forecast/historical": {
+      "get": {
+        "tags": [
+          "Device Consumption"
+        ],
+        "summary": "Get Device Consumption Forecast Historical",
+        "description": "Get the forecasted consumption for devices associated with your energy supplier account in kWh for a specific timeframe with 15min granularity.\n\n This forecast is done everyday at a fixed time depending on supplier.\n\n The timestamp refers to the data that will happenin the next 15 minutes after the timestamp.",
+        "operationId": "get_device_consumption_forecast_historical_v1_device_consumption_forecast_historical_get",
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nStart time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "Start Time"
+            },
+            "description": "\nStart time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nEnd time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "End Time"
+            },
+            "description": "\nEnd time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "aggregated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n",
+              "default": false,
+              "title": "Aggregated"
+            },
+            "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n",
+              "title": "Device Id"
+            },
+            "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Device Consumption Forecast Historical V1 Device Consumption Forecast Historical Get"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "forecast_time": "2025-05-01 07:45",
+                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
+                      "consumption": "2.61",
+                      "supplier_user_id": "1234"
+                    },
+                    {
+                      "forecast_time": "2025-05-01 07:45",
+                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
+                      "consumption": "1.75",
+                      "supplier_user_id": "12345"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
+                    "consumption_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/device/typical-consumption/historical": {
+      "get": {
+        "tags": [
+          "Device Consumption"
+        ],
+        "summary": "Get Device Typical Consumption Historical",
+        "description": "Get the typical consumption for devices associated with your energy supplier account in kWh for a specific timeframe with 15min granularity.\n\n This estimation is done everyday at a fixed time depending on supplier.\n\n The timestamp refers to the data that will happenin the next 15 minutes after the timestamp.",
+        "operationId": "get_device_typical_consumption_historical_v1_device_typical_consumption_historical_get",
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nStart time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "Start Time"
+            },
+            "description": "\nStart time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nEnd time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "End Time"
+            },
+            "description": "\nEnd time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "aggregated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n",
+              "default": false,
+              "title": "Aggregated"
+            },
+            "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n",
+              "title": "Device Id"
+            },
+            "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Device Typical Consumption Historical V1 Device Typical Consumption Historical Get"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "typical_consumption_time": "2025-04-29 16:00",
+                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
+                      "consumption": "2.88",
+                      "supplier_user_id": "1234"
+                    },
+                    {
+                      "typical_consumption_time": "2025-04-29 16:00",
+                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
+                      "consumption": "1.16",
+                      "supplier_user_id": "1234"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6NDQxMjA5Mzg3MTExOmtleS80Yzk3N2IxMi02NDA4LTRhNzktYWIyMy1hZTk0Y2Y0YTFmZjQAuAECAQB4KL0",
+                    "consumption_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/device/thermal-control/forecast": {
+      "get": {
+        "tags": [
+          "Thermal Control"
+        ],
+        "summary": "Get Thermal Control Forecast",
+        "description": "Get forecast data for 72h after it's daily generation time. New forecasts are updated every day at a specific time depending on supplier.\n\n The timestamp refers to the data that will happenin the next 15 minutes after the timestamp.",
+        "operationId": "get_thermal_control_forecast_v1_device_thermal_control_forecast_get",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nThe ID of the device.\n",
+              "title": "Device Id"
+            },
+            "description": "\nThe ID of the device.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "data": {
+                    "device_id": "HP123456",
+                    "forecasts": [
+                      {
+                        "timestamp": "2025-01-15 10:30:00",
+                        "tank": {
+                          "upperbound_Z": 4.5,
+                          "lowerbound_X": 1.5,
+                          "Y_avg": 2.3,
+                          "Q_loss": 0.1,
+                          "Q_gain": [
+                            1.2,
+                            1.3,
+                            1.4,
+                            1.5
+                          ],
+                          "P_if_activated": [
+                            0.5,
+                            1.0,
+                            1.5,
+                            2.0
+                          ],
+                          "tank_activation_limit": 49.80517352152737,
+                          "tank_activation_limit_temp": 53.0
+                        },
+                        "house": {
+                          "upperbound_Z": 8.5,
+                          "lowerbound_X": 2.0,
+                          "Y_avg": 4.3,
+                          "Y_ideal": 4.0,
+                          "Q_natural": 0.2,
+                          "Q_heating": [
+                            0.5,
+                            0.7,
+                            0.9,
+                            1.0,
+                            1.2,
+                            1.5,
+                            1.7,
+                            2.0
+                          ],
+                          "Q_cooling": [
+                            0.1,
+                            0.2,
+                            0.3,
+                            0.4,
+                            0.5,
+                            0.6,
+                            0.7,
+                            0.8
+                          ],
+                          "P_heating": [
+                            0.5,
+                            0.7,
+                            0.9,
+                            1.0,
+                            1.2,
+                            1.5,
+                            1.7,
+                            2.0
+                          ],
+                          "P_cooling": [
+                            0.1,
+                            0.2,
+                            0.3,
+                            0.4,
+                            0.5,
+                            0.6,
+                            0.7,
+                            0.8
+                          ]
+                        }
+                      },
+                      {
+                        "timestamp": "2025-01-15 10:45:00",
+                        "tank": {
+                          "upperbound_Z": 3.5,
+                          "lowerbound_X": 0.5,
+                          "Y_avg": 2.2,
+                          "Y_ideal": 2.0,
+                          "Q_loss": 0.3,
+                          "Q_gain": [
+                            1.2,
+                            1.2,
+                            1.4,
+                            1.5
+                          ],
+                          "P_if_activated": [
+                            0.5,
+                            1.5,
+                            1.5,
+                            2.0
+                          ],
+                          "tank_activation_limit": 49.80517352152737,
+                          "tank_activation_limit_temp": 53.0
+                        },
+                        "house": {
+                          "upperbound_Z": 4.5,
+                          "lowerbound_X": 3.0,
+                          "Y_avg": 1.3,
+                          "Q_natural": 0.2,
+                          "Q_heating": [
+                            0.5,
+                            0.7,
+                            0.9,
+                            1.0,
+                            1.2,
+                            1.5,
+                            1.7,
+                            2.0
+                          ],
+                          "Q_cooling": [
+                            0.1,
+                            0.2,
+                            0.3,
+                            0.4,
+                            0.5,
+                            0.6,
+                            0.7,
+                            0.8
+                          ],
+                          "P_heating": [
+                            0.5,
+                            0.7,
+                            0.9,
+                            1.0,
+                            1.2,
+                            1.5,
+                            1.7,
+                            2.0
+                          ],
+                          "P_cooling": [
+                            0.1,
+                            0.2,
+                            0.3,
+                            0.4,
+                            0.5,
+                            0.6,
+                            0.7,
+                            0.8
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "forecast_generation_date": "2025-01-14",
+                    "forecast_generation_date_time_zone": "UTC",
+                    "timestamp_time_zone": "UTC",
+                    "tank_upperbound_Z_unit": "kWh",
+                    "tank_lowerbound_X_unit": "kWh",
+                    "tank_Y_avg_unit": "kWh",
+                    "tank_Q_loss_unit": "kW",
+                    "tank_Q_gain_unit": "kW",
+                    "tank_P_if_activated_unit": "kW",
+                    "house_upperbound_Z_unit": "kWh",
+                    "house_lowerbound_X_unit": "kWh",
+                    "house_Y_avg_unit": "kWh",
+                    "house_Q_natural_unit": "kW",
+                    "house_Q_heating_unit": "kW",
+                    "house_Q_cooling_unit": "kW",
+                    "house_P_heating_unit": "kW",
+                    "house_P_cooling_unit": "kW",
+                    "tank_activation_limits_unit": "kWh",
+                    "tank_activation_limit_temp_unit": "°C",
+                    "energy_supplier": "Energy Supplier A"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/device/thermal-control/current-state": {
+      "get": {
+        "tags": [
+          "Thermal Control"
+        ],
+        "summary": "Get Thermal Control Current State",
+        "description": "Get current state data for a specific device.\n\n The timestamp refers to the data that will happenin the next 15 minutes after the timestamp.",
+        "operationId": "get_thermal_control_current_state_v1_device_thermal_control_current_state_get",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nThe ID of the device.\n",
+              "title": "Device Id"
+            },
+            "description": "\nThe ID of the device.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "data": {
+                    "device_id": "HP123456",
+                    "timestamp": "2025-01-15 10:30:00",
+                    "tank": {
+                      "Y": 3.2,
+                      "DHW_temperature": 55.5,
+                      "Q_loss": 0.5,
+                      "Q_gain": [
+                        1.8,
+                        1.6,
+                        1.2,
+                        1.0
+                      ],
+                      "P": [
+                        1.5,
+                        1.0,
+                        0.5,
+                        0.1
+                      ]
+                    },
+                    "house": {
+                      "Y": 2.1,
+                      "space_temperature": 20.5,
+                      "Q_natural": 0.2,
+                      "Q_heating": [
+                        0.5,
+                        0.7,
+                        0.9,
+                        1.0,
+                        1.2,
+                        1.5,
+                        1.7,
+                        2.0
+                      ],
+                      "Q_cooling": [
+                        0.1,
+                        0.2,
+                        0.3,
+                        0.4,
+                        0.5,
+                        0.6,
+                        0.7,
+                        0.8
+                      ],
+                      "P_heating": [
+                        0.5,
+                        0.7,
+                        0.9,
+                        1.0,
+                        1.2,
+                        1.5,
+                        1.7,
+                        2.0
+                      ],
+                      "P_cooling": [
+                        0.1,
+                        0.2,
+                        0.3,
+                        0.4,
+                        0.5,
+                        0.6,
+                        0.7,
+                        0.8
+                      ]
+                    }
+                  },
+                  "meta": {
+                    "timestamp_time_zone": "UTC",
+                    "temperature_unit": "°C",
+                    "tank_Y_unit": "kWh",
+                    "tank_Q_loss_unit": "kW",
+                    "tank_Q_gain_unit": "kW",
+                    "tank_P_unit": "kW",
+                    "house_Y_unit": "kWh",
+                    "house_Q_natural_unit": "kW",
+                    "house_Q_heating_unit": "kW",
+                    "house_Q_cooling_unit": "kW",
+                    "house_P_heating_unit": "kW",
+                    "house_P_cooling_unit": "kW",
+                    "energy_supplier": "Energy Supplier A"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/device/thermal-control/schedule": {
+      "post": {
+        "tags": [
+          "Thermal Control"
+        ],
+        "summary": "Submit Thermal Control Schedule",
+        "description": "Submit a steering schedule starting from the next quarter-hour for the 24hours thereafter. (= 96 15min intervals)\n Example: You submit at 10:07, the schedule will start at 10:15 and end at 10:00 the next day.\n You can provide a timestamp in the future to start the schedule at a later time.\n If the timestamp is exactly in a quarter hour timestamp in the future from now.\n It will start from there and not convert it to the next quarter hour.\n If you don't provide a timestamp, the schedule will start at the next quarter-hour.\n Only update the schedule if you want to change it or provide a new one.\n \n\n Timestamp in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n**NOTE**: \n * The heat pump is not allowed to heat domestic hot water tank for more than 1 hour continuously.\n\n * If temperatures of the house or tank go outside the comfort bounds, we trigger a failsafe\n to heat/cool up until the comfort bounds are reached again. These comfort bounds depend on whether a schedule exists for this heat pump or not.\n For tank heating if a schedule exists, the comfort bound will be triggered around 42 degrees. If no schedule exists,\n it will be triggered around the default setpoint the user had before we started steering his heat pump. Usually\n this is around 50 degrees.\n\n * If the tank temperature reaches above it's max allowed temperature we forcefully stop the heating process.",
+        "operationId": "submit_thermal_control_schedule_v1_device_thermal_control_schedule_post",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Request Body"
+              },
+              "examples": {
+                "schedule_example": {
+                  "summary": "Sample thermal control schedule",
+                  "value": {
+                    "device_id": "HP123456",
+                    "timestamp": "2025-08-05T10:15:00Z",
+                    "house_heating": [
+                      true,
+                      false,
+                      false,
+                      true,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false
+                    ],
+                    "house_cooling": [
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false
+                    ],
+                    "tank": [
+                      false,
+                      false,
+                      true,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false,
+                      false
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Schedule submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "status": "success",
+                  "message": "Steering schedule accepted for HP123456",
+                  "meta": {
+                    "timestamp": "2025-01-15T10:30:00Z",
+                    "schedule_interval": "15min",
+                    "schedule_duration": "96 intervals (24 hours)",
+                    "energy_supplier": "Energy Supplier A"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Missing required fields: device_id, timestamp, house_heating, house_cooling, tank"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/manufacturer/settings": {
+      "post": {
+        "tags": [
+          "Manufacturer Control"
+        ],
+        "summary": "Submit Manufacturer Settings",
+        "description": "Update on a user/device level the manufacturer settings.\n\n You can change the following settings:\n\n * The lower and upper comfort temperature bounds for domestic hot water heating in degrees celcius.\n\n * Change optimization settings.\n\n * The country code and the postal code",
+        "operationId": "submit_manufacturer_settings_v1_manufacturer_settings_post",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Request Body"
+              },
+              "examples": {
+                "settings_example": {
+                  "summary": "Example of optimization settings submission",
+                  "value": {
+                    "device_id": "123",
+                    "dhw": {
+                      "temperature_upper_bound": 40,
+                      "temperature_lower_bound": 50
+                    },
+                    "optimization_settings": {
+                      "pv_self_consumption": true,
+                      "dynamic_tariff": true,
+                      "flex_trading": false
+                    },
+                    "location": {
+                      "country": "BE"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Submit Manufacturer Settings V1 Manufacturer Settings Post"
+                },
+                "example": {
+                  "status": "success",
+                  "message": "Settings updated successfully.",
+                  "meta": {
+                    "manufacturer": "Manufacturer A"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/manufacturer/devices": {
+      "get": {
+        "tags": [
+          "Asset Info"
+        ],
+        "summary": "Get Manufacturer Devices",
+        "description": "Get information about all NOX connected devices\n associated with your manufacturer account.",
+        "operationId": "get_manufacturer_devices_v1_manufacturer_devices_get",
         "parameters": [
           {
             "name": "limit",
@@ -46,39 +1341,70 @@
               "title": "Next Token"
             },
             "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n",
+              "title": "Device Id"
+            },
+            "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n"
           }
         ],
         "responses": {
           "200": {
-            "description": "Successful response",
+            "description": "Successful response for thermal-control API",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "additionalProperties": true,
-                  "title": "Response Get Devices V1 Devices Get"
+                  "title": "Response Get Manufacturer Devices V1 Manufacturer Devices Get"
                 },
                 "example": {
                   "data": [
                     {
-                      "model": "model_g",
-                      "brand": "nibe",
-                      "device_id": "01a5c222-5b76-4531-b587-5deeb81a3db3",
-                      "user_id": "user_4",
-                      "device_capacity": "1.33"
+                      "device_id": "device_id_123",
+                      "energy_supplier": "Energy Supplier A",
+                      "dhw": {
+                        "temperature_upper_bound": 40,
+                        "temperature_lower_bound": 50
+                      },
+                      "optimization_settings": {
+                        "pv_self_consumption": true,
+                        "dynamic_tariff": true,
+                        "flex_trading": false
+                      },
+                      "country": "BE"
                     },
                     {
-                      "model": "model_b",
-                      "brand": "nibe",
-                      "device_id": "01bbbaab-159a-4898-bcba-d81acdb2353c",
-                      "user_id": "user_5",
-                      "device_capacity": "0.4"
+                      "device_id": "device_id_456",
+                      "energy_supplier": "Energy Supplier B",
+                      "dhw": {
+                        "temperature_upper_bound": 45,
+                        "temperature_lower_bound": 55
+                      },
+                      "optimization_settings": {
+                        "pv_self_consumption": false,
+                        "dynamic_tariff": false,
+                        "flex_trading": true
+                      },
+                      "country": "NL"
                     }
                   ],
                   "meta": {
-                    "energy_supplier": "Energy Supplier A",
-                    "next_token": "eyJkZXZpY2VfaWQiOiAiMDFiYmJhYWItMTU5YS00ODk4LWJjYmEtZDgxYWNkYjIzNTNjIiwgImVuZXJneV9zdXBwbGllciI6ICJFbmVyZ3kgU3VwcGxpZXIgQSJ9",
-                    "device_capacity_unit": "kW"
+                    "manufacturer": "Manufacturer A",
+                    "next_token": "123556777"
                   }
                 }
               }
@@ -97,183 +1423,46 @@
         }
       }
     },
-    "/v1/device/consumption/forecast/15min": {
-      "get": {
+    "/v1/device/thermal-control/settings": {
+      "post": {
         "tags": [
-          "Device Consumption"
+          "Thermal Control"
         ],
-        "summary": "Get Device Consumption Forecast Next 15Min",
-        "description": "Get the forecasted consumption for devices associated with your energy supplier account in kWh for the next 15min.",
-        "operationId": "get_device_consumption_forecast_next_15min_v1_device_consumption_forecast_15min_get",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
-              "default": 1000,
-              "title": "Limit"
-            },
-            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
-          },
-          {
-            "name": "next_token",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
-              "title": "Next Token"
-            },
-            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
-          },
-          {
-            "name": "aggregated",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n",
-              "default": false,
-              "title": "Aggregated"
-            },
-            "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n"
-          },
-          {
-            "name": "device_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n",
-              "title": "Device Id"
-            },
-            "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Get Device Consumption Forecast Next 15Min V1 Device Consumption Forecast 15Min Get"
-                },
-                "example": {
-                  "data": [
-                    {
-                      "forecast_time": "2025-04-30 23:15",
-                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
-                      "consumption": "2.56"
+        "summary": "Submit Thermal Control Settings",
+        "description": "Update on a device or user level the device/user settings. If you want to update a setting on a device level, provide the device_id along with the user_id.\n\n You can change the following settings:\n\n * The lower and upper comfort temperature bounds of\n end users/devices in degrees celcius.\n\n * Enable/Disable steering in boolean.\n\n * The country code and the postal code",
+        "operationId": "submit_thermal_control_settings_v1_device_thermal_control_settings_post",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Request Body"
+              },
+              "examples": {
+                "settings_example": {
+                  "summary": "Example of thermal control settings submission",
+                  "value": {
+                    "user_id": "01910947a-fab9-450e-b5ac-48e9c4f3e725",
+                    "room": {
+                      "temperature_upper_bound": 1.0,
+                      "temperature_lower_bound": 1.5
                     },
-                    {
-                      "forecast_time": "2025-04-30 23:15",
-                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
-                      "consumption": "3.58"
+                    "steering_enabled": {
+                      "heat_pump": true
+                    },
+                    "location": {
+                      "country": "BE",
+                      "postal_code": "3500"
                     }
-                  ],
-                  "meta": {
-                    "energy_supplier": "Energy Supplier A",
-                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
-                    "consumption_unit": "kWh",
-                    "granularity": "15min",
-                    "output_timezone": "UTC"
                   }
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
-      }
-    },
-    "/v1/device/consumption/forecast/24h": {
-      "get": {
-        "tags": [
-          "Device Consumption"
-        ],
-        "summary": "Get Device Consumption Forecast Next 24H",
-        "description": "Get the forecasted consumption for devices associated with your energy supplier account in kWh for the next 24hours with 15min granularity.\n\n This forecast is done everyday at 9:30 am CET/CEST.",
-        "operationId": "get_device_consumption_forecast_next_24h_v1_device_consumption_forecast_24h_get",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
-              "default": 1000,
-              "title": "Limit"
-            },
-            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
-          },
-          {
-            "name": "next_token",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
-              "title": "Next Token"
-            },
-            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
-          },
-          {
-            "name": "aggregated",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n",
-              "default": false,
-              "title": "Aggregated"
-            },
-            "description": "\nIf `true`, sum the consumption of the devices.\n\nIf `false`, return the consumption of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n"
-          },
-          {
-            "name": "device_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n",
-              "title": "Device Id"
-            },
-            "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n"
-          }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Successful response",
@@ -282,27 +1471,13 @@
                 "schema": {
                   "type": "object",
                   "additionalProperties": true,
-                  "title": "Response Get Device Consumption Forecast Next 24H V1 Device Consumption Forecast 24H Get"
+                  "title": "Response Submit Thermal Control Settings V1 Device Thermal Control Settings Post"
                 },
                 "example": {
-                  "data": [
-                    {
-                      "forecast_time": "2025-05-01 07:45",
-                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
-                      "consumption": "2.61"
-                    },
-                    {
-                      "forecast_time": "2025-05-01 07:45",
-                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
-                      "consumption": "1.75"
-                    }
-                  ],
+                  "status": "success",
+                  "message": "Settings updated successfully.",
                   "meta": {
-                    "energy_supplier": "Energy Supplier A",
-                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
-                    "consumption_unit": "kWh",
-                    "granularity": "15min",
-                    "output_timezone": "UTC"
+                    "energy_supplier": "Energy Supplier A"
                   }
                 }
               }
@@ -327,7 +1502,7 @@
           "Device Consumption"
         ],
         "summary": "Get Device Consumption Historical",
-        "description": "Get the measured historical consumption data for devices associated with your energy supplier account in kWh for a specific timeframe in 15min granularity.",
+        "description": "Get the measured historical consumption data for devices associated with your energy supplier account in kWh for a specific timeframe in 15min granularity.\n\n Our example timeframe might be outside this range.\n\n The timestamp refers to the data that will happenin the next 15 minutes after the timestamp.",
         "operationId": "get_device_consumption_historical_v1_device_consumption_historical_get",
         "parameters": [
           {
@@ -423,12 +1598,14 @@
                     {
                       "measurement_time": "2025-04-29 16:00",
                       "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
-                      "consumption": "2.88"
+                      "consumption": "2.88",
+                      "supplier_user_id": "1234"
                     },
                     {
                       "measurement_time": "2025-04-29 16:00",
                       "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
-                      "consumption": "1.16"
+                      "consumption": "1.16",
+                      "supplier_user_id": "12345"
                     }
                   ],
                   "meta": {
@@ -455,204 +1632,25 @@
         }
       }
     },
-    "/v1/house/consumption/forecast": {
-      "get": {
+    "/v1/user": {
+      "delete": {
         "tags": [
-          "House Consumption"
+          "User Management"
         ],
-        "summary": "Get House Consumption Forecast Next 72H",
-        "description": "Get the aggregated/individual consumption forecast for all/specific NOX connected houses assosciated with your energy supplier account in kWh for the next 72h with starting from midnight 00:00 CET/CEST granularity of 15min. \n\n This forecast is done everyday at 9:45 am CET/CEST.",
-        "operationId": "get_house_consumption_forecast_next_72h_v1_house_consumption_forecast_get",
+        "summary": "Delete User",
+        "description": "Delete all data and connections associated to the user and the energy supplier. Some delete operations might be delayed by 1 day.",
+        "operationId": "delete_user_v1_user_delete",
         "parameters": [
           {
-            "name": "house_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "\nThe ID of the house to get the forecast for.\nIf not provided, the aggregated forecast for all houses is returned.\n",
-              "title": "House Id"
-            },
-            "description": "\nThe ID of the house to get the forecast for.\nIf not provided, the aggregated forecast for all houses is returned.\n"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
-              "default": 1000,
-              "title": "Limit"
-            },
-            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
-          },
-          {
-            "name": "next_token",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
-              "title": "Next Token"
-            },
-            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Get House Consumption Forecast Next 72H V1 House Consumption Forecast Get"
-                },
-                "example": {
-                  "data": [
-                    {
-                      "forecast_time": "2025-04-30 08:15",
-                      "consumption": "24116.25"
-                    },
-                    {
-                      "forecast_time": "2025-04-30 08:30",
-                      "consumption": "19407.76"
-                    }
-                  ],
-                  "meta": {
-                    "energy_supplier": "Energy Supplier A",
-                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
-                    "consumption_unit": "kWh",
-                    "granularity": "15min",
-                    "output_timezone": "UTC",
-                    "house_id": "12345"
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/house/consumption/forecast/historical": {
-      "get": {
-        "tags": [
-          "House Consumption"
-        ],
-        "summary": "Get House Consumption Forecast Historical",
-        "description": "Get the aggregated/individual historical consumption forecast for all/specific NOX connected houses assosciated with your energy supplier account in kWh with a granularity of 15min. \n\n New forecasst are added everyday at 9:45 am CET/CEST. \n\n Note that the start and end time refer to the time when the forecasts were generated.",
-        "operationId": "get_house_consumption_forecast_historical_v1_house_consumption_forecast_historical_get",
-        "parameters": [
-          {
-            "name": "start_time",
+            "name": "user_id",
             "in": "query",
             "required": true,
             "schema": {
               "type": "string",
-              "description": "\nStart time when the forecasts were generated.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
-              "title": "Start Time"
+              "description": "\nNox User ID of the user to delete all associated data for.\n",
+              "title": "User Id"
             },
-            "description": "\nStart time when the forecasts were generated.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
-          },
-          {
-            "name": "end_time",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "description": "\nEnd time when the forecasts were generated.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
-              "title": "End Time"
-            },
-            "description": "\nEnd time when the forecasts were generated.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
-          },
-          {
-            "name": "house_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "\nThe ID of the house to get the forecast for.\nIf not provided, the aggregated forecast for all houses is returned.\n",
-              "title": "House Id"
-            },
-            "description": "\nThe ID of the house to get the forecast for.\nIf not provided, the aggregated forecast for all houses is returned.\n"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
-              "default": 1000,
-              "title": "Limit"
-            },
-            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
-          },
-          {
-            "name": "forecast_generation_timestamp",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "\nIf `true`, query based on the datetime when the forecast was generated. Additionally,\n the output will include each day's coming 72 hour forecast starting from midnight 00:00 CET/CEST instead of the 24 hour forecast\n if you would query based on forecast time.\n\nIf `false`, query based on the datetime of the forecast time and\n not when the forecasts were generated. You query based on for what time the consumption forecast is predicting.\n\n\n\n**Note**: If `false`, the output will not include the forecast for the coming 3 days.\n          But it could include the forecast of the current day if queried on current day.\n",
-              "default": false,
-              "title": "Forecast Generation Timestamp"
-            },
-            "description": "\nIf `true`, query based on the datetime when the forecast was generated. Additionally,\n the output will include each day's coming 72 hour forecast starting from midnight 00:00 CET/CEST instead of the 24 hour forecast\n if you would query based on forecast time.\n\nIf `false`, query based on the datetime of the forecast time and\n not when the forecasts were generated. You query based on for what time the consumption forecast is predicting.\n\n\n\n**Note**: If `false`, the output will not include the forecast for the coming 3 days.\n          But it could include the forecast of the current day if queried on current day.\n"
-          },
-          {
-            "name": "next_token",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
-              "title": "Next Token"
-            },
-            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+            "description": "\nNox User ID of the user to delete all associated data for.\n"
           }
         ],
         "responses": {
@@ -663,348 +1661,15 @@
                 "schema": {
                   "type": "object",
                   "additionalProperties": true,
-                  "title": "Response Get House Consumption Forecast Historical V1 House Consumption Forecast Historical Get"
+                  "title": "Response Delete User V1 User Delete"
                 },
                 "example": {
-                  "data": [
-                    {
-                      "forecast_generation_time": "2025-04-29 08:00",
-                      "forecast_time": "2025-04-29 08:15",
-                      "consumption": "20008.7"
-                    },
-                    {
-                      "forecast_generation_time": "2025-04-29 08:00",
-                      "forecast_time": "2025-04-29 08:30:00",
-                      "consumption": "15755.8"
-                    }
-                  ],
+                  "status": "success",
+                  "message": "User 1234578 deleted successfully.",
                   "meta": {
-                    "energy_supplier": "Energy Supplier A",
-                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
-                    "consumption_unit": "kWh",
-                    "granularity": "15min",
-                    "output_timezone": "UTC",
-                    "house_id": "12345"
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/flex/up": {
-      "get": {
-        "tags": [
-          "Flex"
-        ],
-        "summary": "Get Device Flex Up",
-        "description": "Get the current potential flex up data for devices associated with your energy supplier account in kWh. You can execute this flex up in the flex POST endpoints.\n\n Flex up means reducing device consumption or increasing device generation.",
-        "operationId": "get_device_flex_up_v1_flex_up_get",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
-              "default": 1000,
-              "title": "Limit"
-            },
-            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
-          },
-          {
-            "name": "next_token",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
-              "title": "Next Token"
-            },
-            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
-          },
-          {
-            "name": "aggregated",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "\nIf `true`, sum the flex of the devices.\n\nIf `false`, return the flex of each device separately.\n",
-              "default": false,
-              "title": "Aggregated"
-            },
-            "description": "\nIf `true`, sum the flex of the devices.\n\nIf `false`, return the flex of each device separately.\n"
-          },
-          {
-            "name": "device_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n",
-              "title": "Device Id"
-            },
-            "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Get Device Flex Up V1 Flex Up Get"
-                },
-                "example": {
-                  "data": [
-                    {
-                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
-                      "flex_up": "2.56"
-                    },
-                    {
-                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
-                      "flex_up": "3.58"
-                    }
-                  ],
-                  "meta": {
-                    "energy_supplier": "Energy Supplier A",
-                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
-                    "flex_unit": "kWh"
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Flex"
-        ],
-        "summary": "Execute Flex Up Across Devices",
-        "description": "Execute an amount of flex up across NOX connected devices associated with your energy supplier account in kWh.\n\n Flex up means reducing device consumption or increasing device generation.",
-        "operationId": "execute_flex_up_across_devices_v1_flex_up_post",
-        "parameters": [
-          {
-            "name": "energy",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "number",
-              "description": "\nThe amount of energy you want to use for flex in kWh.\n",
-              "default": 0.0,
-              "title": "Energy"
-            },
-            "description": "\nThe amount of energy you want to use for flex in kWh.\n"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Execute Flex Up Across Devices V1 Flex Up Post"
-                },
-                "example": {
-                  "message": "Flex up operation successful across all devices for 500.0 kWh.",
-                  "meta": {
-                    "energy_supplier": "Energy Supplier A"
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/flex/down": {
-      "get": {
-        "tags": [
-          "Flex"
-        ],
-        "summary": "Get Device Flex Down",
-        "description": "Get the current potential flex down data for devices associated with your energy supplier account in kWh. You can execute this flex down in the flex POST endpoints.\n\n Flex down means increasing device consumption or decreasing device generation.",
-        "operationId": "get_device_flex_down_v1_flex_down_get",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
-              "default": 1000,
-              "title": "Limit"
-            },
-            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
-          },
-          {
-            "name": "next_token",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
-              "title": "Next Token"
-            },
-            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
-          },
-          {
-            "name": "aggregated",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "\nIf `true`, sum the flex of the devices.\n\nIf `false`, return the flex of each device separately.\n",
-              "default": false,
-              "title": "Aggregated"
-            },
-            "description": "\nIf `true`, sum the flex of the devices.\n\nIf `false`, return the flex of each device separately.\n"
-          },
-          {
-            "name": "device_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n",
-              "title": "Device Id"
-            },
-            "description": "\nDevice ID to get consumption of. If `None`, all devices are included.\n"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Get Device Flex Down V1 Flex Down Get"
-                },
-                "example": {
-                  "data": [
-                    {
-                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
-                      "flex_down": "2.56"
-                    },
-                    {
-                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
-                      "flex_down": "3.58"
-                    }
-                  ],
-                  "meta": {
-                    "energy_supplier": "Energy Supplier A",
-                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
-                    "flex_unit": "kWh"
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Flex"
-        ],
-        "summary": "Execute Flex Up Across Devices",
-        "description": "Execute an amount of flex down across NOX connected devices associated with your energy supplier account in kWh.\n\n Flex down means increasing device consumption or decrease device generation.",
-        "operationId": "execute_flex_up_across_devices_v1_flex_down_post",
-        "parameters": [
-          {
-            "name": "energy",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "number",
-              "description": "\nThe amount of energy you want to use for flex in kWh.\n",
-              "default": 0.0,
-              "title": "Energy"
-            },
-            "description": "\nThe amount of energy you want to use for flex in kWh.\n"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Execute Flex Up Across Devices V1 Flex Down Post"
-                },
-                "example": {
-                  "message": "Flex down operation successful across all devices for 500.0 kWh.",
-                  "meta": {
-                    "energy_supplier": "Energy Supplier A"
+                    "energy_supplier": [
+                      "Energy Supplier A"
+                    ]
                   }
                 }
               }
@@ -1026,6 +1691,292 @@
   },
   "components": {
     "schemas": {
+      "ActionStatus": {
+        "properties": {
+          "can_activate_action": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Can Activate Action",
+            "description": "Whether action can be activated"
+          },
+          "in_active_action": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "In Active Action",
+            "description": "Whether currently in active action"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Reason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Reason for the current status"
+          }
+        },
+        "type": "object",
+        "title": "ActionStatus",
+        "description": "Action status for device components."
+      },
+      "CycleConfig": {
+        "properties": {
+          "max_cycles_per_day": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Cycles Per Day",
+            "description": "Maximum cycles allowed per day"
+          }
+        },
+        "type": "object",
+        "title": "CycleConfig",
+        "description": "Cycle configuration model."
+      },
+      "Device": {
+        "properties": {
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model",
+            "description": "Device model"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand",
+            "description": "Device brand"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country",
+            "description": "Country code"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique device identifier"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "User identifier"
+          },
+          "device_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Type",
+            "description": "Type of device"
+          },
+          "legionella_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LegionellaConfig"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Legionella prevention configuration"
+          },
+          "cycle_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CycleConfig"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Cycle configuration"
+          },
+          "steerable_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SteerableStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Device steering status"
+          },
+          "needs_reauthentication": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Needs Reauthentication",
+            "description": "Whether the device needs reauthentication"
+          }
+        },
+        "type": "object",
+        "title": "Device",
+        "description": "Device information model."
+      },
+      "DevicesMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "capacity_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Unit",
+            "description": "Unit for capacity measurements"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          }
+        },
+        "type": "object",
+        "title": "DevicesMeta",
+        "description": "Metadata for devices response."
+      },
+      "DevicesResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Device"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of devices"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DevicesMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "DevicesResponse",
+        "description": "Response model for devices endpoint."
+      },
+      "GeneralReason": {
+        "type": "string",
+        "enum": [
+          "Heat pump connected recently, still collecting data to improve models.",
+          "Processing error, please contact support.",
+          "Device disconnected, it might reconnect later or be permanently be disconnected.",
+          "Device in error state. Might recover automatically later.",
+          "User settings prevent steering.",
+          "Holiday mode active, steering disabled or blocked by device.",
+          "Device is turned off, steering disabled or blocked by device.",
+          "Device is unsupported brand/model, will be supported in future updates.",
+          "Device is unsupported model, will not be supported in future updates.",
+          "Air to Air Heat pumps not supported for this brand yet.",
+          "Air to Water Heat pumps not supported for this brand yet.",
+          "Water to Water Heat pumps not supported for this brand yet.",
+          "Device gateway model does not allow steering.",
+          "Important data missing, this might improve with future updates.",
+          "Important data missing, will not be supported in future updates.",
+          "Unauthorized country, steering not allowed in this country.",
+          "Reauthentication required.",
+          "Unknown reason, please contact support."
+        ],
+        "title": "GeneralReason",
+        "description": "Enumeration for general reasons."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1038,6 +1989,149 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "LegionellaConfig": {
+        "properties": {
+          "frequency_per_weeks": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frequency Per Weeks",
+            "description": "Frequency per weeks for legionella prevention"
+          },
+          "capacity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity",
+            "description": "Capacity for legionella prevention"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes",
+            "description": "Duration in minutes for legionella prevention"
+          }
+        },
+        "type": "object",
+        "title": "LegionellaConfig",
+        "description": "Legionella configuration model."
+      },
+      "Reason": {
+        "type": "string",
+        "enum": [
+          "No flexibility available based on current device state.",
+          "Cycle constraints prevent a new action at this time.",
+          "Cycle constraints forced stop of current cycle.",
+          "No DHW control available on this device.",
+          "No room control available on this device.",
+          "Outside comfort band, Nox takes over until within comfort.",
+          "No schedule available, Nox takes over to assure comfort.",
+          "Can receive actions.",
+          "Early activation command send to device, following DHW tank schedule.",
+          "DHW tank active, following DHW tank schedule.",
+          "Early deactivation command send to device, following DHW tank schedule.",
+          "Early activation command send to device, following room heating/cooling schedule.",
+          "Room heating/cooling active, following room heating/cooling schedule.",
+          "Early deactivation command send to device, following room heating/cooling schedule.",
+          "Room schedule not writable and enabled, ask end user to disable it.",
+          "Uncertain heat pump activity, waiting for more data.",
+          "Processing error, please contact support."
+        ],
+        "title": "Reason",
+        "description": "Enumeration for reasons."
+      },
+      "SteerableStatus": {
+        "properties": {
+          "steering_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steering Enabled",
+            "description": "Whether steering is enabled"
+          },
+          "steerable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steerable",
+            "description": "Whether device is steerable"
+          },
+          "learning_period_ended": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Period Ended",
+            "description": "Whether the learning period has ended"
+          },
+          "general_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GeneralReason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "General reason for steerable status"
+          },
+          "DHW": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActionStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Domestic Hot Water action status"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActionStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Room heating action status"
+          }
+        },
+        "type": "object",
+        "title": "SteerableStatus",
+        "description": "Steerable status model."
       },
       "ValidationError": {
         "properties": {
@@ -1092,12 +2186,16 @@
       "description": "API to get consumption data of your devices."
     },
     {
-      "name": "House Consumption",
-      "description": "API to get consumption data of your house."
+      "name": "Thermal Control",
+      "description": "API for thermal control specific endpoints."
     },
     {
-      "name": "Flex",
-      "description": "API to get/execute flex on your devices."
+      "name": "Manufacturer Control",
+      "description": "API for manufacturer control specific endpoints."
+    },
+    {
+      "name": "User Management",
+      "description": "API endpoints to manage users and their data."
     }
   ],
   "security": [
@@ -1107,8 +2205,8 @@
   ],
   "servers": [
     {
-      "url": "https://api.sandbox.nox.energy",
-      "description": "Production Sandbox Server"
+      "url": "https://api.nox.energy",
+      "description": "Production Server"
     }
   ]
 }
