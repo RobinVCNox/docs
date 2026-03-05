@@ -19,24 +19,58 @@
               "guides/introduction",
               "guides/get-started"
             ]
+          },
+          {
+            "group": "Integration",
+            "pages": [
+              "guides/energy-supplier-integration"
+            ]
           }
         ]
       },
       {
-        "tab": "API Reference",
+        "tab": "API Docs",
         "groups": [
           {
-            "group": "API Documentation",
+            "group": "API setup",
             "pages": [
-              "api-reference/authentication"
+              "api-docs/authentication"
             ]
           },
           {
-            "group": "API Endpoints",
+            "group": "Full NOX Control Package",
             "openapi": {
-              "source": "api-reference/openapi.json",
-              "directory": "api-reference"
-          }
+              "source": "api-docs/full-control/openapi-full-control.json",
+              "directory": "api-docs/full-control"
+            }
+          },
+          {
+            "group": "Supplier Control Package", 
+            "openapi": {
+              "source": "api-docs/supplier-control/openapi-thermal-control.json",
+              "directory": "api-docs/supplier-control"
+            }
+          },
+          {
+            "group": "Manufacturer Package",
+            "openapi": {
+              "source": "api-docs/manufacturer/openapi-manufacturer.json",
+              "directory": "api-docs/manufacturer"
+            }
+          },
+          {
+            "group": "Supplier Integration",
+            "openapi": {
+              "source": "api-docs/supplier-integration/openapi-supplier-auth.json",
+              "directory": "api-docs/supplier-integration"
+            }
+          },
+          {
+            "group": "Manufacturer Integration",
+            "openapi": {
+              "source": "api-docs/manufacturer-integration/openapi-manufacturer-auth.json",
+              "directory": "api-docs/manufacturer-integration"
+            }
           }
         ]
       },

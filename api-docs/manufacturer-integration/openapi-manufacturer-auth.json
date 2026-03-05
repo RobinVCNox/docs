@@ -1,0 +1,701 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "NOX Authenticator API",
+    "description": "API for device authentication and linking in the NOX ecosystem",
+    "version": "1.0.0",
+    "contact": {
+      "name": "NOX Integration Team",
+      "email": "integration@nox.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://auth.nox.energy",
+      "description": "Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Supplier Integration",
+      "description": "Device authentication and linking"
+    },
+    {
+      "name": "Sessions",
+      "description": "Link session management"
+    },
+    {
+      "name": "Manufacturer Integration",
+      "description": "Manufacturer connection management"
+    }
+  ],
+  "paths": {
+    "/manufacturers/nox": {
+      "post": {
+        "tags": [
+          "Manufacturer Integration"
+        ],
+        "summary": "Connect User to NOX",
+        "description": "Connects a manufacturer user to NOX without linking to an energy supplier account. Use this endpoint when the user does not need to be connected to an energy supplier via OAuth. Creates or updates the subscriber record with the provided device IDs.",
+        "operationId": "connectNoxManufacturer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoxManufacturerConnectionRequest"
+              },
+              "example": {
+                "manufacturer_user_id": "mfr_user_123",
+                "device_ids": [
+                  "device_001",
+                  "device_002"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User successfully connected to NOX",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoxConnectionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid or missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid API key or manufacturer not enabled for connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/manufacturers/suppliers": {
+      "post": {
+        "tags": [
+          "Manufacturer Integration"
+        ],
+        "summary": "Connect User to NOX with Supplier OAuth",
+        "description": "Connects a manufacturer user to NOX with the intent of linking them to an energy supplier via OAuth. Creates or updates the subscriber record and returns a link_url where the user should be redirected to complete the supplier OAuth flow.",
+        "operationId": "connectSupplierManufacturer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupplierManufacturerConnectionRequest"
+              },
+              "example": {
+                "manufacturer_user_id": "mfr_user_123",
+                "device_ids": [
+                  "device_001",
+                  "device_002"
+                ],
+                "redirect_url": "https://manufacturer-app.com/callback",
+                "language": "en"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Connection initiated successfully. Redirect user to link_url for OAuth flow.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierConnectionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid or missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid API key or manufacturer not enabled for connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API key for authentication. You can also use 'Authorization: ApiKey YOUR_KEY' header."
+      }
+    },
+    "schemas": {
+      "LinkSessionRequest": {
+        "type": "object",
+        "required": [
+          "redirect_uri"
+        ],
+        "properties": {
+          "redirect_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL where the user will be redirected after authentication. Must be registered with your supplier account.",
+            "example": "https://your-app.com/callback"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code for the UI",
+            "default": "en",
+            "example": "en"
+          },
+          "brand": {
+            "type": "string",
+            "description": "Optional brand to pre-select for authentication. If provided, users will be taken directly to this brand's authentication instead of the brand selection screen. Only supported brands are accepted.",
+            "example": "daikin",
+            "enum": [
+              "daikin",
+              "dewarmte",
+              "viessmann",
+              "nibe",
+              "samsung",
+              "alpha innotec",
+              "lg",
+              "mitsubishi",
+              "vaillant",
+              "bulex",
+              "saunier duval",
+              "thermia",
+              "toshiba"
+            ]
+          }
+        }
+      },
+      "LinkSessionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp",
+            "example": 1703123456
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "link_token": {
+                "type": "string",
+                "description": "Unique token for the link session",
+                "example": "abc123def456ghi789jkl012mno345pqr678stu901vwx234yz"
+              },
+              "link_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to initiate the authentication flow",
+                "example": "https://link.nox.com/connect?token=abc123def456ghi789jkl012mno345pqr678stu901vwx234yz"
+              },
+              "expires_at": {
+                "type": "integer",
+                "description": "Unix timestamp",
+                "example": 1703124056
+              },
+              "supplier_id": {
+                "type": "string",
+                "description": "ID of the supplier",
+                "example": "supplier_123"
+              },
+              "supplier_user_id": {
+                "type": "string",
+                "description": "Supplier's user ID",
+                "example": "user_456"
+              },
+              "brand": {
+                "type": "string",
+                "description": "Pre-selected brand (if any) for direct authentication",
+                "example": "daikin"
+              }
+            }
+          }
+        }
+      },
+      "SessionInfoResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp",
+            "example": 1703123456
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "supplier_id": {
+                "type": "string",
+                "example": "supplier_123"
+              },
+              "supplier_user_id": {
+                "type": "string",
+                "example": "user_456"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "success",
+                  "failed",
+                  "expired"
+                ],
+                "example": "pending"
+              },
+              "language": {
+                "type": "string",
+                "example": "en"
+              },
+              "brand": {
+                "type": "string",
+                "description": "Pre-selected brand for authentication (if any). May be populated from connection_metadata if session.brand is null.",
+                "example": "daikin"
+              },
+              "created_at": {
+                "type": "integer",
+                "description": "Unix timestamp",
+                "example": 1703123456
+              },
+              "expires_at": {
+                "type": "integer",
+                "description": "Unix timestamp",
+                "example": 1703124056
+              },
+              "redirect_uri": {
+                "type": "string",
+                "format": "uri",
+                "description": "URI to redirect user back to supplier after authentication",
+                "example": "https://supplier-portal.com/callback"
+              }
+            }
+          }
+        }
+      },
+      "CompletedSessionErrorResponse": {
+        "type": "object",
+        "description": "Response when session is already completed. success=false indicates the operation failed, but status=success indicates the session was successfully completed.",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false,
+            "description": "False because the operation (getting an unused session) failed"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp",
+            "example": 1703123456
+          },
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message",
+            "example": "Link session already used"
+          },
+          "error_code": {
+            "type": "string",
+            "description": "Machine-readable error code",
+            "example": "session_used"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Link session already used"
+          },
+          "supplier_id": {
+            "type": "string",
+            "description": "ID of the supplier",
+            "example": "NOX Energy"
+          },
+          "supplier_user_id": {
+            "type": "string",
+            "description": "Supplier's user ID",
+            "example": "user_123"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "success"
+            ],
+            "example": "success",
+            "description": "Session status - 'success' indicates the session was successfully completed"
+          },
+          "language": {
+            "type": "string",
+            "example": "en"
+          },
+          "brand": {
+            "type": "string",
+            "description": "Brand name (populated from connection_metadata if session.brand is null)",
+            "example": "bulex"
+          },
+          "created_at": {
+            "type": "integer",
+            "description": "Unix timestamp when session was created",
+            "example": 1703123456
+          },
+          "expires_at": {
+            "type": "integer",
+            "description": "Unix timestamp when session expires",
+            "example": 1703124056
+          },
+          "redirect_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "URI to redirect user back to supplier after authentication",
+            "example": "https://app.nox.energy/callback"
+          },
+          "completed_at": {
+            "type": "integer",
+            "description": "Unix timestamp when session was completed",
+            "example": 1703123500
+          },
+          "connection_metadata": {
+            "$ref": "#/components/schemas/ConnectionMetadata"
+          }
+        }
+      },
+      "ConnectionMetadata": {
+        "type": "object",
+        "description": "Connection metadata for completed sessions. Contains information about the authenticated connection.",
+        "properties": {
+          "nox_user_id": {
+            "type": "string",
+            "description": "The NOX Energy user ID",
+            "example": "user_123"
+          },
+          "brand": {
+            "type": "string",
+            "description": "The brand name in lowercase",
+            "example": "bulex"
+          },
+          "authentication_status": {
+            "type": "string",
+            "description": "Status of authentication",
+            "enum": [
+              "complete"
+            ],
+            "example": "complete"
+          },
+          "created_at": {
+            "type": "integer",
+            "description": "Unix timestamp when the connection was created",
+            "example": 1703123500
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp",
+            "example": 1703123456
+          },
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message",
+            "example": "Missing API key"
+          },
+          "error_code": {
+            "type": "string",
+            "description": "Machine-readable error code",
+            "example": "missing_api_key"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Missing API key"
+          }
+        }
+      },
+      "ExpiredSessionErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp",
+            "example": 1703123456
+          },
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message",
+            "example": "Link session has expired"
+          },
+          "error_code": {
+            "type": "string",
+            "description": "Machine-readable error code",
+            "example": "session_error"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Link session has expired"
+          },
+          "supplier_id": {
+            "type": "string",
+            "description": "ID of the supplier",
+            "example": "supplier_123"
+          },
+          "supplier_user_id": {
+            "type": "string",
+            "description": "Supplier's user ID",
+            "example": "user_456"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expired"
+            ],
+            "example": "expired"
+          },
+          "language": {
+            "type": "string",
+            "example": "en"
+          },
+          "brand": {
+            "type": "string",
+            "description": "Pre-selected brand for authentication (if any)",
+            "example": "daikin"
+          },
+          "created_at": {
+            "type": "integer",
+            "description": "Unix timestamp",
+            "example": 1703123456
+          },
+          "expires_at": {
+            "type": "integer",
+            "description": "Unix timestamp",
+            "example": 1703124056
+          },
+          "redirect_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "URI to redirect user back to supplier after authentication",
+            "example": "https://supplier-portal.com/callback"
+          }
+        }
+      },
+      "NoxManufacturerConnectionRequest": {
+        "type": "object",
+        "required": [
+          "manufacturer_user_id"
+        ],
+        "properties": {
+          "manufacturer_user_id": {
+            "type": "string",
+            "description": "The manufacturer's unique identifier for the user",
+            "example": "mfr_user_123"
+          },
+          "device_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional list of device IDs to associate with this connection",
+            "example": [
+              "device_001",
+              "device_002"
+            ]
+          }
+        }
+      },
+      "SupplierManufacturerConnectionRequest": {
+        "type": "object",
+        "required": [
+          "manufacturer_user_id",
+          "redirect_url"
+        ],
+        "properties": {
+          "manufacturer_user_id": {
+            "type": "string",
+            "description": "The manufacturer's unique identifier for the user",
+            "example": "mfr_user_123"
+          },
+          "device_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional list of device IDs to associate with this connection",
+            "example": [
+              "device_001",
+              "device_002"
+            ]
+          },
+          "redirect_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL where the user will be redirected after completing the supplier OAuth flow",
+            "example": "https://manufacturer-app.com/callback"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code for the OAuth redirect page UI (e.g., 'en', 'nl', 'fr')",
+            "default": "en",
+            "example": "en"
+          }
+        }
+      },
+      "NoxConnectionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp",
+            "example": 1703123456
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "manufacturer_user_id": {
+                "type": "string",
+                "description": "The manufacturer's user ID that was provided",
+                "example": "mfr_user_123"
+              },
+              "nox_user_id": {
+                "type": "string",
+                "description": "The NOX user ID assigned to this user",
+                "example": "550e8400-e29b-41d4-a716-446655440000"
+              },
+              "device_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of device IDs associated with this connection",
+                "example": [
+                  "device_001",
+                  "device_002"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "SupplierConnectionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp",
+            "example": 1703123456
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "link_token": {
+                "type": "string",
+                "description": "Unique token for the link session",
+                "example": "abc123def456ghi789"
+              },
+              "link_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to redirect the user to for the supplier OAuth connection flow",
+                "example": "https://auth.sandbox.nox.energy/?token=abc123def456&connection_type=manufacturer"
+              },
+              "expires_at": {
+                "type": "integer",
+                "description": "Unix timestamp when the link session expires",
+                "example": 1703124056
+              },
+              "manufacturer": {
+                "type": "string",
+                "description": "Name of the manufacturer",
+                "example": "Daikin"
+              },
+              "manufacturer_user_id": {
+                "type": "string",
+                "description": "The manufacturer's user ID that was provided",
+                "example": "mfr_user_123"
+              },
+              "nox_user_id": {
+                "type": "string",
+                "description": "The NOX user ID assigned to this user",
+                "example": "550e8400-e29b-41d4-a716-446655440000"
+              },
+              "device_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of device IDs associated with this connection",
+                "example": [
+                  "device_001",
+                  "device_002"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

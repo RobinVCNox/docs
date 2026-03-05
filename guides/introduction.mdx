@@ -5,27 +5,61 @@ description: "Welcome to the Nox Energy API"
 
 ## Introduction
 
-The NOX Energy API enables energy suppliers to seamlessly integrate residential energy assets
+The NOX Energy API enables energy suppliers and manufacturers to seamlessly integrate residential energy assets
 into their operations, supporting grid balancing and helping to optimize electricity costs
-for end users. Through our secure, RESTful API, suppliers can access real-time, forecasted and historical data,
+for end users. Through our secure, RESTful API, you can access real-time, forecasted and historical data,
 as well as control residential devices within their customer base.
 
 Key capabilities include:
 
-* Listing and managing device information
-* Accessing historical and forecasted consumption data (per asset or aggregated)
-* Retrieving household consumption forecasts
+* Listing and managing device information and user settings
+* Retrieving historical and forecasted consumption data (per asset or aggregated)
 * Monitoring current flexibility (flex up/down) and executing flex actions across devices
+* Integration into energy supplier and manufacturers mobile app.
 
 Leverage the NOX Energy API to enhance your energy management strategies, improve grid stability,
 and deliver greater value to your customers.
+
+## API packages
+
+Nox Energy currently provides 2 API Packages for energy suppliers and 1 API package for manufacturers.
+
+**Energy Supplier API Packages:**
+* [Full NOX control](/api-docs/full-control): Option to integrate into supplier website/app + NOX Energy controls
+the assets based on supplier or user preferred optimization settings. 
+Any combination of the following optimizations are possible:
+  * **Wheater predictive control**: Take into account natural heating/cooling 
+ of the house based on predicted weather circumstances to avoid unnecessary heating/cooling.
+  * **Solar self consumption**: Maximizes solar energy utilization by scheduling consumption during 
+  solar energy production periods.
+  * **Dynamic tarrifs**: Optimize energy consumption based on electricity prices, 
+ automatically shifting usage to periods with lower costs or when energy prices provide net benefits to users. 
+  Which energy markets or types of tarrifs that are taken into account depends on the country, user and/or energy supplier.
+  By default we optimize on day-ahead market and imbalance market.
+* [Supplier control](/api-docs/supplier-control): Option to integrate into supplier website/app + NOX Energy provides 
+real-time and forecasted energy flex bounds (aggregated or per asset), enabling suppliers to execute demand response 
+actions when financially beneficial. NOX Energy handles device control, authentication and manufacturer partnerships, 
+eliminating implementation complexity for suppliers but giving steering control. This allows the supplier to execute their
+own optimization algorithm and play on energy markets and tarrifs by their choosing.
+
+**Manufacturer API Package**:
+
+* [Integration](/api-docs/manufacturer): Integrate into manufacturer website/app + NOX Energy provides direct
+integration for both full NOX control and supplier control optimizations. 
+Furthermore, we provide and manage an authentication process for all integrated suppliers. Additionally, user or asset settings
+are synced between all integrated parties through us and can be consulted with our API endpoints.
 
 ## API Environments
 
 Nox Energy provides 2 seperated API environments:
 
-Sandbox Base URL: [https://api.sandbox.nox.energy](/api-reference)  
-Production Base URL: [https://api.nox.energy](/api-reference)
+**Package API Base urls**:
+  * Sandbox Base URL: [https://api.sandbox.nox.energy](/api-docs)  
+  * Production Base URL: [https://api.nox.energy](/api-docs)
+
+**Integration API Base urls**:
+  * Sandbox Base URL: [https://auth.sandbox.nox.energy](/api-docs)  
+  * Production Base URL: [https://auth.nox.energy](/api-docs)
 
 The Sandbox environment allows you to test and develop your integrations without affecting your live operations.
 The sandbox API contains real-time generated test data to replicate our production environment as close as possible.
@@ -42,9 +76,9 @@ Our Historical sandbox endpoints hold between 7-30 days of data.
     Start controlling and/or receiving data of our assets
   </Card>
   <Card
-    title="API Reference"
+    title="API Docs"
     icon="code"
-    href="/api-reference"
+    href="/api-docs"
   >
     Explore our API capabilities
   </Card>
