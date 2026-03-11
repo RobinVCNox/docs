@@ -155,6 +155,60 @@
               "title": "Learning Period Ended"
             },
             "description": "\nIf `True`, filter devices for which the learning period of gathering data has ended. \n\nIf `False`, filter devices for which the learning period of gathering data has not ended. \n\nIf `None`, do not filter based on learning period status. \n\n"
+          },
+          {
+            "name": "has_delayed_power_data_1d",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nIf `True`, filter devices that have delayed power data by 1 day for the previous day. This means that the power data of the previous day is only updated between 2-4 AM UTC on a daily basis for the full previous day. \n\nIf `False`, filter devices that do not have delayed power data by 1 day for the previous day but instead provide real-time power data. \n\nIf `None`, do not filter based on whether devices have delayed power data by 1 day for the previous day. \n\n",
+              "title": "Has Delayed Power Data 1D"
+            },
+            "description": "\nIf `True`, filter devices that have delayed power data by 1 day for the previous day. This means that the power data of the previous day is only updated between 2-4 AM UTC on a daily basis for the full previous day. \n\nIf `False`, filter devices that do not have delayed power data by 1 day for the previous day but instead provide real-time power data. \n\nIf `None`, do not filter based on whether devices have delayed power data by 1 day for the previous day. \n\n"
+          },
+          {
+            "name": "model_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe model type to filter on, e.g. 'ata', 'atw', 'wtw'. If None, do not filter on model type.\n",
+              "title": "Model Type"
+            },
+            "description": "\nThe model type to filter on, e.g. 'ata', 'atw', 'wtw'. If None, do not filter on model type.\n"
+          },
+          {
+            "name": "has_cooling",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nIf `True`, filter devices that have cooling capabilities. \n\nIf `False`, filter devices that do not have cooling capabilities. \n\nIf `None`, do not filter based on cooling capabilities. \n\n",
+              "title": "Has Cooling"
+            },
+            "description": "\nIf `True`, filter devices that have cooling capabilities. \n\nIf `False`, filter devices that do not have cooling capabilities. \n\nIf `None`, do not filter based on cooling capabilities. \n\n"
           }
         ],
         "responses": {
@@ -169,18 +223,23 @@
                   "data": [
                     {
                       "model": "model_g",
+                      "model_type": "atw",
                       "brand": "nibe",
                       "country": "BE",
                       "device_id": "01a5c222-5b76-4531-b587-5deeb81a3db3",
                       "user_id": "user_4",
                       "device_type": "heat_pump",
+                      "has_delayed_power_data_1d": true,
                       "legionella_config": {
                         "frequency_per_weeks": 1,
                         "capacity": 20,
+                        "room_min_cycle_time": 15,
+                        "dhw_min_cycle_time": 30,
                         "duration_minutes": 60
                       },
                       "cycle_config": {
-                        "max_cycles_per_day": 8
+                        "max_cycles_per_day": 8,
+                        "dhw_max_cycle_time": 120.0
                       },
                       "steerable_status": {
                         "steering_enabled": true,
@@ -196,21 +255,27 @@
                           "reason": "Device is ready to receive an action."
                         }
                       },
-                      "needs_reauthentication": false
+                      "needs_reauthentication": false,
+                      "has_cooling": true
                     },
                     {
                       "model": "model_b",
+                      "model_type": "atw",
                       "brand": "nibe",
                       "device_id": "01bbbaab-159a-4898-bcba-d81acdb2353c",
                       "user_id": "user_5",
                       "device_type": "heat_pump",
+                      "has_delayed_power_data_1d": false,
                       "legionella_config": {
                         "frequency_per_weeks": 2,
                         "capacity": 20,
                         "duration_minutes": 60
                       },
                       "cycle_config": {
-                        "max_cycles_per_day": 6
+                        "max_cycles_per_day": 6,
+                        "room_min_cycle_time": 15,
+                        "dhw_min_cycle_time": 30,
+                        "dhw_max_cycle_time": 60.0
                       },
                       "steerable_status": {
                         "steering_enabled": true,
@@ -226,13 +291,15 @@
                           "reason": "Device is ready to receive an action."
                         }
                       },
-                      "needs_reauthentication": false
+                      "needs_reauthentication": false,
+                      "has_cooling": false
                     }
                   ],
                   "meta": {
                     "energy_supplier": "Energy Supplier A",
                     "capacity_unit": "kWh",
-                    "next_token": "eyJkZXZpY2VfaWQiOiAiMDFiYmJhYWItMTU5YS00ODk4LWJjYmEtZDgxYWNkYjIzNTNjIiwgImVuZXJneV9zdXBwbGllciI6ICJFbmVyZ3kgU3VwcGxpZXIgQSJ9"
+                    "next_token": "eyJkZXZpY2VfaWQiOiAiMDFiYmJhYWItMTU5YS00ODk4LWJjYmEtZDgxYWNkYjIzNTNjIiwgImVuZXJneV9zdXBwbGllciI6ICJFbmVyZ3kgU3VwcGxpZXIgQSJ9",
+                    "cycle_time_units": "minutes"
                   }
                 }
               }
@@ -846,6 +913,42 @@
             ],
             "title": "Max Cycles Per Day",
             "description": "Maximum cycles allowed per day"
+          },
+          "room_min_cycle_time": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Min Cycle Time",
+            "description": "Minimum cycle time for room heating in minutes, if applicable."
+          },
+          "dhw_min_cycle_time": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dhw Min Cycle Time",
+            "description": "Minimum cycle time for DHW in minutes, if applicable."
+          },
+          "dhw_max_cycle_time": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dhw Max Cycle Time",
+            "description": "Maximum cycle time for DHW in minutes, if applicable."
           }
         },
         "type": "object",
@@ -865,6 +968,17 @@
             ],
             "title": "Model",
             "description": "Device model"
+          },
+          "model_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Device model type such as (Air to Air Heat Pump, Air to Water Heat Pump, Water to Water Heat Pump)"
           },
           "brand": {
             "anyOf": [
@@ -925,6 +1039,18 @@
             ],
             "title": "Device Type",
             "description": "Type of device"
+          },
+          "has_delayed_power_data_1d": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Delayed Power Data 1D",
+            "description": "Whether the device has delayed power data by 1 day for the previous day. This power data is updated between 2-4 AM UTC on a daily basis for the full previous day."
           },
           "legionella_config": {
             "anyOf": [
@@ -1013,6 +1139,18 @@
             ],
             "title": "Next Token",
             "description": "Token for pagination"
+          },
+          "cycle_time_units": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cycle Time Units",
+            "description": "Unit for MAX or MIN cycle times. Which is the amount of minutes a unit can be active for that purpose."
           }
         },
         "type": "object",
@@ -1133,6 +1271,16 @@
         "title": "LegionellaConfig",
         "description": "Legionella configuration model."
       },
+      "ModelType": {
+        "type": "string",
+        "enum": [
+          "ata",
+          "atw",
+          "wtw"
+        ],
+        "title": "ModelType",
+        "description": "Enumeration for model types."
+      },
       "Reason": {
         "type": "string",
         "enum": [
@@ -1227,6 +1375,18 @@
               }
             ],
             "description": "Room heating action status"
+          },
+          "has_cooling": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Cooling",
+            "description": "Whether the device has cooling capabilities"
           }
         },
         "type": "object",

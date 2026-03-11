@@ -12,7 +12,7 @@
           "Manufacturer Control"
         ],
         "summary": "Submit Manufacturer Settings",
-        "description": "Update on a user/device level the manufacturer settings.\n\n You can change the following settings:\n\n * The lower and upper comfort temperature bounds for domestic hot water heating in degrees celcius.\n\n * Change optimization settings.\n\n * The country code and the postal code",
+        "description": "Update on a user/device level the manufacturer settings.\n\n You can change the following settings:\n\n * The lower and upper comfort temperature bounds for domestic hot water heating in degrees celcius.\n\n * The optimization settings.\n\n * The country code and the postal code",
         "operationId": "submit_manufacturer_settings_v1_manufacturer_settings_post",
         "parameters": [],
         "requestBody": {
@@ -153,22 +153,9 @@
                 "example": {
                   "data": [
                     {
-                      "device_id": "device_id_123",
-                      "energy_supplier": "Energy Supplier A",
-                      "dhw": {
-                        "temperature_upper_bound": 50,
-                        "temperature_lower_bound": 40
-                      },
-                      "optimization_settings": {
-                        "pv_self_consumption": true,
-                        "dynamic_tariff": true,
-                        "flex_trading": false
-                      },
-                      "country": "BE"
-                    },
-                    {
                       "device_id": "device_id_456",
                       "energy_supplier": "Energy Supplier B",
+                      "auth_origin": "supplier",
                       "dhw": {
                         "temperature_upper_bound": 55,
                         "temperature_lower_bound": 45
@@ -260,6 +247,42 @@
             ],
             "title": "Max Cycles Per Day",
             "description": "Maximum cycles allowed per day"
+          },
+          "room_min_cycle_time": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Min Cycle Time",
+            "description": "Minimum cycle time for room heating in minutes, if applicable."
+          },
+          "dhw_min_cycle_time": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dhw Min Cycle Time",
+            "description": "Minimum cycle time for DHW in minutes, if applicable."
+          },
+          "dhw_max_cycle_time": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dhw Max Cycle Time",
+            "description": "Maximum cycle time for DHW in minutes, if applicable."
           }
         },
         "type": "object",
@@ -279,6 +302,17 @@
             ],
             "title": "Model",
             "description": "Device model"
+          },
+          "model_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Device model type such as (Air to Air Heat Pump, Air to Water Heat Pump, Water to Water Heat Pump)"
           },
           "brand": {
             "anyOf": [
@@ -339,6 +373,18 @@
             ],
             "title": "Device Type",
             "description": "Type of device"
+          },
+          "has_delayed_power_data_1d": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Delayed Power Data 1D",
+            "description": "Whether the device has delayed power data by 1 day for the previous day. This power data is updated between 2-4 AM UTC on a daily basis for the full previous day."
           },
           "legionella_config": {
             "anyOf": [
@@ -427,6 +473,18 @@
             ],
             "title": "Next Token",
             "description": "Token for pagination"
+          },
+          "cycle_time_units": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cycle Time Units",
+            "description": "Unit for MAX or MIN cycle times. Which is the amount of minutes a unit can be active for that purpose."
           }
         },
         "type": "object",
@@ -547,6 +605,16 @@
         "title": "LegionellaConfig",
         "description": "Legionella configuration model."
       },
+      "ModelType": {
+        "type": "string",
+        "enum": [
+          "ata",
+          "atw",
+          "wtw"
+        ],
+        "title": "ModelType",
+        "description": "Enumeration for model types."
+      },
       "Reason": {
         "type": "string",
         "enum": [
@@ -641,6 +709,18 @@
               }
             ],
             "description": "Room heating action status"
+          },
+          "has_cooling": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Cooling",
+            "description": "Whether the device has cooling capabilities"
           }
         },
         "type": "object",
