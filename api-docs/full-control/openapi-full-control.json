@@ -233,12 +233,12 @@
                       "legionella_config": {
                         "frequency_per_weeks": 1,
                         "capacity": 20,
-                        "room_min_cycle_time": 15,
-                        "dhw_min_cycle_time": 30,
                         "duration_minutes": 60
                       },
                       "cycle_config": {
                         "max_cycles_per_day": 8,
+                        "room_min_cycle_time": 15,
+                        "dhw_min_cycle_time": 30,
                         "dhw_max_cycle_time": 120.0
                       },
                       "steerable_status": {
