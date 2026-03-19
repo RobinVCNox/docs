@@ -233,12 +233,12 @@
                       "legionella_config": {
                         "frequency_per_weeks": 1,
                         "capacity": 20,
-                        "room_min_cycle_time": 15,
-                        "dhw_min_cycle_time": 30,
                         "duration_minutes": 60
                       },
                       "cycle_config": {
                         "max_cycles_per_day": 8,
+                        "room_min_cycle_time": 15,
+                        "dhw_min_cycle_time": 30,
                         "dhw_max_cycle_time": 120.0
                       },
                       "steerable_status": {
@@ -1164,7 +1164,7 @@
           "Thermal Control"
         ],
         "summary": "Submit Thermal Control Settings",
-        "description": "Update on a device or user level the device/user settings. If you want to update a setting on a device level, provide the device_id along with the user_id.\n\n You can change the following settings:\n\n * The lower and upper comfort temperature bounds of\n end users/devices in degrees celcius.\n\n * Enable/Disable steering in boolean.\n\n * The country code and the postal code",
+        "description": "Update on a device or user level the device/user settings. If you want to update a setting on a device level, provide the device_id along with the user_id.\n\n You can change the following settings:\n\n * The lower and upper room comfort temperature bounds of\n end users/devices in degrees celcius.\n\n * The lower and upper bounds for domestic hot water heating in degrees celcius.\nThis will determine the maximum and minimum allowed temperatures we allow it to go.\n This should be changed carefully as it could lead to the tank temperature going too low and cause legionella growth.\n Below 40 degrees is not recommended, only during vacations.\n\n * The preferred temperature of end users/devices in degrees celcius.\nThis is also used to determine when to start cooling in temperature_control_mode auto or cooling mode.\n\n * Temperature control mode to determine if you only want heating or\n cooling or both (auto) or none of both (off). If `auto` is chosen,\n our system will decide if cooling is necessary based on outside temperature\n and upper comfort bounds. `Off` means we will turn room heating and cooling off and\n if this is not possible, we will configure the heat pump in a way so it will not cool or heat.\n If `heating` is chosen we will only heat and it will be based on the preferred temperature or the schedule and the comfort bounds.\n If `cooling` is chosen, we will only cool and it will be based on the preferred temperature or the schedule, outside temperature and the comfort bounds.\n\n * Enable/Disable steering.\n\n * The country code and the postal code",
         "operationId": "submit_thermal_control_settings_v1_device_thermal_control_settings_post",
         "parameters": [],
         "requestBody": {
@@ -1172,25 +1172,81 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "additionalProperties": true,
-                "title": "Request Body"
+                "$ref": "#/components/schemas/ThermalControlSettingsRequest"
               },
               "examples": {
-                "settings_example": {
-                  "summary": "Example of thermal control settings submission",
+                "full_configuration": {
+                  "summary": "Complete settings configuration",
+                  "description": "Example with all available settings configured",
                   "value": {
-                    "user_id": "01910947a-fab9-450e-b5ac-48e9c4f3e725",
+                    "user_id": "user456",
+                    "device_id": "device123",
                     "room": {
-                      "temperature_upper_bound": 1.0,
-                      "temperature_lower_bound": 1.5
+                      "temperature_lower_bound": 1.5,
+                      "temperature_upper_bound": 2.0,
+                      "preferred_temperature": 21.0,
+                      "schedule_enabled": true,
+                      "temperature_control_mode": "auto"
+                    },
+                    "dhw": {
+                      "temperature_lower_bound": 45.0,
+                      "temperature_upper_bound": 60.0
                     },
                     "steering_enabled": {
-                      "heat_pump": true
+                      "heat_pump": false
                     },
                     "location": {
-                      "country": "BE",
-                      "postal_code": "3500"
+                      "country": "NL",
+                      "postal_code": "1234AB"
+                    }
+                  }
+                },
+                "room_only": {
+                  "summary": "Room settings only",
+                  "description": "Simple example with just room temperature preferences",
+                  "value": {
+                    "user_id": "user456",
+                    "device_id": "device123",
+                    "room": {
+                      "temperature_lower_bound": 1.5,
+                      "temperature_upper_bound": 2.0,
+                      "preferred_temperature": 21.0,
+                      "schedule_enabled": false,
+                      "temperature_control_mode": "auto"
+                    }
+                  }
+                },
+                "dhw_only": {
+                  "summary": "Domestic Hot Water settings only",
+                  "description": "Example for updating only domestic hot water settings",
+                  "value": {
+                    "user_id": "user789",
+                    "dhw": {
+                      "temperature_lower_bound": 50.0,
+                      "temperature_upper_bound": 65.0
+                    }
+                  }
+                },
+                "steering_control": {
+                  "summary": "Steering control settings",
+                  "description": "Example for enabling/disabling device steering",
+                  "value": {
+                    "user_id": "user101",
+                    "device_id": "device789",
+                    "steering_enabled": {
+                      "heat_pump": false
+                    }
+                  }
+                },
+                "schedule_mode": {
+                  "summary": "Room schedule-based control",
+                  "description": "Example for devices using schedule-based temperature control",
+                  "value": {
+                    "user_id": "user202",
+                    "device_id": "device456",
+                    "room": {
+                      "schedule_enabled": true,
+                      "temperature_control_mode": "heating"
                     }
                   }
                 }
@@ -1465,8 +1521,7 @@
           }
         },
         "type": "object",
-        "title": "ActionStatus",
-        "description": "Action status for device components."
+        "title": "ActionStatus"
       },
       "CycleConfig": {
         "properties": {
@@ -1520,8 +1575,55 @@
           }
         },
         "type": "object",
-        "title": "CycleConfig",
-        "description": "Cycle configuration model."
+        "title": "CycleConfig"
+      },
+      "DHWSettings": {
+        "properties": {
+          "temperature_lower_bound": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "ge": 30,
+                "le": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature Lower Bound",
+            "description": "Lower DHW temperature bound in Celsius"
+          },
+          "temperature_upper_bound": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "ge": 30,
+                "le": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature Upper Bound",
+            "description": "Upper DHW temperature bound in Celsius"
+          }
+        },
+        "type": "object",
+        "title": "DHWSettings"
       },
       "Device": {
         "properties": {
@@ -1667,8 +1769,7 @@
           }
         },
         "type": "object",
-        "title": "Device",
-        "description": "Device information model."
+        "title": "Device"
       },
       "DevicesMeta": {
         "properties": {
@@ -1722,8 +1823,7 @@
           }
         },
         "type": "object",
-        "title": "DevicesMeta",
-        "description": "Metadata for devices response."
+        "title": "DevicesMeta"
       },
       "DevicesResponse": {
         "properties": {
@@ -1755,8 +1855,7 @@
           }
         },
         "type": "object",
-        "title": "DevicesResponse",
-        "description": "Response model for devices endpoint."
+        "title": "DevicesResponse"
       },
       "GeneralReason": {
         "type": "string",
@@ -1780,8 +1879,7 @@
           "Reauthentication required.",
           "Unknown reason, please contact support."
         ],
-        "title": "GeneralReason",
-        "description": "Enumeration for general reasons."
+        "title": "GeneralReason"
       },
       "HTTPValidationError": {
         "properties": {
@@ -1836,8 +1934,35 @@
           }
         },
         "type": "object",
-        "title": "LegionellaConfig",
-        "description": "Legionella configuration model."
+        "title": "LegionellaConfig"
+      },
+      "LocationSettings": {
+        "properties": {
+          "country": {
+            "type": "string",
+            "maxLength": 2,
+            "title": "Country",
+            "description": "ISO country code"
+          },
+          "postal_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 18
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postal Code",
+            "description": "Postal code for the device location"
+          }
+        },
+        "type": "object",
+        "required": [
+          "country"
+        ],
+        "title": "LocationSettings"
       },
       "ModelType": {
         "type": "string",
@@ -1846,8 +1971,7 @@
           "atw",
           "wtw"
         ],
-        "title": "ModelType",
-        "description": "Enumeration for model types."
+        "title": "ModelType"
       },
       "Reason": {
         "type": "string",
@@ -1870,8 +1994,99 @@
           "Uncertain heat pump activity, waiting for more data.",
           "Processing error, please contact support."
         ],
-        "title": "Reason",
-        "description": "Enumeration for reasons."
+        "title": "Reason"
+      },
+      "RoomSettings": {
+        "properties": {
+          "temperature_lower_bound": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "ge": 0,
+                "le": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature Lower Bound",
+            "description": "Lower temperature bound in Celsius"
+          },
+          "temperature_upper_bound": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "ge": 0,
+                "le": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature Upper Bound",
+            "description": "Upper temperature bound in Celsius"
+          },
+          "preferred_temperature": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "ge": 0,
+                "le": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Temperature",
+            "description": "Preferred room temperature in Celsius"
+          },
+          "schedule_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schedule Enabled",
+            "description": "If `True`, follow the schedule of the manufacturer settings within their app. If `False`, ignore the schedule and follow the prefered temperature or the auto detected preferred temperature."
+          },
+          "temperature_control_mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TemperatureControlMode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Temperature control mode to determine if you only want heating or cooling or both (auto) or none of both (off). If auto is chosen, our system will decide if cooling is necessary based on outside temperature and upper comfort bounds."
+          }
+        },
+        "type": "object",
+        "title": "RoomSettings"
       },
       "SteerableStatus": {
         "properties": {
@@ -1958,8 +2173,102 @@
           }
         },
         "type": "object",
-        "title": "SteerableStatus",
-        "description": "Steerable status model."
+        "title": "SteerableStatus"
+      },
+      "SteeringEnabled": {
+        "properties": {
+          "heat_pump": {
+            "type": "boolean",
+            "title": "Heat Pump",
+            "description": "Enable/disable steering for this device"
+          }
+        },
+        "type": "object",
+        "required": [
+          "heat_pump"
+        ],
+        "title": "SteeringEnabled"
+      },
+      "TemperatureControlMode": {
+        "type": "string",
+        "enum": [
+          "heating",
+          "cooling",
+          "auto",
+          "off"
+        ],
+        "title": "TemperatureControlMode"
+      },
+      "ThermalControlSettingsRequest": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Device ID to update settings for"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "User ID to update settings for"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Room temperature control settings"
+          },
+          "dhw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DHWSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Domestic hot water settings"
+          },
+          "steering_enabled": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SteeringEnabled"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Steering control settings"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LocationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Location-related settings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "title": "ThermalControlSettingsRequest"
       },
       "ValidationError": {
         "properties": {
