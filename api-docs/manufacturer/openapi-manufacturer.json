@@ -583,6 +583,77 @@
         "type": "object",
         "title": "DevicesResponse"
       },
+      "DevicesSettingsRequest": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Device ID to update settings for"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "User ID to update settings for"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Room temperature control settings"
+          },
+          "dhw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DHWSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Domestic hot water settings"
+          },
+          "optimization_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OptimizationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optimization settings for flex trading, dynamic tariff and PV self-consumption"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LocationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Location-related settings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "title": "DevicesSettingsRequest"
+      },
       "GeneralReason": {
         "type": "string",
         "enum": [
@@ -698,6 +769,48 @@
           "wtw"
         ],
         "title": "ModelType"
+      },
+      "OptimizationSettings": {
+        "properties": {
+          "pv_self_consumption": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Self Consumption",
+            "description": "Enable/disable PV self-consumption optimization"
+          },
+          "dynamic_tariff": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dynamic Tariff",
+            "description": "Enable/disable dynamic tariff optimization"
+          },
+          "flex_trading": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flex Trading",
+            "description": "Enable/disable supplier flex trading optimization. If `True`, the supplier steers the device based on a schedule they provide to NOX Energy."
+          }
+        },
+        "type": "object",
+        "title": "OptimizationSettings"
       },
       "Reason": {
         "type": "string",

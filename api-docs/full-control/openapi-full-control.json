@@ -596,7 +596,7 @@
           "Thermal Control"
         ],
         "summary": "Submit Thermal Control Settings",
-        "description": "Update on a device or user level the device/user settings. If you want to update a setting on a device level, provide the device_id along with the user_id.\n\n You can change the following settings:\n\n * The lower and upper room comfort temperature bounds of\n end users/devices in degrees celcius.\n\n * The lower and upper bounds for domestic hot water heating in degrees celcius.\nThis will determine the maximum and minimum allowed temperatures we allow it to go.\n This should be changed carefully as it could lead to the tank temperature going too low and cause legionella growth.\n Below 40 degrees is not recommended, only during vacations.\n\n * The preferred temperature of end users/devices in degrees celcius.\nThis is also used to determine when to start cooling in temperature_control_mode auto or cooling mode.\n\n * Temperature control mode to determine if you only want heating or\n cooling or both (auto) or none of both (off). If `auto` is chosen,\n our system will decide if cooling is necessary based on outside temperature\n and upper comfort bounds. `Off` means we will turn room heating and cooling off and\n if this is not possible, we will configure the heat pump in a way so it will not cool or heat.\n If `heating` is chosen we will only heat and it will be based on the preferred temperature or the schedule and the comfort bounds.\n If `cooling` is chosen, we will only cool and it will be based on the preferred temperature or the schedule, outside temperature and the comfort bounds.\n\n * Enable/Disable steering.\n\n * The country code and the postal code",
+        "description": "[DEPRECATING] This endpoint will be deprecated in the future, please use the /devices/settings endpoint instead for both user and device level settings updates.\nthe main change between them is steering_enabled migrating to optimization_settings -> flex_trading field. \n\n\n\n Update on a device or user level the device/user settings. If you want to update a setting on a device level, provide the device_id along with the user_id.\n\n You can change the following settings:\n\n * The lower and upper room comfort temperature bounds of\n end users/devices in degrees celcius.\n\n * The lower and upper bounds for domestic hot water heating in degrees celcius.\nThis will determine the maximum and minimum allowed temperatures we allow it to go.\n This should be changed carefully as it could lead to the tank temperature going too low and cause legionella growth.\n Below 40 degrees is not recommended, only during vacations.\n\n * The preferred temperature of end users/devices in degrees celcius.\nThis is also used to determine when to start cooling in temperature_control_mode auto or cooling mode.\n\n * Temperature control mode to determine if you only want heating or\n cooling or both (auto) or none of both (off). If `auto` is chosen,\n our system will decide if cooling is necessary based on outside temperature\n and upper comfort bounds. `Off` means we will turn room heating and cooling off and\n if this is not possible, we will configure the heat pump in a way so it will not cool or heat.\n If `heating` is chosen we will only heat and it will be based on the preferred temperature or the schedule and the comfort bounds.\n If `cooling` is chosen, we will only cool and it will be based on the preferred temperature or the schedule, outside temperature and the comfort bounds.\n\n * Enable/Disable steering.\n\n * The country code and the postal code",
         "operationId": "submit_thermal_control_settings_v1_device_thermal_control_settings_post",
         "parameters": [],
         "requestBody": {
@@ -1289,6 +1289,77 @@
         "type": "object",
         "title": "DevicesResponse"
       },
+      "DevicesSettingsRequest": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Device ID to update settings for"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "User ID to update settings for"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Room temperature control settings"
+          },
+          "dhw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DHWSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Domestic hot water settings"
+          },
+          "optimization_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OptimizationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optimization settings for flex trading, dynamic tariff and PV self-consumption"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LocationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Location-related settings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "title": "DevicesSettingsRequest"
+      },
       "GeneralReason": {
         "type": "string",
         "enum": [
@@ -1404,6 +1475,48 @@
           "wtw"
         ],
         "title": "ModelType"
+      },
+      "OptimizationSettings": {
+        "properties": {
+          "pv_self_consumption": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Self Consumption",
+            "description": "Enable/disable PV self-consumption optimization"
+          },
+          "dynamic_tariff": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dynamic Tariff",
+            "description": "Enable/disable dynamic tariff optimization"
+          },
+          "flex_trading": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flex Trading",
+            "description": "Enable/disable supplier flex trading optimization. If `True`, the supplier steers the device based on a schedule they provide to NOX Energy."
+          }
+        },
+        "type": "object",
+        "title": "OptimizationSettings"
       },
       "Reason": {
         "type": "string",
