@@ -1,0 +1,110 @@
+---
+title: 'Partner webhooks'
+description: 'Receive real-time updates from NOX at your HTTPS endpoint. Register your URL with our team; verify signatures with your API key.'
+---
+
+## Registering your webhook URL
+
+Webhook endpoints are not registered through our API. To subscribe, contact us through [support@nox.energy](mailto:support@nox.energy) with your **HTTPS** callback URL and which events you wish to subscribe to. We will configure delivery on our side.
+
+You will use the same **NOX API key** as for API requests when [verifying signatures](#signature-verification). Keep it secret; see the [Authentication](/api-docs/authentication) guide.
+
+---
+
+## Using the webhook
+
+Your webhook endpoint receives **HTTP POST** requests with **JSON** payloads.
+
+- Return **2xx** to acknowledge receipt.
+- Return **4xx** for permanent failures (**we will not retry**).
+- Return **5xx** or **time out** to trigger a **retry**.
+
+### Request format
+
+| Header | Description |
+| --- | --- |
+| `Content-Type` | `application/json` |
+| `X-Webhook-Id` | Idempotency key: `{event_id}:{sub_event_type}`. Use to deduplicate deliveries. |
+| `X-Webhook-Timestamp` | Unix timestamp (seconds) when the webhook was signed. Required for signature verification. |
+| `X-Webhook-Signature` | HMAC-SHA256 signature. Format: `sha256=` followed by the lowercase hex digest. The signature is created with your NOX API key. |
+
+**Body** (JSON):
+
+```json
+{
+  "type": "device.steerable_status.being_steered.updated",
+  "timestamp": "2026-03-17T16:30:41Z",
+  "id": "evt_b56ebdfe5ece4e16930c63b5",
+  "data": {
+    "value": true,
+    "previous_value": false
+  },
+  "metadata": {
+    "device_id": "749f2d79-7ba3-4c2d-8339-eee4d8ba0bef",
+    "user_id": "45bc7bf6-576f-43cf-a0bc-8106ae93b59b",
+    "external_user_id": "49db88ac-08b7-424b-9392-41cba24f3d1c",
+    "brand": "Fictivia Appliances",
+    "energy_supplier": "Acme Power Company"
+  }
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `id` | Event ID |
+| `type` | Event type (see [Subscribable event types](#subscribable-event-types)) |
+| `timestamp` | ISO 8601 timestamp |
+| `data.value` | New value for the changed attribute |
+| `data.previous_value` | Previous value |
+| `metadata.external_user_id` | Your user ID for this user |
+| `metadata.user_id` | NOX user ID |
+| `metadata.device_id` | The manufacturer ID of the device (can be `null` for user-scoped settings) |
+| `metadata.brand` | The device manufacturer name |
+| `metadata.energy_supplier` | The energy supplier name |
+
+### Signature verification
+
+<Warning>
+  Your NOX API key is the webhook signing secret. Never log it, expose it in client-side code, or commit it to a repository.
+</Warning>
+
+Verify each request as follows:
+
+1. **Replay protection:** Reject if `X-Webhook-Timestamp` is older than **5 minutes** compared to your server clock.
+2. **Signed payload:** Reconstruct `{timestamp}.{raw_body}` where `raw_body` is the **exact bytes** received (the raw HTTP body).
+3. **HMAC:** Compute `HMAC-SHA256(signed_payload, secret)` using your NOX API key as `secret`. Compare to `X-Webhook-Signature` (strip the `sha256=` prefix).
+
+The body is **canonical JSON** (`sort_keys=True`, no extra whitespace). Use the raw request body as received; **do not re-serialize** before verifying.
+
+**Python example:**
+
+```python
+import hmac
+import hashlib
+import time
+
+def verify_webhook(raw_body: bytes, signature: str, timestamp: str, secret: str) -> bool:
+    if abs(time.time() - int(timestamp)) > 300:
+        return False
+    signed = f"{timestamp}.{raw_body.decode()}"
+    expected = "sha256=" + hmac.new(secret.encode(), signed.encode(), hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, signature)
+```
+
+### Subscribable event types
+
+| Event type | Description | `data.value` type |
+| --- | --- | --- |
+| `device.steerable_status.learning_period_ended.updated` | Learning period ended changed | `boolean` |
+| `device.steerable_status.being_steered.updated` | Being steered status changed | `boolean` |
+| `device.steerable_status.needs_reauthentication.updated` | Re-authentication needed changed | `boolean` |
+| `device.steerable_status.steerable.updated` | Steerable status changed | `boolean` |
+| `device.steerable_status.general_reason.updated` | General reason changed | `string` or `null` |
+| `device.steerable_status.dhw_reason.updated` | DHW (domestic hot water) reason changed | `string` or `null` |
+| `device.steerable_status.room_reason.updated` | Room heating reason changed | `string` or `null` |
+| `user.settings.dhw_lower_bound.updated` | DHW lower bound temperature changed | `number` or `null` |
+| `user.settings.dhw_upper_bound.updated` | DHW upper bound temperature changed | `number` or `null` |
+| `user.settings.pv_self_consumption.updated` | PV self-consumption setting changed | `boolean` or `null` |
+| `user.settings.dynamic_tariff.updated` | Dynamic tariff setting changed | `boolean` or `null` |
+| `user.settings.flex_trading.updated` | Flex trading setting changed | `boolean` or `null` |
+| `user.settings.weather_predictive_control.updated` | Weather predictive control changed | `boolean` or `null` |
