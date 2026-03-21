@@ -253,10 +253,10 @@
                           "can_activate_action": true,
                           "in_active_action": false,
                           "reason": "Device is ready to receive an action."
-                        }
+                        },
+                        "has_cooling": true
                       },
-                      "needs_reauthentication": false,
-                      "has_cooling": true
+                      "needs_reauthentication": false
                     },
                     {
                       "model": "model_b",
@@ -289,10 +289,10 @@
                           "can_activate_action": true,
                           "in_active_action": false,
                           "reason": "Device is ready to receive an action."
-                        }
+                        },
+                        "has_cooling": false
                       },
-                      "needs_reauthentication": false,
-                      "has_cooling": false
+                      "needs_reauthentication": false
                     }
                   ],
                   "meta": {
