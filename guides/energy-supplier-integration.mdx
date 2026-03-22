@@ -68,11 +68,17 @@ where the user can login into the manufacturer's portal to provide us their auth
 Depending on brand, the user also accepts the manufacturer terms of service agreement after logging into the 
 manufacturer's authentication portal.
 
-Once the user succesfully completed the authentication, we will redirect to your provided callback url and return to you
-the following response in the redirect url in the format of `redirect_url?data=...`:
+#### 1.3 Redirection Process
+To complete the integration flow, you must provide NOX Energy with a redirect URI.
+This URI serves as the callback URL where users will be redirected after successfully completing the authentication process.
+
+The redirect URI will include additional query parameters containing relevant user information,
+ allowing you to identify which NOX user was created and establish the necessary mapping between your system and ours.
+
+It looks similar to this `redirect_url?data=...`:
 
 ```bash
-{
+?data={
   "nox_user_id": "unique_nox_id",
   "supplier_user_id": "supplier_user_id_123",
   "manufacturer": "manufacturer_brand_123",
@@ -88,6 +94,7 @@ even if the user still completes it succesfully.
 , we will overwrite the device_id with the new device and keep the nox `user_id` and `supplier_user_id` the same.
 * If the same user of an asset authenticates using 2 different supplier_user_id's, then we have 2 different nox `user_id`'s 
 on our side as we assume these are different users.
+* After a device connected for the first time to our system, we need 30 days of data before we can provide good steering capabilities.
 
 
 ### 2. User creation from Manufacturer's or NOX Energy website/app.

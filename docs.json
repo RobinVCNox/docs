@@ -23,7 +23,18 @@
           {
             "group": "Integration",
             "pages": [
-              "guides/energy-supplier-integration",
+              "guides/energy-supplier-integration"
+            ]
+          },
+          {
+            "group": "Package Guides",
+            "pages": [
+              "guides/full-control-package"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
               "guides/partner-webhooks"
             ]
           }

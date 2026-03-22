@@ -1,0 +1,693 @@
+---
+title: 'Full NOX Control Package'
+description: 'Guide on how to use the full NOX control package.'
+---
+
+## Overview
+
+The Full NOX Control Package provides access to:
+* Device information
+* Energy consumption data.
+    * Forecasted consumption (= nomination)
+    * Actual consumption
+    * Typical consumption if NOX would not have altered the device steering.
+* Changing user Settings
+* Deleting a user
+
+## Getting Started
+
+### Prerequisites
+* Valid NOX API key (see [Authentication](/api-docs/authentication))
+
+### Base URL
+All endpoints use the base URL:
+- Sandbox: `https://api.sandbox.nox.energy`
+- Production: `https://api.nox.energy`
+
+## Core Workflows
+
+<Note>
+    All our collection api endpoints use a `next_token` to paginate through results if the size limit of the response has been reached.
+    To paginate through a response, you can use the `next_token` received in the response as a query parameter and call the same endpoint with
+    the same parameters again. You can repeat this process until you have received the last page of the response, which is signified
+    by the `next_token` field becoming `null`.
+</Note>
+
+### 1. Getting Device Information
+
+To fetch all devices configuration data you can call the following endpoint:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl -X GET "https://api.nox.energy/v1/devices" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+```python Python
+
+import requests
+
+url = "https://api.nox.energy/v1/devices"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.request("GET", url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/devices', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices?limit=1000",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices?limit=1000"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/devices?limit=1000")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/devices?limit=1000")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+However, how you should use the [/devices](/api-docs/full-control/asset-info/get-devices) endpoint is to fetch device info
+after the user completed the [authentication flow](/guides/energy-supplier-integration). You should have received the `user_id` and/or `device_id` in the
+redirect_uri callback parameters. Use the parameters received from the redirect and the
+[/devices](/api-docs/full-control/asset-info/get-devices) endpoint to fetch on a per `user_id` or per `device_id` basis.
+This can be done using the query parameters like the below example:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+**Key response fields:**
+- `device_id` - Unique identifier per device. Each nox user_id can have multiple device_id's.
+- `brand` - Manufacturer brand of the device. We currently only support 1 heat pump brand per user.
+- `model_type` - Signifies the type of device (e.g. air-to-water/air-to-air/... device)
+- `has_delayed_power_data_1d` - Signifies if the device can or cannot provide real-time power data but instead
+provides its power data with a delay of 1 day between 2-4 AM UTC of the full previous day.
+
+If you read the endpoint documentation of [/devices](/api-docs/full-control/asset-info/get-devices) you will
+find that the endpoint can also return a field `steerable_status` and `legionella_config`. You will not see these fields
+in the full control package as they mostly provide information that is useful for the
+supplier control package.
+
+You can however request us to see data change events from some of these fields like
+`needs_reauthentication` through our [webhook](guides/partner-webhooks). You can communicate to us which fields you are interested in and
+we can set up a custom webhook with a POST endpoint you provide to us and you will receive real-time updates on change events.
+
+We suggest you read [Partner webhooks](guides/partner-webhooks) page for more info.
+
+A lot of query parameters exist on the [/devices](/api-docs/full-control/asset-info/get-devices) we recommend you to use them
+if relevant, to reduces the size of data transfer.
+
+### 2. Retrieving Consumption Data
+
+#### 2.1 Historical Consumption
+Get actual measured consumption data of all devices of a certain timeframe:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/device/consumption/historical?limit=1000&end_time=2026-03-22T16%3A30%3A00Z&start_time=2026-03-22T16%3A15%3A00Z' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/device/consumption/historical?limit=1000&end_time=2026-03-22T16%3A30%3A00Z&start_time=2026-03-22T16%3A15%3A00Z"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/device/consumption/historical?limit=1000&end_time=2026-03-22T16%3A30%3A00Z&start_time=2026-03-22T16%3A15%3A00Z', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/device/consumption/historical?limit=1000&end_time=2026-03-22T16%3A30%3A00Z&start_time=2026-03-22T16%3A15%3A00Z",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/device/consumption/historical?limit=1000&end_time=2026-03-22T16%3A30%3A00Z&start_time=2026-03-22T16%3A15%3A00Z"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/device/consumption/historical?limit=1000&end_time=2026-03-22T16%3A30%3A00Z&start_time=2026-03-22T16%3A15%3A00Z")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/device/consumption/historical?limit=1000&end_time=2026-03-22T16%3A30%3A00Z&start_time=2026-03-22T16%3A15%3A00Z")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+If you are interested in real-time energy consumption in kWh, we recommend to query the endpoint every 15 minutes for the past 15minutes timeframe.
+Our consumption data is provided in 15-minute granularity at quarter hours. We recommend to query the endpoint with quarter hour timestamps
+(e.g. 16:00, 16:15, 16:30, etc.) for the past 15 minutes timeframe to get the most up-to-date data.
+
+If you query shorter than 15 minutes in the past, you might already see a record for the current quarter hour timestamp but the consumption value
+might still update until the end of the quarter hour. You should not rely on this as having per minute granularity consumption data.
+
+If you are interested in aggregated consumption data across all devices, you can use the `aggregated=true` query parameter to
+get the aggregated consumption across all devices.
+
+If you are not interested in aggregated data but on a per device basis, you should use the query parameter `device_id` to get the consumption data on a per device basis.
+Another option is to query without providing the `device_id` query parameter but loop over the same api call using the `next_token` query parameter
+to paginate through the data of all devices. We would only recommend this option if you are interested in all devices data and if your timeframe you are querying is small (e.g. 15minutes)
+as the amount of data can become quite large if you query a long timeframe and have many devices.
+
+More info about the [/device/consumption/historical](/api-docs/full-control/device-consumption/get-device-consumption-historical) endpoint.
+
+#### 2.2 Forecasted Consumption
+Get forecasted (= nominated) consumption data for all devices of a certain timeframe:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/device/consumption/forecast/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/device/consumption/forecast/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/device/consumption/forecast/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/device/consumption/forecast/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/device/consumption/forecast/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/device/consumption/forecast/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/device/consumption/forecast/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+This endpoint works very similar as the [/device/consumption/historical](/api-docs/full-control/device-consumption/get-device-consumption-historical) endpoint.
+We recommend you to read the explanation at [historical consumption](/guides/full-control-package#historical-consumption) first.
+
+The biggest difference in this endpoint is that it also contains forecasted data for the future. This is data forecasting 1-2 days starting from the next day.
+How far in the future and when the forecasted data is provided, depends on the supplier's needs. Example: If a supplier wants us to provide forecasted data at
+ 11 AM CET everyday for the next day. Then the data will be provided at 11 AM CET and the data contained will be from 00:00 UTC until 23:45 UTC of the next day.
+
+We recommend to use a 24h timeframe at the agreed forecast generation time with a `device_id` query parameter.
+
+More info about the [/device/consumption/forecast/historical](/api-docs/full-control/device-consumption/get-device-consumption-forecast-historical) endpoint.
+
+#### 2.3 Typical Consumption:
+Get baseline consumption:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/device/typical-consumption/historical?limit=1000&end_time=2023-10-02T00%3A00%3A00Z&start_time=2023-10-01T00%3A00%3A00Z' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/device/typical-consumption/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/device/typical-consumption/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/device/typical-consumption/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/device/typical-consumption/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/device/typical-consumption/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/device/typical-consumption/historical?limit=1000&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+This endpoint works very similar as the [/device/consumption/historical](/api-docs/full-control/device-consumption/get-device-consumption-historical) endpoint.
+We recommend you to read the explanation at [historical consumption](/guides/full-control-package#historical-consumption) first.
+
+The biggest difference in this endpoint is that it contains data of at least 1 day ago. This is data generated at 3 AM UTC for the full previous UTC day.
+
+More info about the [/device/typical-consumption/historical](/api-docs/full-control/device-consumption/get-device-typical-consumption-historical) endpoint.
+
+### 3. Managing User/Device Settings
+
+Update user preferences and optimization settings on a per user/device basis. We recommend to directly go to the endpoint documentation of
+[/devices/settings](/api-docs/full-control/user-management/patch-devices-settings) to seel all possible settings you can change.
+
+We recommend to at least implement the following settings options in your UI components of your website/app:
+
+* Preferred temperature
+* Room comfort bounds
+* Manufacturer schedule on/off
+* Optimization Settings (but not flex trading as this is mutually exclusive with other optimizations and should only be enabled if the supplier has the supplier control package)
+
+We recommend to at least implement the following from a backend perspective:
+
+* Location information for better forecasting and optimization results:
+    * Country
+    * Postal code
+* [Webhooks](/guides/partner-webhooks) setup -> Real-time settings sync between all parties
+
+### 4. Deleting a User
+
+You can delete a single user. This operation will delete all data associated with the user_id. This is a irreversible operation and disconnects the devices.
+Once deleted, we can no longer provide energy consumption data of the devices of the user.
+We recommend to only use this endpoint if the user explicitly requests to delete their data from your side or when the user switches to another energy supplier.
+
+More info at the endpoint documentation of [/user](/api-docs/full-control/user-management/delete-user).
+
+## Next Steps
+
+- Set up [Partner Webhooks](/guides/partner-webhooks) for real-time data updates.

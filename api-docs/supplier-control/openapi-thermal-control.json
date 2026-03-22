@@ -324,7 +324,7 @@
           "Device Consumption"
         ],
         "summary": "Get Device Typical Consumption Historical",
-        "description": "Get the typical consumption for devices associated with your energy supplier account in kWh for a specific timeframe with 15min granularity.\n\n This estimation is done everyday at a fixed time depending on supplier.\n\n The timestamp refers to the data that will happenin the next 15 minutes after the timestamp.",
+        "description": "Get the typical consumption for devices associated with your energy supplier account in kWh for a specific timeframe with 15min granularity.\n\n This estimation is done everyday at a fixed time depending on supplier.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
         "operationId": "get_device_typical_consumption_historical_v1_device_typical_consumption_historical_get",
         "parameters": [
           {
@@ -460,7 +460,7 @@
           "Thermal Control"
         ],
         "summary": "Get Thermal Control Forecast",
-        "description": "Get forecast data for 72h after it's daily generation time. New forecasts are updated every day at a specific time depending on supplier.\n\n The timestamp refers to the data that will happenin the next 15 minutes after the timestamp.",
+        "description": "Get forecast data for 72h after it's daily generation time. New forecasts are updated every day at a specific time depending on supplier.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
         "operationId": "get_thermal_control_forecast_v1_device_thermal_control_forecast_get",
         "parameters": [
           {
@@ -672,7 +672,7 @@
           "Thermal Control"
         ],
         "summary": "Get Thermal Control Current State",
-        "description": "Get current state data for a specific device.\n\n The timestamp refers to the data that will happenin the next 15 minutes after the timestamp.",
+        "description": "Get current state data for a specific device.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
         "operationId": "get_thermal_control_current_state_v1_device_thermal_control_current_state_get",
         "parameters": [
           {
@@ -1293,7 +1293,7 @@
           "Device Consumption"
         ],
         "summary": "Get Device Consumption Historical",
-        "description": "Get the measured historical consumption data for devices associated with your energy supplier account in kWh for a specific timeframe in 15min granularity.\n\n Our example timeframe might be outside this range.\n\n The timestamp refers to the data that will happenin the next 15 minutes after the timestamp.",
+        "description": "Get the measured historical consumption data for devices associated with your energy supplier account in kWh for a specific timeframe in 15min granularity.\n\n Our example timeframe might be outside this range.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
         "operationId": "get_device_consumption_historical_v1_device_consumption_historical_get",
         "parameters": [
           {
