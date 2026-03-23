@@ -45,7 +45,7 @@ curl --request POST \
 
 If the endpoint provides a succesful response, in the response you will find a `link_url` field.
 
-```bash
+```JSON
 {
   "success": true,
   "timestamp": 1703123456,
@@ -73,12 +73,12 @@ To complete the integration flow, you must provide NOX Energy with a redirect UR
 This URI serves as the callback URL where users will be redirected after successfully completing the authentication process.
 
 The redirect URI will include additional query parameters containing relevant user information,
- allowing you to identify which NOX user was created and establish the necessary mapping between your system and ours.
+allowing you to identify which NOX user was created and establish the necessary mapping between your system and ours.
 
-It looks similar to this `redirect_url?data=...`:
+It looks similar to this `redirect_url?data=...` where `data` is a base64 encoded JSON object:
 
-```bash
-?data={
+```json
+data = {
   "nox_user_id": "unique_nox_id",
   "supplier_user_id": "supplier_user_id_123",
   "manufacturer": "manufacturer_brand_123",
