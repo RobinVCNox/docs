@@ -32,7 +32,7 @@ Install our Github App to auto propagate changes from your repo to your deployme
 - Page loads as a 404 - Make sure you are running in a folder with `docs.json`
 
 ### How to update the docs of an api
-Currently we use [Mintlify](https://mintlify.com/) to host our documentation. This documentation hosting tool is currently located in a [Github repo](https://github.com/RobinVCNox/docs) where there is an openapi.json located in api-docss folder. To update the documentation with the latest API changes, we generate the openapi.json in the sandbox api folder and copy the contents of this file, over to the github repo openapi.json.
+Currently we use [Mintlify](https://mintlify.com/) to host our documentation. This documentation hosting tool is currently located in a [Github repo](https://github.com/RobinVCNox/docs) where there is an openapi.json located in api-docs folder. To update the documentation with the latest API changes, we generate the openapi.json in the api repo and copy the contents of this file, over to the github repo openapi.json.
 
 This can be done with the following script at the api folder level. (above /app folder):
 ```bash

@@ -266,7 +266,7 @@ puts response.read_body
 
 **Key response fields:**
 - `device_id` - Unique identifier per device. Each nox user_id can have multiple device_id's.
-- `brand` - Manufacturer brand of the device. We currently only support 1 heat pump brand per user.
+- `brand` - Manufacturer brand of the device. We currently only support 1 heat pump brand per user. If a user has multiple brands, during the auth process, a new user_id is created.
 - `model_type` - Signifies the type of device (e.g. air-to-water/air-to-air/... device)
 - `has_delayed_power_data_1d` - Signifies if the device can or cannot provide real-time power data but instead
 provides its power data with a delay of 1 day between 2-4 AM UTC of the full previous day.
