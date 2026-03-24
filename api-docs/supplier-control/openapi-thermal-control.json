@@ -1287,6 +1287,123 @@
         }
       }
     },
+    "/v1/devices/settings": {
+      "patch": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Patch Devices Settings",
+        "description": "Update on a device or user level the device/user settings. If you want to update a setting on a device level, provide the device_id along with the user_id.\nAny of the settings can be updated separately or together.\n\n\n You can change the following settings:\n\n * The lower and upper room comfort temperature bounds of\n end users/devices in degrees celcius.\n\n * The lower and upper bounds for domestic hot water heating in degrees celcius.\nThis will determine the maximum and minimum allowed temperatures we allow it to go.\n This should be changed carefully as it could lead to the tank temperature going too low and cause legionella growth.\n Below 40 degrees is not recommended, only during vacations.\n\n * The preferred temperature of end users/devices in degrees celcius.\nThis is also used to determine when to start cooling in temperature_control_mode auto or cooling mode.\n\n * Temperature control mode to determine if you only want heating or\n cooling or both (auto) or none of both (off). If `auto` is chosen,\n our system will decide if cooling is necessary based on outside temperature\n and upper comfort bounds. `Off` means we will turn room heating and cooling off and\n if this is not possible, we will configure the heat pump in a way so it will not cool or heat.\n If `heating` is chosen we will only heat and it will be based on the preferred temperature or the schedule and the comfort bounds.\n If `cooling` is chosen, we will only cool and it will be based on the preferred temperature or the schedule, outside temperature and the comfort bounds.\n\n * Enable/Disable steering optimizations. Flex_trading is mutually exclussive with the other optimizations. The other optimizations can be enabled together.\n If `flex_trading` is enabled, we disable all other optimizations.\n If any other optimization is enabled, we disable `flex_trading`.\n\n * The country code and the postal code",
+        "operationId": "patch_devices_settings_v1_devices_settings_patch",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevicesSettingsRequest"
+              },
+              "examples": {
+                "full_configuration": {
+                  "summary": "Complete settings configuration",
+                  "description": "Example with all available settings configured",
+                  "value": {
+                    "user_id": "user456",
+                    "device_id": "device123",
+                    "room": {
+                      "temperature_lower_bound": 1.5,
+                      "temperature_upper_bound": 2.0,
+                      "preferred_temperature": 21.0,
+                      "schedule_enabled": true,
+                      "temperature_control_mode": "auto"
+                    },
+                    "dhw": {
+                      "temperature_lower_bound": 45.0,
+                      "temperature_upper_bound": 60.0
+                    },
+                    "optimization_settings": {
+                      "pv_self_consumption": false,
+                      "dynamic_tariff": false,
+                      "flex_trading": true
+                    },
+                    "location": {
+                      "country": "NL",
+                      "postal_code": "1234AB"
+                    }
+                  }
+                },
+                "room_only": {
+                  "summary": "Room settings only",
+                  "description": "Simple example with just room temperature preferences",
+                  "value": {
+                    "user_id": "user456",
+                    "device_id": "device123",
+                    "room": {
+                      "temperature_lower_bound": 1.5,
+                      "temperature_upper_bound": 2.0,
+                      "preferred_temperature": 21.0,
+                      "schedule_enabled": false,
+                      "temperature_control_mode": "auto"
+                    }
+                  }
+                },
+                "dhw_only": {
+                  "summary": "Domestic Hot Water settings only",
+                  "description": "Example for updating only domestic hot water settings",
+                  "value": {
+                    "user_id": "user789",
+                    "dhw": {
+                      "temperature_lower_bound": 50.0,
+                      "temperature_upper_bound": 65.0
+                    }
+                  }
+                },
+                "steering_control": {
+                  "summary": "Steering control settings",
+                  "description": "Example for enabling/disabling device steering",
+                  "value": {
+                    "user_id": "user101",
+                    "device_id": "device789",
+                    "optimization_settings": {
+                      "pv_self_consumption": true,
+                      "dynamic_tariff": true,
+                      "flex_trading": false
+                    }
+                  }
+                },
+                "schedule_mode": {
+                  "summary": "Room schedule-based control",
+                  "description": "Example for devices using schedule-based temperature control",
+                  "value": {
+                    "user_id": "user202",
+                    "device_id": "device456",
+                    "room": {
+                      "schedule_enabled": true,
+                      "temperature_control_mode": "heating"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content - Settings updated successfully"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/device/consumption/historical": {
       "get": {
         "tags": [
