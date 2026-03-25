@@ -84,15 +84,15 @@ export const SupportedBrandOverviewTable = () => {
   ],
   "Bosch": [
     {
-      "model": "TBD",
-      "status": "Beta",
+      "model": "To be determined",
+      "status": "Alpha",
       "hpType": "-"
     }
   ],
   "Buderus": [
     {
-      "model": "TBD",
-      "status": "Beta",
+      "model": "To be determined",
+      "status": "Alpha",
       "hpType": "-"
     }
   ],
