@@ -460,7 +460,7 @@
           "Thermal Control"
         ],
         "summary": "Get Thermal Control Forecast",
-        "description": "Get forecast data for 72h after it's daily generation time. New forecasts are updated every day at a specific time depending on supplier.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
+        "description": "Get the thermal model forecast data for a specific device.\n\nThe forecast contains predicted thermal energy flows for both the **domestic hot water (DHW) tank**\nand the **house** (space heating/cooling), broken down into 15-minute intervals.\n\n**Tank fields:**\n * `upperbound_Z` / `lowerbound_X` / `Y_avg` — Upper/lower comfort bounds and average state of the tank.\n * `Q_loss` / `Q_gain` (kW) or `T_loss` / `T_gain` (°C) — Thermal loss to the environment and gain per activation level.\n * `P_if_activated` — Electrical power consumption (kW) per activation level if the heat pump is activated for DHW.\n * `tank_activation_limit` (kWh) / `tank_activation_limit_temp` (°C) — Tank state threshold below which DHW heating can be triggered.\n\n**House fields:**\n * `upperbound_Z` / `lowerbound_X` / `Y_avg` / `Y_ideal` — Comfort bounds, average and ideal state.\n * `Q_natural` / `Q_heating` / `Q_cooling` (kW) or `T_natural` / `T_heating` / `T_cooling` (°C) — Natural thermal drift, and heating/cooling effect per activation level.\n * `P_heating` / `P_cooling` — Electrical power consumption (kW) per activation level for space heating and cooling.\n\nUse the `unit` query parameter to choose between energy values (`kWh`, default) or temperature equivalents (`celsius` / °C).\nIn celsius mode, bounds are returned in °C and thermal flows as temperature change rates (°C per 15min) instead of energy (kWh/kW).\nPower fields (`P_*`) are always returned in kW regardless of the unit choice.\n\nThe timestamp refers to the data that will happen in the next 15 minutes after the timestamp. All timestamps are in UTC.",
         "operationId": "get_thermal_control_forecast_v1_device_thermal_control_forecast_get",
         "parameters": [
           {
@@ -473,6 +473,17 @@
               "title": "Device Id"
             },
             "description": "\nThe ID of the device.\n"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Unit",
+              "description": "\nUnit for thermal values returned in the response. \n\n'kWh' (default) returns energy in kWh and power in kW. \n\n'celsius' returns temperature equivalents in °C. \n\n",
+              "default": "kWh"
+            },
+            "description": "\nUnit for thermal values returned in the response. \n\n'kWh' (default) returns energy in kWh and power in kW. \n\n'celsius' returns temperature equivalents in °C. \n\n"
           }
         ],
         "responses": {
@@ -481,173 +492,347 @@
             "content": {
               "application/json": {
                 "schema": {},
-                "example": {
-                  "data": {
-                    "device_id": "HP123456",
-                    "forecasts": [
-                      {
-                        "timestamp": "2025-01-15 10:30:00",
-                        "tank": {
-                          "upperbound_Z": 4.5,
-                          "lowerbound_X": 1.5,
-                          "Y_avg": 2.3,
-                          "Q_loss": 0.1,
-                          "Q_gain": [
-                            1.2,
-                            1.3,
-                            1.4,
-                            1.5
-                          ],
-                          "P_if_activated": [
-                            0.5,
-                            1.0,
-                            1.5,
-                            2.0
-                          ],
-                          "tank_activation_limit": 49.80517352152737,
-                          "tank_activation_limit_temp": 53.0
-                        },
-                        "house": {
-                          "upperbound_Z": 8.5,
-                          "lowerbound_X": 2.0,
-                          "Y_avg": 4.3,
-                          "Y_ideal": 4.0,
-                          "Q_natural": 0.2,
-                          "Q_heating": [
-                            0.5,
-                            0.7,
-                            0.9,
-                            1.0,
-                            1.2,
-                            1.5,
-                            1.7,
-                            2.0
-                          ],
-                          "Q_cooling": [
-                            0.1,
-                            0.2,
-                            0.3,
-                            0.4,
-                            0.5,
-                            0.6,
-                            0.7,
-                            0.8
-                          ],
-                          "P_heating": [
-                            0.5,
-                            0.7,
-                            0.9,
-                            1.0,
-                            1.2,
-                            1.5,
-                            1.7,
-                            2.0
-                          ],
-                          "P_cooling": [
-                            0.1,
-                            0.2,
-                            0.3,
-                            0.4,
-                            0.5,
-                            0.6,
-                            0.7,
-                            0.8
-                          ]
-                        }
+                "examples": {
+                  "kWh": {
+                    "summary": "Response with unit=kWh (default)",
+                    "value": {
+                      "data": {
+                        "device_id": "HP123456",
+                        "forecasts": [
+                          {
+                            "timestamp": "2025-01-15 12:00:00",
+                            "tank": {
+                              "upperbound_Z": 32.07,
+                              "lowerbound_X": 22.45,
+                              "Y_avg": 27.26,
+                              "Q_loss": 0.61,
+                              "Q_gain": [
+                                16.35,
+                                16.35,
+                                16.35,
+                                16.35
+                              ],
+                              "P_if_activated": [
+                                2.37,
+                                2.89,
+                                3.27,
+                                3.48
+                              ],
+                              "tank_activation_limit": 24.4,
+                              "tank_activation_limit_temp": 45.0
+                            },
+                            "house": {
+                              "upperbound_Z": 528.88,
+                              "lowerbound_X": 486.19,
+                              "Y_avg": 507.53,
+                              "Y_ideal": 521.76,
+                              "Q_natural": -1.86,
+                              "Q_heating": [
+                                5.94,
+                                5.94,
+                                5.94,
+                                5.94,
+                                5.94,
+                                5.94,
+                                5.94,
+                                5.94
+                              ],
+                              "Q_cooling": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ],
+                              "P_heating": [
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8
+                              ],
+                              "P_cooling": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            }
+                          },
+                          {
+                            "timestamp": "2025-01-15 12:15:00",
+                            "tank": {
+                              "upperbound_Z": 32.07,
+                              "lowerbound_X": 22.45,
+                              "Y_avg": 27.26,
+                              "Q_loss": 0.61,
+                              "Q_gain": [
+                                16.35,
+                                16.35,
+                                16.35,
+                                16.35
+                              ],
+                              "P_if_activated": [
+                                2.36,
+                                2.88,
+                                3.27,
+                                3.48
+                              ],
+                              "tank_activation_limit": 24.4,
+                              "tank_activation_limit_temp": 45.0
+                            },
+                            "house": {
+                              "upperbound_Z": 528.88,
+                              "lowerbound_X": 486.19,
+                              "Y_avg": 507.53,
+                              "Y_ideal": 521.76,
+                              "Q_natural": -1.74,
+                              "Q_heating": [
+                                5.99,
+                                5.99,
+                                5.99,
+                                5.99,
+                                5.99,
+                                5.99,
+                                5.99,
+                                5.99
+                              ],
+                              "Q_cooling": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ],
+                              "P_heating": [
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8
+                              ],
+                              "P_cooling": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            }
+                          }
+                        ]
                       },
-                      {
-                        "timestamp": "2025-01-15 10:45:00",
-                        "tank": {
-                          "upperbound_Z": 3.5,
-                          "lowerbound_X": 0.5,
-                          "Y_avg": 2.2,
-                          "Y_ideal": 2.0,
-                          "Q_loss": 0.3,
-                          "Q_gain": [
-                            1.2,
-                            1.2,
-                            1.4,
-                            1.5
-                          ],
-                          "P_if_activated": [
-                            0.5,
-                            1.5,
-                            1.5,
-                            2.0
-                          ],
-                          "tank_activation_limit": 49.80517352152737,
-                          "tank_activation_limit_temp": 53.0
-                        },
-                        "house": {
-                          "upperbound_Z": 4.5,
-                          "lowerbound_X": 3.0,
-                          "Y_avg": 1.3,
-                          "Q_natural": 0.2,
-                          "Q_heating": [
-                            0.5,
-                            0.7,
-                            0.9,
-                            1.0,
-                            1.2,
-                            1.5,
-                            1.7,
-                            2.0
-                          ],
-                          "Q_cooling": [
-                            0.1,
-                            0.2,
-                            0.3,
-                            0.4,
-                            0.5,
-                            0.6,
-                            0.7,
-                            0.8
-                          ],
-                          "P_heating": [
-                            0.5,
-                            0.7,
-                            0.9,
-                            1.0,
-                            1.2,
-                            1.5,
-                            1.7,
-                            2.0
-                          ],
-                          "P_cooling": [
-                            0.1,
-                            0.2,
-                            0.3,
-                            0.4,
-                            0.5,
-                            0.6,
-                            0.7,
-                            0.8
-                          ]
-                        }
+                      "meta": {
+                        "forecast_generation_date": "2025-01-14",
+                        "forecast_generation_date_time_zone": "UTC",
+                        "timestamp_time_zone": "UTC",
+                        "tank_upperbound_Z_unit": "kWh",
+                        "tank_lowerbound_X_unit": "kWh",
+                        "tank_Y_avg_unit": "kWh",
+                        "tank_Q_loss_unit": "kW",
+                        "tank_Q_gain_unit": "kW",
+                        "tank_P_if_activated_unit": "kW",
+                        "house_upperbound_Z_unit": "kWh",
+                        "house_lowerbound_X_unit": "kWh",
+                        "house_Y_avg_unit": "kWh",
+                        "house_Q_natural_unit": "kW",
+                        "house_Q_heating_unit": "kW",
+                        "house_Q_cooling_unit": "kW",
+                        "house_P_heating_unit": "kW",
+                        "house_P_cooling_unit": "kW",
+                        "tank_activation_limits_unit": "kWh",
+                        "tank_activation_limit_temp_unit": "°C",
+                        "energy_supplier": "Energy Supplier A"
                       }
-                    ]
+                    }
                   },
-                  "meta": {
-                    "forecast_generation_date": "2025-01-14",
-                    "forecast_generation_date_time_zone": "UTC",
-                    "timestamp_time_zone": "UTC",
-                    "tank_upperbound_Z_unit": "kWh",
-                    "tank_lowerbound_X_unit": "kWh",
-                    "tank_Y_avg_unit": "kWh",
-                    "tank_Q_loss_unit": "kW",
-                    "tank_Q_gain_unit": "kW",
-                    "tank_P_if_activated_unit": "kW",
-                    "house_upperbound_Z_unit": "kWh",
-                    "house_lowerbound_X_unit": "kWh",
-                    "house_Y_avg_unit": "kWh",
-                    "house_Q_natural_unit": "kW",
-                    "house_Q_heating_unit": "kW",
-                    "house_Q_cooling_unit": "kW",
-                    "house_P_heating_unit": "kW",
-                    "house_P_cooling_unit": "kW",
-                    "tank_activation_limits_unit": "kWh",
-                    "tank_activation_limit_temp_unit": "°C",
-                    "energy_supplier": "Energy Supplier A"
+                  "celsius": {
+                    "summary": "Response with unit=celsius",
+                    "value": {
+                      "data": {
+                        "device_id": "HP123456",
+                        "forecasts": [
+                          {
+                            "timestamp": "2025-01-15 12:00:00",
+                            "tank": {
+                              "upperbound_Z": 60.0,
+                              "lowerbound_X": 42.0,
+                              "Y_avg": 51.0,
+                              "T_loss": 0.29,
+                              "T_gain": [
+                                7.65,
+                                7.65,
+                                7.65,
+                                7.65
+                              ],
+                              "P_if_activated": [
+                                2.37,
+                                2.89,
+                                3.27,
+                                3.48
+                              ],
+                              "tank_activation_limit_temp": 45.0
+                            },
+                            "house": {
+                              "upperbound_Z": 22.3,
+                              "lowerbound_X": 20.5,
+                              "Y_avg": 21.4,
+                              "Y_ideal": 22.0,
+                              "T_natural": -0.02,
+                              "T_heating": [
+                                0.063,
+                                0.063,
+                                0.063,
+                                0.063,
+                                0.063,
+                                0.063,
+                                0.063,
+                                0.063
+                              ],
+                              "T_cooling": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ],
+                              "P_heating": [
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8
+                              ],
+                              "P_cooling": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            }
+                          },
+                          {
+                            "timestamp": "2025-01-15 12:15:00",
+                            "tank": {
+                              "upperbound_Z": 60.0,
+                              "lowerbound_X": 42.0,
+                              "Y_avg": 51.0,
+                              "T_loss": 0.29,
+                              "T_gain": [
+                                7.65,
+                                7.65,
+                                7.65,
+                                7.65
+                              ],
+                              "P_if_activated": [
+                                2.36,
+                                2.88,
+                                3.27,
+                                3.48
+                              ],
+                              "tank_activation_limit_temp": 45.0
+                            },
+                            "house": {
+                              "upperbound_Z": 22.3,
+                              "lowerbound_X": 20.5,
+                              "Y_avg": 21.4,
+                              "Y_ideal": 22.0,
+                              "T_natural": -0.018,
+                              "T_heating": [
+                                0.063,
+                                0.063,
+                                0.063,
+                                0.063,
+                                0.063,
+                                0.063,
+                                0.063,
+                                0.063
+                              ],
+                              "T_cooling": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ],
+                              "P_heating": [
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8,
+                                1.8
+                              ],
+                              "P_cooling": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "meta": {
+                        "forecast_generation_date": "2025-01-15",
+                        "forecast_generation_date_time_zone": "UTC",
+                        "timestamp_time_zone": "UTC",
+                        "tank_upperbound_Z_unit": "°C",
+                        "tank_lowerbound_X_unit": "°C",
+                        "tank_Y_avg_unit": "°C",
+                        "tank_T_loss_unit": "°C",
+                        "tank_T_gain_unit": "°C",
+                        "tank_P_if_activated_unit": "kW",
+                        "tank_activation_limit_temp_unit": "°C",
+                        "house_upperbound_Z_unit": "°C",
+                        "house_lowerbound_X_unit": "°C",
+                        "house_Y_avg_unit": "°C",
+                        "house_T_natural_unit": "°C",
+                        "house_T_heating_unit": "°C",
+                        "house_T_cooling_unit": "°C",
+                        "house_P_heating_unit": "kW",
+                        "house_P_cooling_unit": "kW",
+                        "energy_supplier": "Energy Supplier A"
+                      }
+                    }
                   }
                 }
               }
@@ -672,7 +857,7 @@
           "Thermal Control"
         ],
         "summary": "Get Thermal Control Current State",
-        "description": "Get current state data for a specific device.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
+        "description": "Get the current thermal state of a specific device.\n\nThis returns the most recent 15-minute snapshot of the thermal model state for both the\n**domestic hot water (DHW) tank** and the **house** (space heating/cooling). It reflects the latest\nknown thermal energy flows, temperatures, and heat pump power consumption.\n\n**Tank fields:**\n * `Y` (kWh mode only) — Current energy state of the DHW tank.\n * `DHW_temperature` — Current domestic hot water temperature in °C (always present).\n * `Q_loss` / `Q_gain` (kW) or `T_loss` / `T_gain` (°C) — Thermal loss to the environment and gain per activation level.\n * `P_if_activated` — Electrical power consumption (kW) per activation level if the heat pump is activated for DHW.\n\n**House fields:**\n * `Y` (kWh mode only) — Current energy state of the house.\n * `Space_temperature` (celsius mode only) — Current room temperature in °C.\n * `Q_natural` / `Q_heating` / `Q_cooling` (kW) or `T_natural` / `T_heating` / `T_cooling` (°C) — Natural thermal drift, and heating/cooling effect per activation level.\n * `P_heating` / `P_cooling` — Electrical power consumption (kW) per activation level for space heating and cooling.\n\nUse the `unit` query parameter to choose between energy values (`kWh`, default) or temperature equivalents (`celsius` / °C).\nIn celsius mode, bounds are returned in °C and thermal flows as temperature change rates (°C per 15min) instead of energy (kWh/kW).\nPower fields (`P_*`) are always returned in kW regardless of the unit choice.\n\nThe timestamp refers to the data that will happen in the next 15 minutes after the timestamp. All timestamps are in UTC.",
         "operationId": "get_thermal_control_current_state_v1_device_thermal_control_current_state_get",
         "parameters": [
           {
@@ -685,6 +870,17 @@
               "title": "Device Id"
             },
             "description": "\nThe ID of the device.\n"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Unit",
+              "description": "\nUnit for thermal values returned in the response. \n\n'kWh' (default) returns energy in kWh and power in kW. \n\n'celsius' returns temperature equivalents in °C. \n\n",
+              "default": "kWh"
+            },
+            "description": "\nUnit for thermal values returned in the response. \n\n'kWh' (default) returns energy in kWh and power in kW. \n\n'celsius' returns temperature equivalents in °C. \n\n"
           }
         ],
         "responses": {
@@ -693,87 +889,175 @@
             "content": {
               "application/json": {
                 "schema": {},
-                "example": {
-                  "data": {
-                    "device_id": "HP123456",
-                    "timestamp": "2025-01-15 10:30:00",
-                    "tank": {
-                      "Y": 3.2,
-                      "DHW_temperature": 55.5,
-                      "Q_loss": 0.5,
-                      "Q_gain": [
-                        1.8,
-                        1.6,
-                        1.2,
-                        1.0
-                      ],
-                      "P": [
-                        1.5,
-                        1.0,
-                        0.5,
-                        0.1
-                      ]
-                    },
-                    "house": {
-                      "Y": 2.1,
-                      "space_temperature": 20.5,
-                      "Q_natural": 0.2,
-                      "Q_heating": [
-                        0.5,
-                        0.7,
-                        0.9,
-                        1.0,
-                        1.2,
-                        1.5,
-                        1.7,
-                        2.0
-                      ],
-                      "Q_cooling": [
-                        0.1,
-                        0.2,
-                        0.3,
-                        0.4,
-                        0.5,
-                        0.6,
-                        0.7,
-                        0.8
-                      ],
-                      "P_heating": [
-                        0.5,
-                        0.7,
-                        0.9,
-                        1.0,
-                        1.2,
-                        1.5,
-                        1.7,
-                        2.0
-                      ],
-                      "P_cooling": [
-                        0.1,
-                        0.2,
-                        0.3,
-                        0.4,
-                        0.5,
-                        0.6,
-                        0.7,
-                        0.8
-                      ]
+                "examples": {
+                  "kWh": {
+                    "summary": "Response with unit=kWh (default)",
+                    "value": {
+                      "data": {
+                        "device_id": "HP123456",
+                        "timestamp": "2025-01-15 12:15:12",
+                        "tank": {
+                          "Y": 25.12,
+                          "DHW_temperature": 47.0,
+                          "Q_loss": 0.25,
+                          "Q_gain": [
+                            16.35,
+                            16.35,
+                            16.35,
+                            16.35
+                          ],
+                          "P_if_activated": [
+                            2.38,
+                            2.87,
+                            3.18,
+                            3.31
+                          ]
+                        },
+                        "house": {
+                          "Y": 521.76,
+                          "Q_natural": -2.04,
+                          "Q_heating": [
+                            8.26,
+                            8.26,
+                            8.26,
+                            8.26,
+                            8.26,
+                            8.26,
+                            8.26,
+                            8.26
+                          ],
+                          "Q_cooling": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                          ],
+                          "P_heating": [
+                            1.8,
+                            1.8,
+                            1.8,
+                            1.8,
+                            1.8,
+                            1.8,
+                            1.8,
+                            1.8
+                          ],
+                          "P_cooling": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                          ]
+                        }
+                      },
+                      "meta": {
+                        "timestamp_time_zone": "UTC",
+                        "temperature_unit": "°C",
+                        "tank_Y_unit": "kWh",
+                        "tank_Q_loss_unit": "kW",
+                        "tank_Q_gain_unit": "kW",
+                        "tank_P_unit": "kW",
+                        "house_Y_unit": "kWh",
+                        "house_Q_natural_unit": "kW",
+                        "house_Q_heating_unit": "kW",
+                        "house_Q_cooling_unit": "kW",
+                        "house_P_heating_unit": "kW",
+                        "house_P_cooling_unit": "kW",
+                        "energy_supplier": "Energy Supplier A"
+                      }
                     }
                   },
-                  "meta": {
-                    "timestamp_time_zone": "UTC",
-                    "temperature_unit": "°C",
-                    "tank_Y_unit": "kWh",
-                    "tank_Q_loss_unit": "kW",
-                    "tank_Q_gain_unit": "kW",
-                    "tank_P_unit": "kW",
-                    "house_Y_unit": "kWh",
-                    "house_Q_natural_unit": "kW",
-                    "house_Q_heating_unit": "kW",
-                    "house_Q_cooling_unit": "kW",
-                    "house_P_heating_unit": "kW",
-                    "house_P_cooling_unit": "kW",
-                    "energy_supplier": "Energy Supplier A"
+                  "celsius": {
+                    "summary": "Response with unit=celsius",
+                    "value": {
+                      "data": {
+                        "device_id": "HP123456",
+                        "timestamp": "2025-01-15 12:15:12",
+                        "tank": {
+                          "DHW_temperature": 47.0,
+                          "T_loss": 0.12,
+                          "T_gain": [
+                            7.65,
+                            7.65,
+                            7.65,
+                            7.65
+                          ],
+                          "P_if_activated": [
+                            2.38,
+                            2.87,
+                            3.18,
+                            3.31
+                          ]
+                        },
+                        "house": {
+                          "Space_temperature": 22.0,
+                          "T_natural": -0.021,
+                          "T_heating": [
+                            0.087,
+                            0.087,
+                            0.087,
+                            0.087,
+                            0.087,
+                            0.087,
+                            0.087,
+                            0.087
+                          ],
+                          "T_cooling": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                          ],
+                          "P_heating": [
+                            1.8,
+                            1.8,
+                            1.8,
+                            1.8,
+                            1.8,
+                            1.8,
+                            1.8,
+                            1.8
+                          ],
+                          "P_cooling": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                          ]
+                        }
+                      },
+                      "meta": {
+                        "timestamp_time_zone": "UTC",
+                        "temperature_unit": "°C",
+                        "tank_DHW_temperature_unit": "°C",
+                        "tank_T_loss_unit": "°C",
+                        "tank_T_gain_unit": "°C",
+                        "tank_P_unit": "kW",
+                        "house_Space_temperature_unit": "°C",
+                        "house_T_natural_unit": "°C",
+                        "house_T_heating_unit": "°C",
+                        "house_T_cooling_unit": "°C",
+                        "house_P_heating_unit": "kW",
+                        "house_P_cooling_unit": "kW",
+                        "energy_supplier": "Energy Supplier A"
+                      }
+                    }
                   }
                 }
               }
@@ -2499,6 +2783,14 @@
           "user_id"
         ],
         "title": "ThermalControlSettingsRequest"
+      },
+      "Unit": {
+        "type": "string",
+        "enum": [
+          "kWh",
+          "celsius"
+        ],
+        "title": "Unit"
       },
       "ValidationError": {
         "properties": {

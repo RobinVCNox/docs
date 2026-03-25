@@ -1109,6 +1109,14 @@
         ],
         "title": "ThermalControlSettingsRequest"
       },
+      "Unit": {
+        "type": "string",
+        "enum": [
+          "kWh",
+          "celsius"
+        ],
+        "title": "Unit"
+      },
       "ValidationError": {
         "properties": {
           "loc": {
