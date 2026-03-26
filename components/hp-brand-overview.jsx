@@ -273,7 +273,7 @@ export const SupportedBrandOverviewTable = () => {
           "hpType": "Air to Air"
         }
       ],
-      "Hitachi Yutaki": [
+      "Hitachi": [
         {
           "model": "Yutaki S",
           "status": "Alpha",
@@ -298,6 +298,41 @@ export const SupportedBrandOverviewTable = () => {
           "model": "Yutaki M",
           "status": "Alpha",
           "hpType": "Air to Water"
+        },
+        {
+            "model": "airHome 400 series",
+            "status": "Alpha",
+            "hpType": "Air to Air"
+        },
+        {
+            "model": "airHome 600 series",
+            "status": "Alpha",
+            "hpType": "Air to Air"
+        },
+        {
+            "model": "Shirokuma",
+            "status": "Alpha",
+            "hpType": "Air to Air"
+        },
+        {
+            "model": "Light Commercial series",
+            "status": "Alpha",
+            "hpType": "Air to Air"
+        },
+        {
+            "model": "S-Series / Summit",
+            "status": "Alpha",
+            "hpType": "Air to Air"
+        },
+        {
+            "model": "Airhome multi-split",
+            "status": "Alpha",
+            "hpType": "Air to Air"
+        },
+        {
+            "model": "Utopia ES indoor units",
+            "status": "Alpha",
+            "hpType": "Air to Air"
         }
       ],
       "IVT Värmepumpar": [
@@ -1573,13 +1608,13 @@ export const SupportedBrandOverviewTable = () => {
                         </tr>
                     ))
                 }
-                <tr onClick={() => toggleRow("Hitachi Yutaki")} style={{ cursor: 'pointer' }}>
-                    <td>Hitachi Yutaki</td>
+                <tr onClick={() => toggleRow("Hitachi")} style={{ cursor: 'pointer' }}>
+                    <td>Hitachi</td>
                     <td>{getStatusBadge("Alpha")}</td>
-                    <td>Air to Water</td>
+                    <td>Air to Water, Air to Air</td>
                 </tr>
-                {expandedRows.has("Hitachi Yutaki") &&
-                    getDeviceModels("Hitachi Yutaki").map((device, index) => (
+                {expandedRows.has("Hitachi") &&
+                    getDeviceModels("Hitachi").map((device, index) => (
                         <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
                             <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
                             <td>{getStatusBadge(device.status)}</td>
@@ -1632,7 +1667,7 @@ export const SupportedBrandOverviewTable = () => {
                 <tr onClick={() => toggleRow("Midea")} style={{ cursor: 'pointer' }}>
                     <td>Midea</td>
                     <td>{getStatusBadge("Beta")}</td>
-                    <td>Air to Water</td>
+                    <td>Air to Water, Air to Air</td>
                 </tr>
                 {expandedRows.has("Midea") &&
                     getDeviceModels("Midea").map((device, index) => (
