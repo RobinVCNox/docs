@@ -300,6 +300,48 @@ export const SupportedBrandOverviewTable = () => {
           "hpType": "Air to Water"
         }
       ],
+      "IVT Värmepumpar": [
+        {
+            "model": "AirX 400",
+            "status": "Alpha",
+            "hpType": "Air to Water"
+        },
+        {
+            "model": "AirX 400S",
+            "status": "Alpha",
+            "hpType": "Air to Water"
+        },
+        {
+            "model": "AirX 500",
+            "status": "Alpha",
+            "hpType": "Air to Water"
+        },
+        {
+            "model": "AirSplit 300",
+            "status": "Alpha",
+            "hpType": "Air to Water"
+        },
+        {
+            "model": "Greenline HE",
+            "status": "Alpha",
+            "hpType": "Ground to Water"
+        },
+        {
+            "model": "PremiumLine HQ",
+            "status": "Alpha",
+            "hpType": "Ground to Water"
+        },
+        {
+            "model": "Geo 600",
+            "status": "Alpha",
+            "hpType": "Ground to Water"
+        },
+        {
+            "model": "Geo 200",
+            "status": "Alpha",
+            "hpType": "Ground to Water"
+        }
+      ],
       "Jäspi": [
         {
           "model": "Basic NORDIC",
@@ -1538,6 +1580,20 @@ export const SupportedBrandOverviewTable = () => {
                 </tr>
                 {expandedRows.has("Hitachi Yutaki") &&
                     getDeviceModels("Hitachi Yutaki").map((device, index) => (
+                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
+                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
+                            <td>{getStatusBadge(device.status)}</td>
+                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
+                        </tr>
+                    ))
+                }
+                <tr onClick={() => toggleRow("IVT Värmepumpar")} style={{ cursor: 'pointer' }}>
+                    <td>IVT Värmepumpar</td>
+                    <td>{getStatusBadge("Alpha")}</td>
+                    <td>Air to Water, Ground to Water</td>
+                </tr>
+                {expandedRows.has("IVT Värmepumpar") &&
+                    getDeviceModels("IVT Värmepumpar").map((device, index) => (
                         <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
                             <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
                             <td>{getStatusBadge(device.status)}</td>
