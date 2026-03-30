@@ -244,6 +244,7 @@
                       "steerable_status": {
                         "steering_enabled": true,
                         "steerable": true,
+                        "general_reason": "Heat pump connected recently, still collecting data to improve models.",
                         "DHW": {
                           "can_activate_action": true,
                           "in_active_action": false,
@@ -280,6 +281,7 @@
                       "steerable_status": {
                         "steering_enabled": true,
                         "steerable": true,
+                        "general_reason": "Heat pump connected recently, still collecting data to improve models.",
                         "DHW": {
                           "can_activate_action": true,
                           "in_active_action": false,
