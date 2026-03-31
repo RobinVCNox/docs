@@ -1,0 +1,274 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+      "title": "NOX Authenticator API — Manufacturer",
+      "description": "Endpoints for device manufacturers to create link sessions and device connections.",
+      "version": "2.0.0",
+      "contact": {
+        "name": "NOX Energy"
+      }
+    },
+    "servers": [
+      {
+        "url": "https://auth.nox.energy/v2",
+        "description": "Production"
+      }
+    ],
+    "tags": [
+      {
+        "name": "Manufacturer",
+        "description": "Endpoints for device manufacturers to create link sessions and device connections."
+      }
+    ],
+    "paths": {
+      "/manufacturer/link-sessions": {
+        "post": {
+          "tags": ["Manufacturer"],
+          "summary": "Create manufacturer link session",
+          "description": "Create a new link session to connect a user of a manufacturer, with the intend to authenticate with the energy supplier. The returned `link_url` should be used to redirect the end-user to the NOX Authenticator UI.",
+          "operationId": "createManufacturerLinkSession",
+          "security": [
+            {
+              "ApiKeyAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateManufacturerLinkSessionRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Link session created successfully.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CreateManufacturerLinkSessionResponse"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Validation error.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Missing or invalid API key, or manufacturer not enabled.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  },
+                  "example": {
+                    "error": "Invalid API key"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/manufacturer/device-connections": {
+        "post": {
+          "tags": ["Manufacturer"],
+          "summary": "Create manufacturer device connection",
+          "description": "Connect a user and his device(s) by a manufacturer.",
+          "operationId": "createManufacturerDeviceConnection",
+          "security": [
+            {
+              "ApiKeyAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateManufacturerDeviceConnectionRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Device connection created successfully.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CreateManufacturerDeviceConnectionResponse"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Validation error.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Missing or invalid API key, or manufacturer not enabled.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  },
+                  "example": {
+                    "error": "Invalid API key"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Unexpected server error.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  },
+                  "example": {
+                    "error": "Internal server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "securitySchemes": {
+        "ApiKeyAuth": {
+          "type": "apiKey",
+          "in": "header",
+          "name": "x-api-key",
+          "description": "API key assigned to the manufacturer."
+        }
+      },
+      "schemas": {
+        "ErrorResponse": {
+          "type": "object",
+          "required": ["error"],
+          "properties": {
+            "error": {
+              "type": "string",
+              "description": "Human-readable error message."
+            }
+          }
+        },
+        "Language": {
+          "type": "string",
+          "enum": ["nl", "en", "fr", "es"],
+          "default": "nl",
+          "description": "Language for the Authenticator UI."
+        },
+        "CreateManufacturerLinkSessionRequest": {
+          "type": "object",
+          "required": ["user_id", "redirect_url"],
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "description": "The manufacturer's internal user ID for the end-user."
+            },
+            "language": {
+              "$ref": "#/components/schemas/Language"
+            },
+            "redirect_url": {
+              "type": "string",
+              "format": "uri",
+              "description": "Callback URL where the user is redirected after completing the flow. Must be in the manufacturer's allowed redirect URLs."
+            }
+          }
+        },
+        "CreateManufacturerLinkSessionResponse": {
+          "type": "object",
+          "required": ["link_url", "link_token", "manufacturer", "manufacturer_user_id", "redirect_url", "language", "created_at", "expires_at"],
+          "properties": {
+            "link_url": {
+              "type": "string",
+              "format": "uri",
+              "description": "Full URL to redirect the end-user to the NOX Authenticator UI.",
+              "example": "https://auth.nox.energy/ui?token=abc123&language=nl"
+            },
+            "link_token": {
+              "type": "string",
+              "description": "Unique token identifying this link session."
+            },
+            "brand": {
+              "type": "string",
+              "description": "The manufacturer's brand name (title-cased)."
+            },
+            "language": {
+              "$ref": "#/components/schemas/Language"
+            },
+            "redirect_url": {
+              "type": "string",
+              "format": "uri",
+              "description": "The redirect URL that was provided."
+            },
+            "manufacturer": {
+              "type": "string",
+              "description": "Name of the manufacturer (resolved from API key)."
+            },
+            "manufacturer_user_id": {
+              "type": "string",
+              "description": "The manufacturer's user ID."
+            },
+            "completed_at": {
+              "type": "integer",
+              "description": "Unix timestamp when the session was completed. Always `null` on creation.",
+              "nullable": true
+            },
+            "created_at": {
+              "type": "integer",
+              "description": "Unix timestamp when the session was created."
+            },
+            "expires_at": {
+              "type": "integer",
+              "description": "Unix timestamp when the session expires (10 minutes after creation)."
+            }
+          }
+        },
+        "CreateManufacturerDeviceConnectionRequest": {
+          "type": "object",
+          "required": ["user_id"],
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "description": "The manufacturer's internal user ID to register a device connection for."
+            }
+          }
+        },
+        "CreateManufacturerDeviceConnectionResponse": {
+          "type": "object",
+          "required": ["manufacturer_user_id", "nox_user_id"],
+          "properties": {
+            "manufacturer_user_id": {
+              "type": "string",
+              "description": "The manufacturer's user ID that was provided."
+            },
+            "nox_user_id": {
+              "type": "string",
+              "description": "The NOX subscriber ID (resolved or newly created)."
+            }
+          }
+        }
+      }
+    }
+  }
+  
