@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "NOX Authenticator API",
-    "description": "API for device authentication and linking in the NOX ecosystem",
+    "description": "API for device authentication and linking in the NOX ecosystem. **Deprecated:** use the v2 Authenticator API at `https://auth.nox.energy/v2` and the **Supplier Integration** section in this documentation.",
     "version": "1.0.0",
     "contact": {
       "name": "NOX Integration Team",
@@ -32,6 +32,7 @@
   "paths": {
     "/users/{userId}/link": {
       "post": {
+        "deprecated": true,
         "tags": [
           "Supplier Integration"
         ],

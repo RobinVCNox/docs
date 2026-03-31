@@ -71,18 +71,51 @@
             }
           },
           {
-            "group": "Supplier Integration",
-            "openapi": {
-              "source": "api-docs/supplier-integration/openapi-supplier-auth.json",
-              "directory": "api-docs/supplier-integration"
-            }
-          },
-          {
-            "group": "Manufacturer Integration",
-            "openapi": {
-              "source": "api-docs/manufacturer-integration/openapi-manufacturer-auth.json",
-              "directory": "api-docs/manufacturer-integration"
-            }
+            "group": "Connecting Users and Devices",
+            "pages": [
+              {
+                "group": "By supplier",
+                "openapi": {
+                  "source": "api-docs/supplier-integration/openapi-supplier-auth-v2.json",
+                  "directory": "api-docs/supplier-integration"
+                },
+                "pages": [
+                  "POST /supplier/link-sessions",
+                  {
+                    "group": "Deprecated",
+                    "openapi": {
+                      "source": "api-docs/supplier-integration/openapi-supplier-auth.json",
+                      "directory": "api-docs/supplier-integration-deprecated"
+                    },
+                    "pages": [
+                      "POST /users/{userId}/link"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "By manufacturer",
+                "openapi": {
+                  "source": "api-docs/manufacturer-integration/openapi-manufacturer-auth-v2.json",
+                  "directory": "api-docs/manufacturer-integration"
+                },
+                "pages": [
+                  "POST /manufacturer/link-sessions",
+                  "POST /manufacturer/device-connections",
+                  {
+                    "group": "Deprecated",
+                    "openapi": {
+                      "source": "api-docs/manufacturer-integration/openapi-manufacturer-auth.json",
+                      "directory": "api-docs/manufacturer-integration-deprecated"
+                    },
+                    "pages": [
+                      "POST /manufacturers/nox",
+                      "POST /manufacturers/suppliers"
+                    ]
+                  }
+                ]
+              }
+            ]
           }
         ]
       },

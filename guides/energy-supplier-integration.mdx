@@ -8,125 +8,130 @@ description: 'Guide on how to integrate NOX Energy into the energy supplier webs
 You will first need access to the NOX Energy API. To receive this, follow the [Authentication guide](/api-docs/authentication).
 
 ## User creation process
-### 1. User creation from Supplier's website/App.
-#### 1.1 Endpoints you will use
-You will use the following endpoint to be able to have a user connect to our platform and connect his asset.
-The endpoint is the following: [Connect User to Nox](/api-docs/supplier-integration/supplier-integration/connect-user-to-nox)
+### 1. User creation from the supplier's website/app
+#### 1.1 Endpoint
+Use the following endpoint to connect a user to our platform and link their asset:
+[Create supplier link session](/api-docs/supplier-integration/supplier/create-supplier-link-session)
 
 #### 1.2 Authentication flow
 
 **Summary**:
-1. **Call our API** → Creates an authentication session and you redirect to the `link_url`
-2. **User chooses brand** → NOX Energy opens Brand specific Authentication page
-3. **User authenticates brand** → User is redirected to the callback url you provided to our API
-4. **Done!** -> NOX Energy has a nox `user_id`/`device_id` to `supplier_user_id` mapping and 
-data is available in our Package API endpoints.
+1. **Call our API** → Creates an authentication session; you redirect the user to the `link_url`.
+2. **User chooses brand** → NOX Energy opens the brand-specific authentication page.
+3. **User authenticates** → The user is redirected to the callback URL you provided to our API.
+4. **Done!** → NOX Energy has a `user_id`/`device_id` to `supplier_user_id` mapping and data is available in our Package API endpoints.
 
 ![NOX Energy Supplier Authentication Flow](/guides/images/supplier_auth_flow.png)
 
 **Detailed flow**:
 
-You provide the endpoint a language, your `supplier_user_id` and a callback url. 
-Which is the url which NOX Energy will redirect back to after a succesful integration.
-This can be your mobile app or website. Additionally, we use the `user_id` you provide us
-to map the device with our internal nox `user_id` and `device_id`.
+You provide the endpoint your internal `user_id` for the end-user, a `redirect_url` where NOX Energy will send the user after the flow, and optionally a `language` and `brand` to pre-select the Authenticator UI. This can be your mobile app or website. We use the `user_id` you provide to map the device with our internal nox `user_id` and `device_id`.
 
 Example:
 ```bash
 curl --request POST \
-  --url https://auth.nox.energy/users/supplier_user_id_123/link \
+  --url https://auth.nox.energy/v2/supplier/link-sessions \
   --header 'Content-Type: application/json' \
   --header 'x-api-key: api_key_123' \
   --data '{
-  "redirect_uri": "https://your-app.com/callback",
+  "user_id": "supplier_user_id_123",
+  "redirect_url": "https://your-app.com/callback",
   "language": "en"
 }'
 ```
 
-If the endpoint provides a succesful response, in the response you will find a `link_url` field.
+On a successful response, you will receive a `link_url` field.
 
 ```JSON
 {
-  "success": true,
-  "timestamp": 1703123456,
-  "data": {
-    "link_token": "abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
-    "link_url": "https://link.nox.com/connect?token=abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
-    "expires_at": 1703124056,
-    "supplier_id": "supplier_123",
-    "supplier_user_id": "supplier_user_id_123",
-  }
+  "link_url": "https://auth.nox.energy/ui?token=abc123&language=en",
+  "link_token": "abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
+  "supplier": "Your Supplier Name",
+  "supplier_user_id": "supplier_user_id_123",
+  "redirect_url": "https://your-app.com/callback",
+  "language": "en",
+  "brand": null,
+  "completed_at": null,
+  "created_at": 1703123456,
+  "expires_at": 1703124056
 }
 ```
 
-This `link_url` you will need to redirect the user to from your website/app to our manufacturer authentication page.
+Redirect the user to this `link_url` from your website or app to start the manufacturer authentication flow.
 
 ![NOX Energy Brand Selection](/guides/images/auth_brand_selector.png)
 
-On this page you will find manufacturer brands that the users can select and it opens the manufacturer OAuth page
-where the user can login into the manufacturer's portal to provide us their authenticaton and access to their asset.
-Depending on brand, the user also accepts the manufacturer terms of service agreement after logging into the 
-manufacturer's authentication portal.
+On this page the user selects their manufacturer brand, which opens the manufacturer's OAuth page.
+The user logs into the manufacturer's portal to grant access to their asset.
+Depending on the brand, the user also accepts the manufacturer's terms of service during this step.
 
-#### 1.3 Redirection Process
-To complete the integration flow, you must provide NOX Energy with a redirect URI.
-This URI serves as the callback URL where users will be redirected after successfully completing the authentication process.
+#### 1.3 Redirect callback
+To complete the integration flow, you must provide NOX Energy with a redirect URL (the `redirect_url` field in the request).
+After the user successfully completes the authentication, they are redirected to this URL with query parameters containing the connection details, allowing you to map the NOX user to your system.
 
-The redirect URI will include additional query parameters containing relevant user information,
-allowing you to identify which NOX user was created and establish the necessary mapping between your system and ours.
+The redirect URL will contain a `?data=` query parameter with a **base64url-encoded** (no padding) JSON payload:
 
-It looks similar to this `redirect_url?data=...` where `data` is a base64 encoded JSON object:
+```
+https://your-app.com/callback?data=eyJub3hfdXNlcl9pZCI6Ii4uLiIsIC4uLn0
+```
+
+The decoded JSON object has the following structure:
+
+| Field | Type | Description |
+|---|---|---|
+| `nox_user_id` | string | The NOX subscriber ID. |
+| `supplier_user_id` | string | The supplier's user ID from the link session. |
+| `brand` | string | Manufacturer brand (lowercase). |
+| `device_ids` | string[] | List of device IDs that were connected. |
+| `connected_at` | integer | Unix timestamp when the connection was made. |
+
+Example decoded payload:
 
 ```json
-data = {
-  "nox_user_id": "unique_nox_id",
+{
+  "nox_user_id": "nox_abc123",
   "supplier_user_id": "supplier_user_id_123",
-  "manufacturer": "manufacturer_brand_123",
-  "connection_status": "connected",
-  "connected_at": 1640995200
+  "brand": "daikin",
+  "device_ids": ["device_001", "device_002"],
+  "connected_at": 1703123456
 }
 ```
 
 **Note**:
-* An authentication session can only last 15 minutes. If the timeout is reached, we will always fail the authentication
-even if the user still completes it succesfully.
-* If a user retries to authenticate twice with a device with the same provided `supplier_user_id` when calling the `POST` endpoint
-, we will overwrite the device_id with the new device and keep the nox `user_id` and `supplier_user_id` the same.
-* If the same user of an asset authenticates using 2 different supplier_user_id's, then we have 2 different nox `user_id`'s 
-on our side as we assume these are different users.
-* After a device connected for the first time to our system, we need 30 days of data before we can provide good steering capabilities.
+* A link session expires 10 minutes after creation. If the session times out, the authentication will fail even if the user completes it afterwards.
+* If a user authenticates again with the same `supplier_user_id`, we overwrite the linked device with the new one while keeping the `user_id` and `supplier_user_id` the same.
+* If the owner of an asset authenticates using two different `supplier_user_id` values, only the last user will exist on our side, as we assume a single user has ownership of a device.
+* After a device connects to our system for the first time, we need approximately 30 days of data before we can provide accurate steering capabilities.
 
 
-### 2. User creation from Manufacturer's or NOX Energy website/app.
+### 2. User creation from the manufacturer's or NOX Energy website/app
 
-In case of the user enabling NOX Energy optimizations in the NOX Energy webapp or the manufacturer's website/app,
-we redirect the user to an energy supplier selector where they can directly select and authenticate with integrated energy suppliers,
-if the Energy supplier provided an OAuth login page. This way the energy supplier knows which nox `user_id` and `device_id`
-is linked to which `supplier_user_id`.
+When a user enables NOX Energy optimizations from the NOX Energy web app or the manufacturer's website/app,
+we redirect the user to an energy supplier selector where they can choose and authenticate with an integrated energy supplier
+(provided the supplier has an OAuth login page). This allows the energy supplier to know which `user_id` and `device_id`
+are linked to which `supplier_user_id`.
 
-Additionally, if NOX Energy is integrated in both the supplier and the manufacturer, we keep the user preferred settings
-like their preffered comfort bounds in sync between all parties.
+Additionally, if NOX Energy is integrated with both the supplier and the manufacturer, we keep user preferences
+like comfort temperature bounds in sync between all parties.
 
-Below you can find an example flow diagram:
+Below is an example flow diagram:
 
 ![NOX Energy Manufacturer to Supplier Authentication flow](/guides/images/manufacturer_supplier_auth.png)
 
-#### 2.1 Supplier OAuth Page
-When the user has chosen their supplier, they will be redirect to an OAuth login page the supplier will need to provide.
-The energy supplier should provide a redirect url from their OAuth platform to NOX. 
-Additionally, in the OAuth platform the terms and conditions of the supplier should be shown/accepted by the user. 
-If the authentication is successful, the supplier shares the user_id on suppliers side via 
-the NOX `POST` `/post-login-redirect` endpoint. 
+#### 2.1 Supplier OAuth page
+When the user selects their supplier, they are redirected to an OAuth login page that the supplier must provide.
+The supplier should configure a redirect URL from their OAuth platform back to NOX.
+The supplier's OAuth page should also present the terms and conditions for the user to accept.
+On successful authentication, the supplier shares the `supplier_user_id` via the NOX `POST /post-login-redirect` endpoint.
 
-This allows NOX Energy to map the nox `user_id` to the `supplier_user_id` so that the supplier can link devices 
-coming from the NOX / manufacturer app to their users. 
+This allows NOX Energy to map the `user_id` to the `supplier_user_id`, so the supplier can link devices
+coming from the NOX or manufacturer app to their users.
 
 **Note**:
-* An authentication session can only last 15 minutes. If the timeout is reached, we will always fail the authentication
-even if the user still completes it succesfully.
+* An authentication session can only last 15 minutes. If the session times out, the authentication will fail even if the user completes it afterwards.
 
-#### 2.2 Redirect User
+#### 2.2 Redirect user
 
-After a succesful redirect to the NOX Energy platform, the user is redirected back to the NOX Energy/manufacturers 
-website/app through the redirect url created by the manufacturer at the start of the authentication process. 
-This let’s them know the supplier authentication succeeded.
+After a successful redirect to the NOX Energy platform, the user is redirected back to the NOX Energy or manufacturer's
+website/app through the redirect URL created by the manufacturer at the start of the authentication process.
+This confirms to the user that the supplier authentication succeeded.
