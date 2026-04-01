@@ -1,203 +1,225 @@
 {
-    "openapi": "3.0.3",
-    "info": {
-      "title": "NOX Authenticator API — Supplier",
-      "description": "Endpoints for energy suppliers to create link sessions.",
-      "version": "2.0.0",
-      "contact": {
-        "name": "NOX Energy"
-      }
-    },
-    "servers": [
-      {
-        "url": "https://auth.nox.energy/v2",
-        "description": "Production"
-      }
-    ],
-    "tags": [
-      {
-        "name": "Supplier",
-        "description": "Endpoints for energy suppliers to create link sessions."
-      }
-    ],
-    "paths": {
-      "/supplier/link-sessions": {
-        "post": {
-          "tags": ["Supplier"],
-          "summary": "Create supplier link session",
-          "description": "Create a new link session to connect a user of an energy supplier, with the intend to authenticate with the device manufacturer. The returned `link_url` should be used to redirect the end-user to the NOX Authenticator UI.",
-          "operationId": "createSupplierLinkSession",
-          "security": [
-            {
-              "ApiKeyAuth": []
+  "openapi": "3.0.3",
+  "info": {
+    "title": "NOX Authenticator API — Supplier",
+    "description": "Endpoints for energy suppliers to create link sessions.",
+    "version": "2.0.0",
+    "contact": {
+      "name": "NOX Energy"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://auth.nox.energy/v2",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Supplier",
+      "description": "Endpoints for energy suppliers to create link sessions."
+    }
+  ],
+  "paths": {
+    "/supplier/link-sessions": {
+      "post": {
+        "tags": ["Supplier"],
+        "summary": "Create supplier link session",
+        "description": "Create a new link session to connect a user of an energy supplier, with the intend to authenticate with the device manufacturer. The returned `link_url` should be used to redirect the end-user to the NOX Authenticator UI.",
+        "operationId": "createSupplierLinkSession",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSupplierLinkSessionRequest"
+              }
             }
-          ],
-          "requestBody": {
-            "required": true,
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Link session created successfully.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateSupplierLinkSessionRequest"
+                  "$ref": "#/components/schemas/CreateSupplierLinkSessionResponse"
                 }
               }
             }
           },
-          "responses": {
-            "201": {
-              "description": "Link session created successfully.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/CreateSupplierLinkSessionResponse"
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Validation error.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ErrorResponse"
-                  }
-                }
-              }
-            },
-            "401": {
-              "description": "Missing or invalid API key.",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ErrorResponse"
-                  },
-                  "example": {
-                    "error": "Invalid API key"
-                  }
+          "400": {
+            "description": "Validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Missing required fields: user_id, redirect_url"
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "components": {
-      "securitySchemes": {
-        "ApiKeyAuth": {
-          "type": "apiKey",
-          "in": "header",
-          "name": "x-api-key",
-          "description": "API key assigned to the supplier."
-        }
-      },
-      "schemas": {
-        "ErrorResponse": {
-          "type": "object",
-          "required": ["error"],
-          "properties": {
-            "error": {
-              "type": "string",
-              "description": "Human-readable error message."
-            }
-          }
-        },
-        "Brand": {
-          "type": "string",
-          "enum": [
-            "alpha innotec",
-            "bulex",
-            "daikin",
-            "dewarmte",
-            "lg",
-            "mitsubishi",
-            "nibe",
-            "saunier duval",
-            "toshiba",
-            "thermia",
-            "vaillant",
-            "viessmann"
-          ],
-          "description": "Heat pump manufacturer brand (case-insensitive on input, stored lowercase)."
-        },
-        "Language": {
-          "type": "string",
-          "enum": ["nl", "en", "fr", "es"],
-          "default": "nl",
-          "description": "Language for the Authenticator UI."
-        },
-        "CreateSupplierLinkSessionRequest": {
-          "type": "object",
-          "required": ["user_id", "redirect_url"],
-          "properties": {
-            "user_id": {
-              "type": "string",
-              "description": "The supplier's internal user ID for the end-user."
-            },
-            "brand": {
-              "$ref": "#/components/schemas/Brand",
-              "nullable": true,
-              "description": "Optionally pre-select a manufacturer brand."
-            },
-            "language": {
-              "$ref": "#/components/schemas/Language"
-            },
-            "redirect_url": {
-              "type": "string",
-              "format": "uri",
-              "description": "Callback URL where the user is redirected after completing the flow. Must be in the supplier's allowed redirect URLs."
-            }
-          }
-        },
-        "CreateSupplierLinkSessionResponse": {
-          "type": "object",
-          "required": ["link_url", "link_token", "supplier", "supplier_user_id", "redirect_url", "language", "created_at", "expires_at"],
-          "properties": {
-            "link_url": {
-              "type": "string",
-              "format": "uri",
-              "description": "Full URL to redirect the end-user to the NOX Authenticator UI.",
-              "example": "https://auth.nox.energy/ui?token=abc123&language=nl"
-            },
-            "link_token": {
-              "type": "string",
-              "description": "Unique token identifying this link session."
-            },
-            "brand": {
-              "$ref": "#/components/schemas/Brand",
-              "nullable": true,
-              "description": "Pre-selected brand, if provided."
-            },
-            "language": {
-              "$ref": "#/components/schemas/Language"
-            },
-            "redirect_url": {
-              "type": "string",
-              "format": "uri",
-              "description": "The redirect URL that was provided."
-            },
-            "supplier": {
-              "type": "string",
-              "description": "Name of the supplier (resolved from API key)."
-            },
-            "supplier_user_id": {
-              "type": "string",
-              "description": "The supplier's user ID."
-            },
-            "completed_at": {
-              "type": "integer",
-              "description": "Unix timestamp when the session was completed. Always `null` on creation.",
-              "nullable": true
-            },
-            "created_at": {
-              "type": "integer",
-              "description": "Unix timestamp when the session was created."
-            },
-            "expires_at": {
-              "type": "integer",
-              "description": "Unix timestamp when the session expires (10 minutes after creation)."
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Invalid API key"
+                }
+              }
             }
           }
         }
       }
     }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API key assigned to the supplier."
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message."
+          }
+        }
+      },
+      "Brand": {
+        "type": "string",
+        "enum": [
+          "alpha innotec",
+          "bulex",
+          "daikin",
+          "dewarmte",
+          "lg",
+          "mitsubishi",
+          "nibe",
+          "saunier duval",
+          "toshiba",
+          "thermia",
+          "vaillant",
+          "viessmann"
+        ],
+        "description": "Heat pump manufacturer brand (case-insensitive on input, stored lowercase)."
+      },
+      "Language": {
+        "type": "string",
+        "enum": ["nl", "en", "fr", "es"],
+        "default": "nl",
+        "description": "Language for the Authenticator UI."
+      },
+      "AssetType": {
+        "type": "string",
+        "enum": ["hp", "pv"],
+        "description": "Device category: `hp` (heat pump) or `pv` (PV solar inverter). Omitted on create defaults to `hp`."
+      },
+      "CreateSupplierLinkSessionRequest": {
+        "type": "object",
+        "required": ["user_id", "redirect_url"],
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "The supplier's internal user ID for the end-user.",
+            "example": "supplier_user_id_123"
+          },
+          "brand": {
+            "$ref": "#/components/schemas/Brand",
+            "nullable": true,
+            "description": "Optionally pre-select a manufacturer brand."
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "asset_type": {
+            "$ref": "#/components/schemas/AssetType",
+            "description": "Optional. Defaults to `hp` when omitted."
+          },
+          "redirect_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Callback URL where the user is redirected after completing the flow.",
+            "example": "https://your-app.com/callback"
+          }
+        }
+      },
+      "CreateSupplierLinkSessionResponse": {
+        "type": "object",
+        "required": ["link_url", "link_token", "supplier", "supplier_user_id", "redirect_url", "language", "asset_type", "created_at", "expires_at"],
+        "properties": {
+          "link_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Full URL to redirect the end-user to the NOX Authenticator UI.",
+            "example": "https://auth.nox.energy/ui?token=abc123&language=nl"
+          },
+          "link_token": {
+            "type": "string",
+            "description": "Unique token identifying this link session.",
+            "example": "abc123"
+          },
+          "brand": {
+            "$ref": "#/components/schemas/Brand",
+            "nullable": true,
+            "description": "Pre-selected brand, if provided."
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "asset_type": {
+            "$ref": "#/components/schemas/AssetType"
+          },
+          "redirect_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The redirect URL that was provided.",
+            "example": "https://your-app.com/callback"
+          },
+          "supplier": {
+            "type": "string",
+            "description": "Name of the supplier (resolved from API key).",
+            "example": "Acme Energy"
+          },
+          "supplier_user_id": {
+            "type": "string",
+            "description": "The supplier's user ID.",
+            "example": "supplier_user_id_123"
+          },
+          "completed_at": {
+            "type": "integer",
+            "description": "Unix timestamp when the session was completed. Always `null` on creation.",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "integer",
+            "description": "Unix timestamp when the session was created.",
+            "example": 1703123456
+          },
+          "expires_at": {
+            "type": "integer",
+            "description": "Unix timestamp when the session expires (10 minutes after creation).",
+            "example": 1703124056
+          }
+        }
+      }
+    }
   }
-  
+}
