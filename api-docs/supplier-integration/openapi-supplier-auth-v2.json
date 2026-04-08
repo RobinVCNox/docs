@@ -107,19 +107,63 @@
         "type": "string",
         "enum": [
           "alpha innotec",
+          "alpha-ess",
+          "apsystems",
+          "axitec",
           "bulex",
+          "canadian-solar",
           "daikin",
+          "denim-solar",
           "dewarmte",
+          "deye",
+          "dmegc",
+          "enphase",
+          "energreen",
+          "felicity-solar",
+          "fox-ess",
+          "fronius",
+          "goodwe",
+          "growatt",
+          "hoymiles",
+          "huawei",
+          "hyxipower",
+          "ibc",
+          "ilumen",
+          "ja-solar",
+          "jinkosolar",
+          "kostal",
           "lg",
+          "longi",
           "mitsubishi",
           "nibe",
+          "panasonic",
+          "phono-solar",
+          "qcells",
+          "saj",
           "saunier duval",
-          "toshiba",
+          "sanyo",
+          "schneider-electric",
+          "sharp",
+          "sigenergy",
+          "sma",
+          "sofar",
+          "solaredge",
+          "solarman",
+          "solax",
+          "solis",
+          "solplanet",
+          "solarwatt",
+          "sungrow",
+          "sunpower",
+          "talesun",
           "thermia",
+          "toshiba",
+          "trinasolar",
           "vaillant",
+          "victron",
           "viessmann"
         ],
-        "description": "Heat pump manufacturer brand (case-insensitive on input, stored lowercase)."
+        "description": "Manufacturer brand."
       },
       "Language": {
         "type": "string",
@@ -130,11 +174,11 @@
       "AssetType": {
         "type": "string",
         "enum": ["hp", "pv"],
-        "description": "Device category: `hp` (heat pump) or `pv` (PV solar inverter). Omitted on create defaults to `hp`."
+        "description": "Device category: `hp` (heat pump) or `pv` (PV solar inverter)."
       },
       "CreateSupplierLinkSessionRequest": {
         "type": "object",
-        "required": ["user_id", "redirect_url"],
+        "required": ["user_id", "redirect_url", "asset_type"],
         "properties": {
           "user_id": {
             "type": "string",
@@ -144,14 +188,14 @@
           "brand": {
             "$ref": "#/components/schemas/Brand",
             "nullable": true,
-            "description": "Optionally pre-select a manufacturer brand."
+            "description": "Optionally pre-select a manufacturer brand. Must be a valid brand for the given `asset_type`."
           },
           "language": {
             "$ref": "#/components/schemas/Language"
           },
           "asset_type": {
             "$ref": "#/components/schemas/AssetType",
-            "description": "Optional. Defaults to `hp` when omitted."
+            "description": "Device category for this link session. Determines which brands are available."
           },
           "redirect_url": {
             "type": "string",
