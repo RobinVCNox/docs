@@ -3,7 +3,7 @@
   "info": {
     "title": "NOX Energy API - Thermal Control",
     "description": "# Thermal Control API Documentation\n\nThis documentation shows only the endpoints available to thermal control users.\n\n## Authentication\n\n1. Get your API key from [NOX Energy](mailto:support@nox.energy).\n2. Include the API key in your API calls with the header: `x-api-key: YOUR_API_KEY`.\n\n## Access Level\n\nThis documentation is specifically for **thermal control users** who have access to these endpoints.\n\nBase URL: [https://api.nox.energy](https://api.nox.energy)\n",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "paths": {
     "/v1/devices": {
@@ -486,6 +486,42 @@
               "default": "kWh"
             },
             "description": "\nUnit for thermal values returned in the response. \n\n'kWh' (default) returns energy in kWh and power in kW. \n\n'celsius' returns temperature equivalents in °C. \n\n"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nStart time of the forecasts.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "Start Time"
+            },
+            "description": "\nStart time of the forecasts.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nEnd time of the forecasts.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "End Time"
+            },
+            "description": "\nEnd time of the forecasts.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
           }
         ],
         "responses": {
