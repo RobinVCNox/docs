@@ -102,9 +102,18 @@ def verify_webhook(raw_body: bytes, signature: str, timestamp: str, secret: str)
 | `device.steerable_status.general_reason.updated` | General reason changed | `string` or `null` |
 | `device.steerable_status.dhw_reason.updated` | DHW (domestic hot water) reason changed | `string` or `null` |
 | `device.steerable_status.room_reason.updated` | Room heating reason changed | `string` or `null` |
-| `user.settings.dhw_lower_bound.updated` | DHW lower bound temperature changed | `number` or `null` |
-| `user.settings.dhw_upper_bound.updated` | DHW upper bound temperature changed | `number` or `null` |
-| `user.settings.pv_self_consumption.updated` | PV self-consumption setting changed | `boolean` or `null` |
-| `user.settings.dynamic_tariff.updated` | Dynamic tariff setting changed | `boolean` or `null` |
-| `user.settings.flex_trading.updated` | Flex trading setting changed | `boolean` or `null` |
-| `user.settings.weather_predictive_control.updated` | Weather predictive control changed | `boolean` or `null` |
+| `device.settings.optimization.pv_self_consumption.updated` | PV self-consumption (optimization) changed | `boolean` or `null` |
+| `device.settings.optimization.dynamic_tariff.updated` | Dynamic tariff (optimization) changed | `boolean` or `null` |
+| `device.settings.optimization.flex_trading.updated` | Flex trading (optimization) changed | `boolean` or `null` |
+| `device.settings.optimization.weather_predictive_control.updated` | Weather predictive control (optimization) changed | `boolean` or `null` |
+| `device.settings.general.silence_mode.updated` | Silence mode changed | `boolean` or `null` |
+| `device.settings.dhw.temperature_upper_bound.updated` | DHW upper temperature bound changed | `number` or `null` |
+| `device.settings.dhw.temperature_lower_bound.updated` | DHW lower temperature bound changed | `number` or `null` |
+| `device.settings.room.preferred_temperature.updated` | Room preferred temperature changed | `number` or `null` |
+| `device.settings.room.temperature_upper_bound.updated` | Room upper temperature bound changed | `number` or `null` |
+| `device.settings.room.temperature_lower_bound.updated` | Room lower temperature bound changed | `number` or `null` |
+| `device.settings.room.temperature_control_mode.updated` | Room temperature control mode changed | `string` or `null` |
+| `device.settings.room.schedule_enabled.updated` | Room schedule enabled changed | `boolean` or `null` |
+| `user.settings.pv_self_consumption.updated` | Legacy alias, emitted alongside `device.settings.optimization.pv_self_consumption.updated`. Kept for backward compatibility. | `boolean` or `null` |
+| `user.settings.dynamic_tariff.updated` | Legacy alias, emitted alongside `device.settings.optimization.dynamic_tariff.updated`. Kept for backward compatibility. | `boolean` or `null` |
+| `user.settings.flex_trading.updated` | Legacy alias, emitted alongside `device.settings.optimization.flex_trading.updated`. Kept for backward compatibility. | `boolean` or `null` |

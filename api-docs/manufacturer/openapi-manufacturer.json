@@ -12,7 +12,7 @@
           "Manufacturer Control"
         ],
         "summary": "Submit Manufacturer Settings",
-        "description": "Update on a user/device level the manufacturer settings.\n\n You can change the following settings:\n\n * The lower and upper comfort temperature bounds for domestic hot water heating in degrees celcius.\n\n * The optimization settings.\n\n * The country code and the postal code",
+        "description": "Update on a user/device level the manufacturer settings.\n\n You can change the following settings:\n\n * The lower and upper comfort temperature bounds for domestic hot water heating in degrees celsius.\n\n * The optimization settings.\n\n * The country code and the postal code",
         "operationId": "submit_manufacturer_settings_v1_manufacturer_settings_post",
         "parameters": [],
         "requestBody": {
