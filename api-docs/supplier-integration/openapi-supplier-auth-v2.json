@@ -106,7 +106,7 @@
       "Brand": {
         "type": "string",
         "enum": [
-          "alpha innotec",
+          "alpha-innotec",
           "alpha-ess",
           "apsystems",
           "axitec",
@@ -140,7 +140,7 @@
           "phono-solar",
           "qcells",
           "saj",
-          "saunier duval",
+          "saunier-duval",
           "sanyo",
           "schneider-electric",
           "sharp",
