@@ -116,6 +116,13 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "PV",
+            "openapi": {
+              "source": "api-docs/pv/openapi-pv.json",
+              "directory": "api-docs/pv"
+            }
           }
         ]
       },

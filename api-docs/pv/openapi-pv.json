@@ -1,0 +1,1921 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "NOX Energy API - PV",
+    "description": "# PV API Documentation\n\nThis documentation shows only the endpoints available to pv users.\n\n## Authentication\n\n1. Get your API key from [NOX Energy](mailto:support@nox.energy).\n2. Include the API key in your API calls with the header: `x-api-key: YOUR_API_KEY`.\n\n## Access Level\n\nThis documentation is specifically for **pv users** who have access to these endpoints.\n\nBase URL: [https://api.nox.energy](https://api.nox.energy)\n",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v1/devices/pv": {
+      "get": {
+        "tags": [
+          "Asset Info"
+        ],
+        "summary": "Get Devices Pv",
+        "description": "Get information about all NOX connected pv devices associated with your external account. If you want to know the response structure or possible enum values, you can find it in the response model `schema`.",
+        "operationId": "get_devices_pv_v1_devices_pv_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 4000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n",
+              "title": "Device Id"
+            },
+            "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe ID of the user to filter on. If not provided, all users are returned.\n",
+              "title": "User Id"
+            },
+            "description": "\nThe ID of the user to filter on. If not provided, all users are returned.\n"
+          },
+          {
+            "name": "needs_reauthentication",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nIf `True`, filter devices that need reauthentication.\n",
+              "default": false,
+              "title": "Needs Reauthentication"
+            },
+            "description": "\nIf `True`, filter devices that need reauthentication.\n"
+          },
+          {
+            "name": "learning_period_ended",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nIf `True`, filter devices for which the learning period of gathering data has ended. \n\nIf `False`, filter devices for which the learning period of gathering data has not ended. \n\nIf `None`, do not filter based on learning period status. \n\n",
+              "title": "Learning Period Ended"
+            },
+            "description": "\nIf `True`, filter devices for which the learning period of gathering data has ended. \n\nIf `False`, filter devices for which the learning period of gathering data has not ended. \n\nIf `None`, do not filter based on learning period status. \n\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response for devices API with PV data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DevicesPVResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "model": "model_g",
+                      "brand": "SMA",
+                      "country": "BE",
+                      "device_id": "01a5c222-5b76-4531-b587-5deeb81a3db3",
+                      "user_id": "user_4",
+                      "steerable_status": {
+                        "steering_enabled": true,
+                        "steerable": true,
+                        "learning_period_ended": true,
+                        "general_reason": "PV connected recently, still collecting data to improve models."
+                      },
+                      "needs_reauthentication": false,
+                      "has_grid_export_curtailment": true,
+                      "has_production_curtailment": true
+                    },
+                    {
+                      "model": "model_b",
+                      "brand": "SolarEdge",
+                      "device_id": "01bbbaab-159a-4898-bcba-d81acdb2353c",
+                      "user_id": "user_5",
+                      "steerable_status": {
+                        "steering_enabled": true,
+                        "steerable": true,
+                        "learning_period_ended": true,
+                        "general_reason": "PV connected recently, still collecting data to improve models."
+                      },
+                      "needs_reauthentication": false,
+                      "has_grid_export_curtailment": true,
+                      "has_production_curtailment": true
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "eyJkZXZpY2VfaWQiOiAiMDFiYmJhYWItMTU5YS00ODk4LWJjYmEtZDgxYWNkYjIzNTNjIiwgImVuZXJneV9zdXBwbGllciI6ICJFbmVyZ3kgU3VwcGxpZXIgQSJ9"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/devices/pv/production/forecast": {
+      "get": {
+        "tags": [
+          "Device Production"
+        ],
+        "summary": "Get Devices Pv Production Forecast",
+        "description": "Get the forecasted production for pv devices associated with your energy supplier account in kWh for a specific timeframe with 15min granularity.\n\n This forecast is done everyday at a fixed time depending on supplier.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
+        "operationId": "get_devices_pv_production_forecast_v1_devices_pv_production_forecast_get",
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nStart time when the production measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "Start Time"
+            },
+            "description": "\nStart time when the production measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nEnd time when the production measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "End Time"
+            },
+            "description": "\nEnd time when the production measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "aggregated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, sum the production of the devices.\n\nIf `false`, return the production of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n",
+              "default": false,
+              "title": "Aggregated"
+            },
+            "description": "\nIf `true`, sum the production of the devices.\n\nIf `false`, return the production of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "\nDevice ID to get production of. If `None`, all devices are included.\n",
+              "title": "Device Id"
+            },
+            "description": "\nDevice ID to get production of. If `None`, all devices are included.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Devices Pv Production Forecast V1 Devices Pv Production Forecast Get"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "forecast_time": "2025-05-01 07:45",
+                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
+                      "production": "2.61"
+                    },
+                    {
+                      "forecast_time": "2025-05-01 07:45",
+                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
+                      "production": "1.75"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
+                    "production_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/devices/pv/production": {
+      "get": {
+        "tags": [
+          "Device Production"
+        ],
+        "summary": "Get Device Pv Production",
+        "description": "Get the measured historical pv production data for devices associated with your energy supplier account in kWh for a specific timeframe in 15min granularity.\n\n Our example timeframe might be outside this range.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
+        "operationId": "get_device_pv_production_v1_devices_pv_production_get",
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nStart time when the production measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "Start Time"
+            },
+            "description": "\nStart time when the production measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nEnd time when the production measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "End Time"
+            },
+            "description": "\nEnd time when the production measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "aggregated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, sum the production of the devices.\n\nIf `false`, return the production of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n",
+              "default": false,
+              "title": "Aggregated"
+            },
+            "description": "\nIf `true`, sum the production of the devices.\n\nIf `false`, return the production of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "\nDevice ID to get production of. If `None`, all devices are included.\n",
+              "title": "Device Id"
+            },
+            "description": "\nDevice ID to get production of. If `None`, all devices are included.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Device Pv Production V1 Devices Pv Production Get"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "measurement_time": "2025-04-29 16:00",
+                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
+                      "production": "2.88"
+                    },
+                    {
+                      "measurement_time": "2025-04-29 16:00",
+                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
+                      "production": "1.16"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6NDQxMjA5Mzg3MTExOmtleS80Yzk3N2IxMi02NDA4LTRhNzktYWIyMy1hZTk0Y2Y0YTFmZjQAuAECAQB4KL0",
+                    "production_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/devices/pv/schedule": {
+      "post": {
+        "tags": [
+          "PV Control"
+        ],
+        "summary": "Post Pv Control Schedule",
+        "description": "Submit a steering schedule by providing a start and end time with a 1 min granularity of when you would like pv production to be off.\n Our system will look every minute to stop or re-enable the pv production. You can post several scheduled controls for the same device.\n They will be appended to the existing control schedules.\n \n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n**NOTE**: \n * The pv device might need some time to react. Please provide start times at\nleast 1 minute in the future to ensure the device can react in time.",
+        "operationId": "post_pv_control_schedule_v1_devices_pv_schedule_post",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Request Body"
+              },
+              "examples": {
+                "schedule_example": {
+                  "summary": "Sample pv control schedule",
+                  "value": {
+                    "device_id": "PV123456",
+                    "start_time": "2025-08-05T10:15:00Z",
+                    "end_time": "2025-08-05T10:20:00Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Schedule submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "status": "success",
+                  "message": "Steering schedule accepted for PV123456",
+                  "meta": {
+                    "schedule_granularity": "1min",
+                    "energy_supplier": "Energy Supplier A",
+                    "timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Missing required fields: device_id, start_time, stop_time"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/devices/pv/settings": {
+      "patch": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Patch Devices Pv Settings",
+        "description": "Update on a device or user level the device/user settings. If you want to update a setting on a device level, provide the device_id instead.\nAny of the settings can be updated separately or together.\n\n\n You can change the following settings:\n\n * Enable/Disable steering optimizations. `pv_curtailment_mode` can be set to `managed`, `external` or `off`.\n If `managed` is enabled, we will manage the pv curtailment.\n If `external` is enabled, we steer based on schedules provided by external parties.\n If `off` is enabled, we will not curtail the pv production.\n\n * The country code and the postal code",
+        "operationId": "patch_devices_pv_settings_v1_devices_pv_settings_patch",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevicesPVSettingsRequest"
+              },
+              "examples": {
+                "full_configuration": {
+                  "summary": "Complete settings configuration",
+                  "description": "Example with all available settings configured",
+                  "value": {
+                    "user_id": "user456",
+                    "device_id": "device123",
+                    "optimization_settings": {
+                      "pv_curtailment_mode": "managed"
+                    },
+                    "location": {
+                      "country": "NL",
+                      "postal_code": "1234AB"
+                    }
+                  }
+                },
+                "user_id_only": {
+                  "summary": "Settings update based on user_id only",
+                  "description": "Example for updating settings for all devices of a user without specifying device_id",
+                  "value": {
+                    "user_id": "user456",
+                    "optimization_settings": {
+                      "pv_curtailment_mode": "external"
+                    },
+                    "location": {
+                      "country": "NL",
+                      "postal_code": "1234AB"
+                    }
+                  }
+                },
+                "device_id_only": {
+                  "summary": "Settings update based on device_id only",
+                  "description": "Example for updating settings for a specific device without user_id",
+                  "value": {
+                    "user_id": "user456",
+                    "device_id": "device123",
+                    "optimization_settings": {
+                      "pv_curtailment_mode": "off"
+                    },
+                    "location": {
+                      "country": "NL",
+                      "postal_code": "1234AB"
+                    }
+                  }
+                },
+                "location_update_only": {
+                  "summary": "Settings update with location information only",
+                  "description": "Example for enabling/disabling device steering",
+                  "value": {
+                    "device_id": "device123",
+                    "location": {
+                      "country": "NL",
+                      "postal_code": "1234AB"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content - Settings updated successfully"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActionStatus": {
+        "properties": {
+          "can_activate_action": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Can Activate Action",
+            "description": "Whether action can be activated"
+          },
+          "in_active_action": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "In Active Action",
+            "description": "Whether currently in active action"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Reason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Reason for the current status"
+          }
+        },
+        "type": "object",
+        "title": "ActionStatus"
+      },
+      "CycleConfig": {
+        "properties": {
+          "max_cycles_per_day": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Cycles Per Day",
+            "description": "Maximum cycles allowed per day"
+          },
+          "room_min_cycle_time": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Min Cycle Time",
+            "description": "Minimum cycle time for room heating in minutes, if applicable."
+          },
+          "dhw_min_cycle_time": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dhw Min Cycle Time",
+            "description": "Minimum cycle time for DHW in minutes, if applicable."
+          },
+          "dhw_max_cycle_time": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dhw Max Cycle Time",
+            "description": "Maximum cycle time for DHW in minutes, if applicable."
+          }
+        },
+        "type": "object",
+        "title": "CycleConfig"
+      },
+      "DHWSettings": {
+        "properties": {
+          "temperature_lower_bound": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "ge": 30,
+                "le": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature Lower Bound",
+            "description": "Lower DHW temperature bound in Celsius"
+          },
+          "temperature_upper_bound": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "ge": 30,
+                "le": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature Upper Bound",
+            "description": "Upper DHW temperature bound in Celsius"
+          }
+        },
+        "type": "object",
+        "title": "DHWSettings"
+      },
+      "Device": {
+        "properties": {
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model",
+            "description": "Device model"
+          },
+          "model_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Device model type such as (Air to Air Heat Pump, Air to Water Heat Pump, Water to Water Heat Pump)"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand",
+            "description": "Device brand"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country",
+            "description": "Country code"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique device identifier"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "User identifier"
+          },
+          "device_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Type",
+            "description": "Type of device"
+          },
+          "has_delayed_power_data_1d": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Delayed Power Data 1D",
+            "description": "Whether the device has delayed power data by 1 day for the previous day. This power data is updated between 2-4 AM UTC on a daily basis for the full previous day."
+          },
+          "legionella_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LegionellaConfig"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Legionella prevention configuration"
+          },
+          "cycle_config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CycleConfig"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Cycle configuration"
+          },
+          "steerable_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/app__models__device_models__SteerableStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Device steering status"
+          },
+          "needs_reauthentication": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Needs Reauthentication",
+            "description": "Whether the device needs reauthentication"
+          }
+        },
+        "type": "object",
+        "title": "Device"
+      },
+      "DevicePV": {
+        "properties": {
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model",
+            "description": "Device model"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand",
+            "description": "Device brand"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country",
+            "description": "Country code"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique device identifier"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "User identifier"
+          },
+          "needs_reauthentication": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Needs Reauthentication",
+            "description": "Whether the device needs reauthentication"
+          },
+          "steerable_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/app__models__device_pv_models__SteerableStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Device steering status"
+          },
+          "has_grid_export_curtailment": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Grid Export Curtailment",
+            "description": "Whether the device has grid export curtailment capabilities"
+          },
+          "has_production_curtailment": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Production Curtailment",
+            "description": "Whether the device has production curtailment capabilities"
+          }
+        },
+        "type": "object",
+        "title": "DevicePV"
+      },
+      "DevicesMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "capacity_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Unit",
+            "description": "Unit for capacity measurements"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          },
+          "cycle_time_units": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cycle Time Units",
+            "description": "Unit for MAX or MIN cycle times. Which is the amount of minutes a unit can be active for that purpose."
+          }
+        },
+        "type": "object",
+        "title": "DevicesMeta"
+      },
+      "DevicesPVMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          }
+        },
+        "type": "object",
+        "title": "DevicesPVMeta"
+      },
+      "DevicesPVResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DevicePV"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of devices"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DevicesPVMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "DevicesPVResponse"
+      },
+      "DevicesPVSettingsRequest": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Device ID to update settings for"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "User ID to update settings for"
+          },
+          "optimization_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/app__models__settings_pv_model__OptimizationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optimization settings for the device"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LocationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Location-related settings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "title": "DevicesPVSettingsRequest"
+      },
+      "DevicesResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Device"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of devices"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DevicesMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "DevicesResponse"
+      },
+      "DevicesSettingsRequest": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Device ID to update settings for"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "User ID to update settings for"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Room temperature control settings"
+          },
+          "dhw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DHWSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Domestic hot water settings"
+          },
+          "optimization_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/app__models__settings_model__OptimizationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optimization settings for flex trading, dynamic tariff and PV self-consumption"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LocationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Location-related settings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "title": "DevicesSettingsRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LegionellaConfig": {
+        "properties": {
+          "frequency_per_weeks": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frequency Per Weeks",
+            "description": "Frequency per weeks for legionella prevention"
+          },
+          "capacity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity",
+            "description": "Capacity for legionella prevention"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes",
+            "description": "Duration in minutes for legionella prevention"
+          }
+        },
+        "type": "object",
+        "title": "LegionellaConfig"
+      },
+      "LocationSettings": {
+        "properties": {
+          "country": {
+            "type": "string",
+            "maxLength": 2,
+            "title": "Country",
+            "description": "ISO country code"
+          },
+          "postal_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 18
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postal Code",
+            "description": "Postal code for the device location"
+          }
+        },
+        "type": "object",
+        "required": [
+          "country"
+        ],
+        "title": "LocationSettings"
+      },
+      "ModelType": {
+        "type": "string",
+        "enum": [
+          "ata",
+          "atw",
+          "wtw"
+        ],
+        "title": "ModelType"
+      },
+      "PVCurtailmentMode": {
+        "type": "string",
+        "enum": [
+          "managed",
+          "external",
+          "off"
+        ],
+        "title": "PVCurtailmentMode"
+      },
+      "Reason": {
+        "type": "string",
+        "enum": [
+          "No flexibility available based on current device state.",
+          "Cycle constraints prevent a new action at this time.",
+          "Cycle constraints forced stop of current cycle.",
+          "No DHW control available on this device.",
+          "No room control available on this device.",
+          "Outside comfort band, Nox takes over until within comfort.",
+          "No schedule available, Nox takes over to assure comfort.",
+          "Can receive actions.",
+          "Early activation command send to device, following DHW tank schedule.",
+          "DHW tank active, following DHW tank schedule.",
+          "Early deactivation command send to device, following DHW tank schedule.",
+          "Early activation command send to device, following room heating/cooling schedule.",
+          "Room heating/cooling active, following room heating/cooling schedule.",
+          "Early deactivation command send to device, following room heating/cooling schedule.",
+          "Room schedule not writable and enabled, ask end user to disable it.",
+          "Uncertain heat pump activity, waiting for more data.",
+          "Cannot steer space heating when ata is off.",
+          "Processing error, please contact support."
+        ],
+        "title": "Reason"
+      },
+      "RoomSettings": {
+        "properties": {
+          "temperature_lower_bound": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "ge": 0,
+                "le": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature Lower Bound",
+            "description": "Lower temperature bound in Celsius"
+          },
+          "temperature_upper_bound": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "ge": 0,
+                "le": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature Upper Bound",
+            "description": "Upper temperature bound in Celsius"
+          },
+          "preferred_temperature": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "ge": 0,
+                "le": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Temperature",
+            "description": "Preferred room temperature in Celsius"
+          },
+          "schedule_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schedule Enabled",
+            "description": "If `True`, follow the schedule of the manufacturer settings within their app. If `False`, ignore the schedule and follow the prefered temperature or the auto detected preferred temperature."
+          },
+          "temperature_control_mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TemperatureControlMode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Temperature control mode to determine if you only want heating or cooling or both (auto) or none of both (off). If auto is chosen, our system will decide if cooling is necessary based on outside temperature and upper comfort bounds."
+          }
+        },
+        "type": "object",
+        "title": "RoomSettings"
+      },
+      "SteeringEnabled": {
+        "properties": {
+          "heat_pump": {
+            "type": "boolean",
+            "title": "Heat Pump",
+            "description": "Enable/disable steering for this device"
+          }
+        },
+        "type": "object",
+        "required": [
+          "heat_pump"
+        ],
+        "title": "SteeringEnabled"
+      },
+      "TemperatureControlMode": {
+        "type": "string",
+        "enum": [
+          "heating",
+          "cooling",
+          "auto",
+          "off"
+        ],
+        "title": "TemperatureControlMode"
+      },
+      "ThermalControlSettingsRequest": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Device ID to update settings for"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "User ID to update settings for"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Room temperature control settings"
+          },
+          "dhw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DHWSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Domestic hot water settings"
+          },
+          "steering_enabled": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SteeringEnabled"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Steering control settings"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LocationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Location-related settings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "title": "ThermalControlSettingsRequest"
+      },
+      "Unit": {
+        "type": "string",
+        "enum": [
+          "kWh",
+          "celsius"
+        ],
+        "title": "Unit"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "app__models__device_models__GeneralReason": {
+        "type": "string",
+        "enum": [
+          "Heat pump connected recently, still collecting data to improve models.",
+          "Processing error, please contact support.",
+          "Device disconnected, it might reconnect later or be permanently be disconnected.",
+          "Device in error state. Might recover automatically later.",
+          "User settings prevent steering.",
+          "Holiday mode active, steering disabled or blocked by device.",
+          "Device is turned off, steering disabled or blocked by device.",
+          "Device is unsupported brand/model, will be supported in future updates.",
+          "Device is unsupported model, will not be supported in future updates.",
+          "Air to Air Heat pumps not supported for this brand yet.",
+          "Air to Water Heat pumps not supported for this brand yet.",
+          "Water to Water Heat pumps not supported for this brand yet.",
+          "Multi zone air to air devices not supported yet.",
+          "Device gateway model does not allow steering.",
+          "Important data missing, this might improve with future updates.",
+          "Important data missing, will not be supported in future updates.",
+          "Unauthorized country, steering not allowed in this country.",
+          "Reauthentication required.",
+          "Unknown reason, please contact support."
+        ],
+        "title": "GeneralReason"
+      },
+      "app__models__device_models__SteerableStatus": {
+        "properties": {
+          "steering_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steering Enabled",
+            "description": "Whether steering is enabled"
+          },
+          "steerable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steerable",
+            "description": "Whether device is steerable"
+          },
+          "learning_period_ended": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Period Ended",
+            "description": "Whether the learning period has ended"
+          },
+          "general_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/app__models__device_models__GeneralReason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "General reason for steerable status"
+          },
+          "DHW": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActionStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Domestic Hot Water action status"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActionStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Room heating action status"
+          },
+          "has_cooling": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Cooling",
+            "description": "Whether the device has cooling capabilities"
+          }
+        },
+        "type": "object",
+        "title": "SteerableStatus"
+      },
+      "app__models__device_pv_models__GeneralReason": {
+        "type": "string",
+        "enum": [
+          "PV connected recently, still collecting data to improve models.",
+          "Processing error, please contact support.",
+          "Device disconnected, it might reconnect later or be permanently be disconnected.",
+          "Device in error state. Might recover automatically later.",
+          "User settings prevent steering.",
+          "Holiday mode active, steering disabled or blocked by device.",
+          "Device is turned off, steering disabled or blocked by device.",
+          "Device is unsupported brand/model, will be supported in future updates.",
+          "Device is unsupported model, will not be supported in future updates.",
+          "Important data missing, this might improve with future updates.",
+          "Important data missing, will not be supported in future updates.",
+          "Unauthorized country, steering not allowed in this country.",
+          "Reauthentication required.",
+          "Unknown reason, please contact support."
+        ],
+        "title": "GeneralReason"
+      },
+      "app__models__device_pv_models__SteerableStatus": {
+        "properties": {
+          "steering_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steering Enabled",
+            "description": "Whether steering is enabled"
+          },
+          "steerable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steerable",
+            "description": "Whether device is steerable"
+          },
+          "learning_period_ended": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Period Ended",
+            "description": "Whether the learning period has ended"
+          },
+          "general_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/app__models__device_pv_models__GeneralReason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "General reason for steerable status"
+          }
+        },
+        "type": "object",
+        "title": "SteerableStatus"
+      },
+      "app__models__settings_model__OptimizationSettings": {
+        "properties": {
+          "pv_self_consumption": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Self Consumption",
+            "description": "Enable/disable PV self-consumption optimization"
+          },
+          "dynamic_tariff": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dynamic Tariff",
+            "description": "Enable/disable dynamic tariff optimization"
+          },
+          "flex_trading": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flex Trading",
+            "description": "Enable/disable supplier flex trading optimization. If `True`, the supplier steers the device based on a schedule they provide to NOX Energy."
+          }
+        },
+        "type": "object",
+        "title": "OptimizationSettings"
+      },
+      "app__models__settings_pv_model__OptimizationSettings": {
+        "properties": {
+          "pv_curtailment_mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVCurtailmentMode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "PV curtailment mode. If `managed`, NOX Energy manages the PV curtailment. If `external`, we follow the curtailment schedule provided by the external party. If `off`, PV curtailment is disabled."
+          }
+        },
+        "type": "object",
+        "title": "OptimizationSettings"
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API Key authentication. Enter your API key in the format: YOUR_API_KEY"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Asset Info",
+      "description": "API to get basic information about your assets."
+    },
+    {
+      "name": "User Management",
+      "description": "API endpoints to manage users and their data."
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api.nox.energy",
+      "description": "Production Server"
+    }
+  ]
+}
