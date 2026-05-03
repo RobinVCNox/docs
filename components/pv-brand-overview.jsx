@@ -39,9 +39,7 @@ export const SupportedPVBrandOverviewTable = () => {
       "Solis": [
       ],
       "Enphase": [
-      ],
-      "SolarEdge": [
-      ],
+      ]
     };
         return deviceData[brandName] || [];
     };
@@ -113,19 +111,6 @@ export const SupportedPVBrandOverviewTable = () => {
                 </tr>
                 {expandedRows.has("Enphase") &&
                     getDeviceModels("Enphase").map((device, index) => (
-                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
-                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
-                            <td>{getStatusBadge(device.status)}</td>
-                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
-                        </tr>
-                    ))
-                }
-                <tr onClick={() => toggleRow("SolarEdge")} style={{ cursor: 'pointer' }}>
-                    <td>SolarEdge</td>
-                    <td>{getStatusBadge("Alpha")}</td>
-                </tr>
-                {expandedRows.has("SolarEdge") &&
-                    getDeviceModels("SolarEdge").map((device, index) => (
                         <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
                             <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
                             <td>{getStatusBadge(device.status)}</td>
