@@ -344,7 +344,8 @@
                     "energy_supplier": "Energy Supplier A",
                     "capacity_unit": "kWh",
                     "next_token": "eyJkZXZpY2VfaWQiOiAiMDFiYmJhYWItMTU5YS00ODk4LWJjYmEtZDgxYWNkYjIzNTNjIiwgImVuZXJneV9zdXBwbGllciI6ICJFbmVyZ3kgU3VwcGxpZXIgQSJ9",
-                    "cycle_time_units": "minutes"
+                    "cycle_time_units": "minutes",
+                    "being_steered_start_date_unit": "UTC"
                   }
                 }
               }
