@@ -227,6 +227,24 @@
               "title": "Has Room Schedule"
             },
             "description": "\nIf `True`, filter devices that have a room schedule. \n\nIf `False`, filter devices that do not have a room schedule. \n\nIf `None`, do not filter based on room schedule. \n\n"
+          },
+          {
+            "name": "being_steered",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nIf `True`, filter devices that are currently being steered. \n\nIf `False`, filter devices that are not currently being steered. \n\nIf `None`, do not filter based on being steered. \n\n",
+              "title": "Being Steered"
+            },
+            "description": "\nIf `True`, filter devices that are currently being steered. \n\nIf `False`, filter devices that are not currently being steered. \n\nIf `None`, do not filter based on being steered. \n\n"
           }
         ],
         "responses": {
@@ -274,9 +292,12 @@
                           "in_active_action": false,
                           "reason": "Device is ready to receive an action."
                         },
-                        "has_cooling": true
+                        "has_cooling": true,
+                        "being_steered": true,
+                        "being_steered_start_date": "2025-09-30"
                       },
-                      "needs_reauthentication": false
+                      "needs_reauthentication": false,
+                      "has_room_schedule": false
                     },
                     {
                       "model": "model_b",
@@ -312,9 +333,11 @@
                           "in_active_action": false,
                           "reason": "Device is ready to receive an action."
                         },
-                        "has_cooling": false
+                        "has_cooling": false,
+                        "being_steered": false
                       },
-                      "needs_reauthentication": false
+                      "needs_reauthentication": false,
+                      "has_room_schedule": false
                     }
                   ],
                   "meta": {
@@ -2404,6 +2427,18 @@
             ],
             "title": "Cycle Time Units",
             "description": "Unit for MAX or MIN cycle times. Which is the amount of minutes a unit can be active for that purpose."
+          },
+          "being_steered_start_date_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Being Steered Start Date Unit",
+            "description": "Unit for being_steered_start_date, which is the date when we first started steering this device."
           }
         },
         "type": "object",
@@ -3083,6 +3118,30 @@
             ],
             "title": "Has Cooling",
             "description": "Whether the device has cooling capabilities"
+          },
+          "being_steered": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Being Steered",
+            "description": "Whether the device is currently being steered"
+          },
+          "being_steered_start_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Being Steered Start Date",
+            "description": "Start date of when we first started steering this device."
           }
         },
         "type": "object",
