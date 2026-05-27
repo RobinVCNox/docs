@@ -642,7 +642,7 @@
           "User Management"
         ],
         "summary": "Patch Devices Settings",
-        "description": "Update on a device or user level the device/user settings. If you want to update a setting on a device level, provide the device_id along with the user_id.\nAny of the settings can be updated separately or together.\n\n\n You can change the following settings:\n\n * The lower and upper room comfort temperature bounds of\n end users/devices in degrees celcius.\n\n * The lower and upper bounds for domestic hot water heating in degrees celcius.\nThis will determine the maximum and minimum allowed temperatures we allow it to go.\n This should be changed carefully as it could lead to the tank temperature going too low and cause legionella growth.\n Below 40 degrees is not recommended, only during vacations.\n\n * The preferred temperature of end users/devices in degrees celcius.\nThis is also used to determine when to start cooling in temperature_control_mode auto or cooling mode.\n\n * Temperature control mode to determine if you only want heating or\n cooling or both (auto) or none of both (off). If `auto` is chosen,\n our system will decide if cooling is necessary based on outside temperature\n and upper comfort bounds. `Off` means we will turn room heating and cooling off and\n if this is not possible, we will configure the heat pump in a way so it will not cool or heat.\n If `heating` is chosen we will only heat and it will be based on the preferred temperature or the schedule and the comfort bounds.\n If `cooling` is chosen, we will only cool and it will be based on the preferred temperature or the schedule, outside temperature and the comfort bounds.\n\n * Enable/Disable steering optimizations. Flex_trading is mutually exclussive with the other optimizations. The other optimizations can be enabled together.\n If `flex_trading` is enabled, we disable all other optimizations.\n If any other optimization is enabled, we disable `flex_trading`.\n\n * The country code and the postal code",
+        "description": "Update on a device or nox user level the device/user settings. If you want to update a setting on a device level, only the device_id needs to be provided.\nAny of the settings can be updated separately or together.\n\n\n You can change the following settings:\n\n * The lower and upper room comfort temperature bounds of\n end users/devices in degrees celcius.\n\n * The lower and upper bounds for domestic hot water heating in degrees celcius.\nThis will determine the maximum and minimum allowed temperatures we allow it to go.\n This should be changed carefully as it could lead to the tank temperature going too low and cause legionella growth.\n Below 40 degrees is not recommended, only during vacations.\n\n * The preferred temperature of end users/devices in degrees celcius.\nThis is also used to determine when to start cooling in temperature_control_mode auto or cooling mode.\n\n * Temperature control mode to determine if you only want heating or\n cooling or both (auto) or none of both (off). If `auto` is chosen,\n our system will decide if cooling is necessary based on outside temperature\n and upper comfort bounds. `Off` means we will turn room heating and cooling off and\n if this is not possible, we will configure the heat pump in a way so it will not cool or heat.\n If `heating` is chosen we will only heat and it will be based on the preferred temperature or the schedule and the comfort bounds.\n If `cooling` is chosen, we will only cool and it will be based on the preferred temperature or the schedule, outside temperature and the comfort bounds.\n\n * Enable/Disable steering optimizations. Flex_trading is mutually exclussive with the other optimizations. The other optimizations can be enabled together.\n If `flex_trading` is enabled, we disable all other optimizations.\n If any other optimization is enabled, we disable `flex_trading`.\n\n * The country code and the postal code",
         "operationId": "patch_devices_settings_v1_devices_settings_patch",
         "parameters": [],
         "requestBody": {
@@ -701,6 +701,17 @@
                   "description": "Example for updating only domestic hot water settings",
                   "value": {
                     "user_id": "user789",
+                    "dhw": {
+                      "temperature_lower_bound": 50.0,
+                      "temperature_upper_bound": 65.0
+                    }
+                  }
+                },
+                "device_id_only": {
+                  "summary": "Only a device_id without user_id provided",
+                  "description": "Example for updating with only using a device_id",
+                  "value": {
+                    "device_id": "device_789",
                     "dhw": {
                       "temperature_lower_bound": 50.0,
                       "temperature_upper_bound": 65.0
@@ -1213,7 +1224,7 @@
           "steerable_status": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__models__device_models__SteerableStatus"
+                "$ref": "#/components/schemas/app__models__hp__device_models__SteerableStatus"
               },
               {
                 "type": "null"
@@ -1326,7 +1337,7 @@
           "steerable_status": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__models__device_pv_models__SteerableStatus"
+                "$ref": "#/components/schemas/app__models__pv__pv_device_model__SteerableStatus"
               },
               {
                 "type": "null"
@@ -1490,6 +1501,74 @@
         "type": "object",
         "title": "DevicesPVResponse"
       },
+      "DevicesPVScheduleRequest": {
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "title": "Device Id",
+            "description": "Device ID to update control commands for it."
+          },
+          "schedules": {
+            "items": {
+              "$ref": "#/components/schemas/PVScheduleEntry"
+            },
+            "type": "array",
+            "title": "Schedules",
+            "description": "List of commands to schedule for the pv device."
+          }
+        },
+        "type": "object",
+        "required": [
+          "device_id",
+          "schedules"
+        ],
+        "title": "DevicesPVScheduleRequest"
+      },
+      "DevicesPVScheduleResponse": {
+        "properties": {
+          "rejected": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Rejected",
+            "description": "List of device IDs for which the schedule could not be applied."
+          },
+          "meta": {
+            "$ref": "#/components/schemas/DevicesPVSchedulenMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "DevicesPVScheduleResponse"
+      },
+      "DevicesPVSchedulenMeta": {
+        "properties": {
+          "energy_supplier": {
+            "type": "string",
+            "title": "Energy Supplier"
+          },
+          "accepted_count": {
+            "type": "integer",
+            "title": "Accepted Count",
+            "description": "Number of devices that had schedules successfully applied."
+          },
+          "rejected_count": {
+            "type": "integer",
+            "title": "Rejected Count",
+            "description": "Number of device schedules that were rejected."
+          }
+        },
+        "type": "object",
+        "required": [
+          "energy_supplier",
+          "accepted_count",
+          "rejected_count"
+        ],
+        "title": "DevicesPVSchedulenMeta"
+      },
       "DevicesPVSettingsRequest": {
         "properties": {
           "device_id": {
@@ -1505,14 +1584,21 @@
             "description": "Device ID to update settings for"
           },
           "user_id": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "User Id",
             "description": "User ID to update settings for"
           },
           "optimization_settings": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__models__settings_pv_model__OptimizationSettings"
+                "$ref": "#/components/schemas/app__models__pv__pv_settings_model__OptimizationSettings"
               },
               {
                 "type": "null"
@@ -1534,9 +1620,6 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "user_id"
-        ],
         "title": "DevicesPVSettingsRequest"
       },
       "DevicesResponse": {
@@ -1586,7 +1669,14 @@
             "description": "Device ID to update settings for"
           },
           "user_id": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "User Id",
             "description": "User ID to update settings for"
           },
@@ -1615,7 +1705,7 @@
           "optimization_settings": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__models__settings_model__OptimizationSettings"
+                "$ref": "#/components/schemas/app__models__hp__settings_model__OptimizationSettings"
               },
               {
                 "type": "null"
@@ -1637,9 +1727,6 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "user_id"
-        ],
         "title": "DevicesSettingsRequest"
       },
       "HTTPValidationError": {
@@ -1742,6 +1829,463 @@
           "off"
         ],
         "title": "PVCurtailmentMode"
+      },
+      "PVPForecastData": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Timestamp of the estimation"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique identifier of the device"
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production",
+            "description": "PV Forecast production value of the device"
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastData"
+      },
+      "PVPForecastMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          },
+          "production_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Unit",
+            "description": "Unit of the production values, e.g. kW"
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data in minutes."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastMeta"
+      },
+      "PVPForecastResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVPForecastData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of devices"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVPForecastMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastResponse"
+      },
+      "PVPRoductionData": {
+        "properties": {
+          "measurement_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measurement Time",
+            "description": "Timestamp of the measurement"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique identifier of the device"
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production",
+            "description": "PV production value of the device"
+          }
+        },
+        "type": "object",
+        "title": "PVPRoductionData"
+      },
+      "PVPTPData": {
+        "properties": {
+          "typical_production_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typical Production Time",
+            "description": "Timestamp of the estimation"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique identifier of the device"
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production",
+            "description": "PV typical production value of the device"
+          }
+        },
+        "type": "object",
+        "title": "PVPTPData"
+      },
+      "PVProductionMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          },
+          "production_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Unit",
+            "description": "Unit of the production values, e.g. kW"
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data in minutes."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVProductionMeta"
+      },
+      "PVProductionResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVPRoductionData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of devices"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVProductionMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVProductionResponse"
+      },
+      "PVScheduleEntry": {
+        "properties": {
+          "start_time": {
+            "type": "string",
+            "title": "Start Time",
+            "description": "The start time for the schedule entry in ISO 8601 format."
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time",
+            "description": "The end time for the schedule entry. If not provided, only a start commandwill be scheduled. If provided, both start and end commands will be scheduled."
+          },
+          "control_type": {
+            "type": "string",
+            "enum": [
+              "export_curtailment",
+              "production_curtailment",
+              "default"
+            ],
+            "title": "Control Type",
+            "description": "The control type for the schedule entry, determining the type of curtailment toapply. Possible values are 'export_curtailment', 'production_curtailment', and 'default'."
+          }
+        },
+        "type": "object",
+        "required": [
+          "start_time",
+          "control_type"
+        ],
+        "title": "PVScheduleEntry"
+      },
+      "PVTPMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          },
+          "production_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Unit",
+            "description": "Unit of the production values, e.g. kW"
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data in minutes."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVTPMeta"
+      },
+      "PVTPResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVPTPData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of devices"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVTPMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVTPResponse"
       },
       "Reason": {
         "type": "string",
@@ -1859,20 +2403,6 @@
         "type": "object",
         "title": "RoomSettings"
       },
-      "SteeringEnabled": {
-        "properties": {
-          "heat_pump": {
-            "type": "boolean",
-            "title": "Heat Pump",
-            "description": "Enable/disable steering for this device"
-          }
-        },
-        "type": "object",
-        "required": [
-          "heat_pump"
-        ],
-        "title": "SteeringEnabled"
-      },
       "TemperatureControlMode": {
         "type": "string",
         "enum": [
@@ -1882,77 +2412,6 @@
           "off"
         ],
         "title": "TemperatureControlMode"
-      },
-      "ThermalControlSettingsRequest": {
-        "properties": {
-          "device_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Device Id",
-            "description": "Device ID to update settings for"
-          },
-          "user_id": {
-            "type": "string",
-            "title": "User Id",
-            "description": "User ID to update settings for"
-          },
-          "room": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/RoomSettings"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Room temperature control settings"
-          },
-          "dhw": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/DHWSettings"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Domestic hot water settings"
-          },
-          "steering_enabled": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/SteeringEnabled"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Steering control settings"
-          },
-          "location": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/LocationSettings"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Location-related settings"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "user_id"
-        ],
-        "title": "ThermalControlSettingsRequest"
       },
       "Unit": {
         "type": "string",
@@ -1995,7 +2454,7 @@
         ],
         "title": "ValidationError"
       },
-      "app__models__device_models__GeneralReason": {
+      "app__models__hp__device_models__GeneralReason": {
         "type": "string",
         "enum": [
           "Heat pump connected recently, still collecting data to improve models.",
@@ -2020,7 +2479,7 @@
         ],
         "title": "GeneralReason"
       },
-      "app__models__device_models__SteerableStatus": {
+      "app__models__hp__device_models__SteerableStatus": {
         "properties": {
           "steering_enabled": {
             "anyOf": [
@@ -2061,7 +2520,7 @@
           "general_reason": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__models__device_models__GeneralReason"
+                "$ref": "#/components/schemas/app__models__hp__device_models__GeneralReason"
               },
               {
                 "type": "null"
@@ -2131,80 +2590,7 @@
         "type": "object",
         "title": "SteerableStatus"
       },
-      "app__models__device_pv_models__GeneralReason": {
-        "type": "string",
-        "enum": [
-          "PV connected recently, still collecting data to improve models.",
-          "Processing error, please contact support.",
-          "Device disconnected, it might reconnect later or be permanently be disconnected.",
-          "Device in error state. Might recover automatically later.",
-          "User settings prevent steering.",
-          "Holiday mode active, steering disabled or blocked by device.",
-          "Device is turned off, steering disabled or blocked by device.",
-          "Device is unsupported brand/model, will be supported in future updates.",
-          "Device is unsupported model, will not be supported in future updates.",
-          "Important data missing, this might improve with future updates.",
-          "Important data missing, will not be supported in future updates.",
-          "Unauthorized country, steering not allowed in this country.",
-          "Reauthentication required.",
-          "Unknown reason, please contact support."
-        ],
-        "title": "GeneralReason"
-      },
-      "app__models__device_pv_models__SteerableStatus": {
-        "properties": {
-          "steering_enabled": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Steering Enabled",
-            "description": "Whether steering is enabled"
-          },
-          "steerable": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Steerable",
-            "description": "Whether device is steerable"
-          },
-          "learning_period_ended": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Learning Period Ended",
-            "description": "Whether the learning period has ended"
-          },
-          "general_reason": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/app__models__device_pv_models__GeneralReason"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "General reason for steerable status"
-          }
-        },
-        "type": "object",
-        "title": "SteerableStatus"
-      },
-      "app__models__settings_model__OptimizationSettings": {
+      "app__models__hp__settings_model__OptimizationSettings": {
         "properties": {
           "pv_self_consumption": {
             "anyOf": [
@@ -2246,7 +2632,80 @@
         "type": "object",
         "title": "OptimizationSettings"
       },
-      "app__models__settings_pv_model__OptimizationSettings": {
+      "app__models__pv__pv_device_model__GeneralReason": {
+        "type": "string",
+        "enum": [
+          "PV connected recently, still collecting data to improve models.",
+          "Processing error, please contact support.",
+          "Device disconnected, it might reconnect later or be permanently be disconnected.",
+          "Device in error state. Might recover automatically later.",
+          "User settings prevent steering.",
+          "Holiday mode active, steering disabled or blocked by device.",
+          "Device is turned off, steering disabled or blocked by device.",
+          "Device is unsupported brand/model, will be supported in future updates.",
+          "Device is unsupported model, will not be supported in future updates.",
+          "Important data missing, this might improve with future updates.",
+          "Important data missing, will not be supported in future updates.",
+          "Unauthorized country, steering not allowed in this country.",
+          "Reauthentication required.",
+          "Unknown reason, please contact support."
+        ],
+        "title": "GeneralReason"
+      },
+      "app__models__pv__pv_device_model__SteerableStatus": {
+        "properties": {
+          "steering_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steering Enabled",
+            "description": "Whether steering is enabled"
+          },
+          "steerable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steerable",
+            "description": "Whether device is steerable"
+          },
+          "learning_period_ended": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Period Ended",
+            "description": "Whether the learning period has ended"
+          },
+          "general_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/app__models__pv__pv_device_model__GeneralReason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "General reason for steerable status"
+          }
+        },
+        "type": "object",
+        "title": "SteerableStatus"
+      },
+      "app__models__pv__pv_settings_model__OptimizationSettings": {
         "properties": {
           "pv_curtailment_mode": {
             "anyOf": [

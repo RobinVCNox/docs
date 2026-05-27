@@ -277,9 +277,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Get Devices Pv Production Forecast V1 Devices Pv Production Forecast Get"
+                  "$ref": "#/components/schemas/PVPForecastResponse"
                 },
                 "example": {
                   "data": [
@@ -290,6 +288,138 @@
                     },
                     {
                       "forecast_time": "2025-05-01 07:45",
+                      "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
+                      "production": "1.75"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
+                    "production_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/devices/pv/production/typical-production": {
+      "get": {
+        "tags": [
+          "Device Production"
+        ],
+        "summary": "Get Devices Pv Typical Production",
+        "description": "Get the typical production for pv devices associated with your energy supplier account in kWh for a specific timeframe with 15min granularity.\n\n This estimation is done everyday at a fixed time depending on supplier.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
+        "operationId": "get_devices_pv_typical_production_v1_devices_pv_production_typical_production_get",
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nStart time when the production measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "Start Time"
+            },
+            "description": "\nStart time when the production measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nEnd time when the production measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "End Time"
+            },
+            "description": "\nEnd time when the production measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+          },
+          {
+            "name": "aggregated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "\nIf `true`, sum the production of the devices.\n\nIf `false`, return the production of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n",
+              "default": false,
+              "title": "Aggregated"
+            },
+            "description": "\nIf `true`, sum the production of the devices.\n\nIf `false`, return the production of each device separately.\n\n**Note**: If `device_id` is given in the device_id parameter, the aggregated parameter is ignored.\n"
+          },
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "\nDevice ID to get production of. If `None`, all devices are included.\n",
+              "title": "Device Id"
+            },
+            "description": "\nDevice ID to get production of. If `None`, all devices are included.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PVTPResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "typical_production_time": "2025-05-01 07:45",
+                      "device_id": "1400d85b-47c3-49e1-9317-ae1bfccb635c",
+                      "production": "2.61"
+                    },
+                    {
+                      "typical_production_time": "2025-05-01 07:45",
                       "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
                       "production": "1.75"
                     }
@@ -411,9 +541,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Get Device Pv Production V1 Devices Pv Production Get"
+                  "$ref": "#/components/schemas/PVProductionResponse"
                 },
                 "example": {
                   "data": [
@@ -452,32 +580,75 @@
         }
       }
     },
-    "/v1/devices/pv/schedule": {
+    "/v1/devices/pv/schedules": {
       "post": {
         "tags": [
           "PV Control"
         ],
         "summary": "Post Pv Control Schedule",
-        "description": "Submit a steering schedule by providing a start and end time with a 1 min granularity of when you would like pv production to be off.\n Our system will look every minute to stop or re-enable the pv production. You can post several scheduled controls for the same device.\n They will be appended to the existing control schedules.\n \n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n**NOTE**: \n * The pv device might need some time to react. Please provide start times at\nleast 1 minute in the future to ensure the device can react in time.",
-        "operationId": "post_pv_control_schedule_v1_devices_pv_schedule_post",
+        "description": "Submit steering schedules by providing a start and end time with a 1 min granularity of when you would like\npv production/grid export curtailment to be off or 0\\% grid export curtailment.\n When you provide new scheduled controls for the same device\n  that already had an existing control, then we will overwrite any commands scheduled for the pv after\n  your earliest provided `start_time` in the newly provided schedules.\n  If an active curtailment is already active(= off or 0 \\%) and your newly submitted schedule overlaps with the active one,\n  then we will keep the active curtailment going until your end time has been reached or the start time has been reached and the\n  control-type is different than the active one.\n  `start_time` should be before `end_time` and both should be in the future. If not, the schedule will be rejected.\n  You can provide a batch of different device_id's, each with custom or equal schedules.\n  You can provide multiple schedules for the same device_id but keep in mind that the next time you\n  update the schedule for that device_id, you will overwrite all the schedules for that device_id with the new ones you provide.\n  There is a limit (250) to the number of updated device_id schedules you can provide in a batch.\n  If you have many devices, you can split them into multiple batches.\n  Make sure to not send schedules that are from users that have their external steering optimization disabled or are not yet compatible with our system.\n  We will filter these devices out of them regardless. But it is best practice to only send us schedules for users that\n  want to be curtailed and are compatible.\n \n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n \n `control_type` can be set to `export_curtailment`, `production_curtailment` or `default`.\n \n * `export_curtailment` means that we will try to keep the grid export at 0 kW during the scheduled times by curtailing the pv production if needed.\n\n * `production_curtailment` means that we will try to keep the pv production at 0 kW during the scheduled times by curtailing the pv production if needed.\n\n * `default` means that we will not curtail the pv production or export and allow the grid export to be determined by the household consumption and pv production.\nIf the `end_time` of `default` control type is reached, it will keep it as default unless another schedule overwrites it.\n\n * It is possible to not provide an `end_time` for a schedule entry. We will handle this then as start command without reverting back to it's original state.\nThis is mostly recommended if you want the user to go to it's `default` state.\n**NOTE**: \n * The pv device might need some time to react. Please provide start times at\nleast 1 minute in the future to ensure the device can react in time. Some may react slower than others.",
+        "operationId": "post_pv_control_schedule_v1_devices_pv_schedules_post",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "additionalProperties": true,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DevicesPVScheduleRequest"
+                },
                 "title": "Request Body"
               },
               "examples": {
                 "schedule_example": {
                   "summary": "Sample pv control schedule",
-                  "value": {
-                    "device_id": "PV123456",
-                    "start_time": "2025-08-05T10:15:00Z",
-                    "end_time": "2025-08-05T10:20:00Z"
-                  }
+                  "value": [
+                    {
+                      "device_id": "PV1",
+                      "schedules": [
+                        {
+                          "start_time": "2025-08-05T10:15:00Z",
+                          "end_time": "2025-08-05T10:20:00Z",
+                          "control_type": "export_curtailment"
+                        }
+                      ]
+                    },
+                    {
+                      "device_id": "PV2",
+                      "schedules": [
+                        {
+                          "start_time": "2025-08-05T10:15:00Z",
+                          "end_time": "2025-08-05T10:20:00Z",
+                          "control_type": "production_curtailment"
+                        }
+                      ]
+                    },
+                    {
+                      "device_id": "PV3",
+                      "schedules": [
+                        {
+                          "start_time": "2025-08-05T10:15:00Z",
+                          "control_type": "default"
+                        }
+                      ]
+                    },
+                    {
+                      "device_id": "PV4",
+                      "schedules": [
+                        {
+                          "start_time": "2025-08-05T10:15:00Z",
+                          "end_time": "2025-08-05T10:20:00Z",
+                          "control_type": "export_curtailment"
+                        },
+                        {
+                          "start_time": "2025-08-05T10:21:00Z",
+                          "end_time": "2025-08-05T10:25:00Z",
+                          "control_type": "production_curtailment"
+                        }
+                      ]
+                    }
+                  ]
                 }
               }
             }
@@ -485,17 +656,36 @@
         },
         "responses": {
           "200": {
-            "description": "Schedule submitted successfully",
+            "description": "All schedules accepted successfully",
             "content": {
               "application/json": {
-                "schema": {},
+                "schema": {
+                  "$ref": "#/components/schemas/DevicesPVScheduleResponse"
+                },
                 "example": {
-                  "status": "success",
-                  "message": "Steering schedule accepted for PV123456",
+                  "rejected": [],
                   "meta": {
-                    "schedule_granularity": "1min",
                     "energy_supplier": "Energy Supplier A",
-                    "timezone": "UTC"
+                    "accepted_count": 12,
+                    "rejected_count": 0
+                  }
+                }
+              }
+            }
+          },
+          "207": {
+            "description": "Partial success — some device_ids were rejected",
+            "content": {
+              "application/json": {
+                "example": {
+                  "rejected": [
+                    "PV3",
+                    "PV4"
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "accepted_count": 10,
+                    "rejected_count": 2
                   }
                 }
               }
@@ -506,7 +696,7 @@
             "content": {
               "application/json": {
                 "example": {
-                  "detail": "Missing required fields: device_id, start_time, stop_time"
+                  "detail": "None of the provided device_ids allow steering or are compatible."
                 }
               }
             }
@@ -530,7 +720,7 @@
           "User Management"
         ],
         "summary": "Patch Devices Pv Settings",
-        "description": "Update on a device or user level the device/user settings. If you want to update a setting on a device level, provide the device_id instead.\nAny of the settings can be updated separately or together.\n\n\n You can change the following settings:\n\n * Enable/Disable steering optimizations. `pv_curtailment_mode` can be set to `managed`, `external` or `off`.\n If `managed` is enabled, we will manage the pv curtailment.\n If `external` is enabled, we steer based on schedules provided by external parties.\n If `off` is enabled, we will not curtail the pv production.\n\n * The country code and the postal code",
+        "description": "Update on a device or user level the device/user settings. If you want to update a setting on a device level, provide the device_id instead.\nAny of the settings can be updated separately or together.\n\n\n You can change the following settings:\n\n * Enable/Disable steering optimizations. `pv_curtailment_mode` can be set to `managed`, `external` or `off`.\n If `managed` is enabled, we will optimize the pv curtailment.\n If `external` is enabled, we steer based on schedules provided by external parties like energy suppliers.\n If `off` is enabled, we will not curtail the pv.\n\n * The country code and the postal code",
         "operationId": "patch_devices_pv_settings_v1_devices_pv_settings_patch",
         "parameters": [],
         "requestBody": {
@@ -574,7 +764,6 @@
                   "summary": "Settings update based on device_id only",
                   "description": "Example for updating settings for a specific device without user_id",
                   "value": {
-                    "user_id": "user456",
                     "device_id": "device123",
                     "optimization_settings": {
                       "pv_curtailment_mode": "off"
@@ -885,7 +1074,7 @@
           "steerable_status": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__models__device_models__SteerableStatus"
+                "$ref": "#/components/schemas/app__models__hp__device_models__SteerableStatus"
               },
               {
                 "type": "null"
@@ -904,6 +1093,18 @@
             ],
             "title": "Needs Reauthentication",
             "description": "Whether the device needs reauthentication"
+          },
+          "has_room_schedule": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Room Schedule",
+            "description": "Whether the device has a room schedule currently set."
           }
         },
         "type": "object",
@@ -986,7 +1187,7 @@
           "steerable_status": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__models__device_pv_models__SteerableStatus"
+                "$ref": "#/components/schemas/app__models__pv__pv_device_model__SteerableStatus"
               },
               {
                 "type": "null"
@@ -1071,6 +1272,18 @@
             ],
             "title": "Cycle Time Units",
             "description": "Unit for MAX or MIN cycle times. Which is the amount of minutes a unit can be active for that purpose."
+          },
+          "being_steered_start_date_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Being Steered Start Date Unit",
+            "description": "Unit for being_steered_start_date, which is the date when we first started steering this device."
           }
         },
         "type": "object",
@@ -1138,6 +1351,74 @@
         "type": "object",
         "title": "DevicesPVResponse"
       },
+      "DevicesPVScheduleRequest": {
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "title": "Device Id",
+            "description": "Device ID to update control commands for it."
+          },
+          "schedules": {
+            "items": {
+              "$ref": "#/components/schemas/PVScheduleEntry"
+            },
+            "type": "array",
+            "title": "Schedules",
+            "description": "List of commands to schedule for the pv device."
+          }
+        },
+        "type": "object",
+        "required": [
+          "device_id",
+          "schedules"
+        ],
+        "title": "DevicesPVScheduleRequest"
+      },
+      "DevicesPVScheduleResponse": {
+        "properties": {
+          "rejected": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Rejected",
+            "description": "List of device IDs for which the schedule could not be applied."
+          },
+          "meta": {
+            "$ref": "#/components/schemas/DevicesPVSchedulenMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "DevicesPVScheduleResponse"
+      },
+      "DevicesPVSchedulenMeta": {
+        "properties": {
+          "energy_supplier": {
+            "type": "string",
+            "title": "Energy Supplier"
+          },
+          "accepted_count": {
+            "type": "integer",
+            "title": "Accepted Count",
+            "description": "Number of devices that had schedules successfully applied."
+          },
+          "rejected_count": {
+            "type": "integer",
+            "title": "Rejected Count",
+            "description": "Number of device schedules that were rejected."
+          }
+        },
+        "type": "object",
+        "required": [
+          "energy_supplier",
+          "accepted_count",
+          "rejected_count"
+        ],
+        "title": "DevicesPVSchedulenMeta"
+      },
       "DevicesPVSettingsRequest": {
         "properties": {
           "device_id": {
@@ -1153,14 +1434,21 @@
             "description": "Device ID to update settings for"
           },
           "user_id": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "User Id",
             "description": "User ID to update settings for"
           },
           "optimization_settings": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__models__settings_pv_model__OptimizationSettings"
+                "$ref": "#/components/schemas/app__models__pv__pv_settings_model__OptimizationSettings"
               },
               {
                 "type": "null"
@@ -1182,9 +1470,6 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "user_id"
-        ],
         "title": "DevicesPVSettingsRequest"
       },
       "DevicesResponse": {
@@ -1234,7 +1519,14 @@
             "description": "Device ID to update settings for"
           },
           "user_id": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "User Id",
             "description": "User ID to update settings for"
           },
@@ -1263,7 +1555,7 @@
           "optimization_settings": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__models__settings_model__OptimizationSettings"
+                "$ref": "#/components/schemas/app__models__hp__settings_model__OptimizationSettings"
               },
               {
                 "type": "null"
@@ -1285,9 +1577,6 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "user_id"
-        ],
         "title": "DevicesSettingsRequest"
       },
       "HTTPValidationError": {
@@ -1390,6 +1679,463 @@
           "off"
         ],
         "title": "PVCurtailmentMode"
+      },
+      "PVPForecastData": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Timestamp of the estimation"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique identifier of the device"
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production",
+            "description": "PV Forecast production value of the device"
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastData"
+      },
+      "PVPForecastMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          },
+          "production_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Unit",
+            "description": "Unit of the production values, e.g. kW"
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data in minutes."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastMeta"
+      },
+      "PVPForecastResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVPForecastData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of devices"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVPForecastMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastResponse"
+      },
+      "PVPRoductionData": {
+        "properties": {
+          "measurement_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measurement Time",
+            "description": "Timestamp of the measurement"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique identifier of the device"
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production",
+            "description": "PV production value of the device"
+          }
+        },
+        "type": "object",
+        "title": "PVPRoductionData"
+      },
+      "PVPTPData": {
+        "properties": {
+          "typical_production_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typical Production Time",
+            "description": "Timestamp of the estimation"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique identifier of the device"
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production",
+            "description": "PV typical production value of the device"
+          }
+        },
+        "type": "object",
+        "title": "PVPTPData"
+      },
+      "PVProductionMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          },
+          "production_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Unit",
+            "description": "Unit of the production values, e.g. kW"
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data in minutes."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVProductionMeta"
+      },
+      "PVProductionResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVPRoductionData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of devices"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVProductionMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVProductionResponse"
+      },
+      "PVScheduleEntry": {
+        "properties": {
+          "start_time": {
+            "type": "string",
+            "title": "Start Time",
+            "description": "The start time for the schedule entry in ISO 8601 format."
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time",
+            "description": "The end time for the schedule entry. If not provided, only a start commandwill be scheduled. If provided, both start and end commands will be scheduled."
+          },
+          "control_type": {
+            "type": "string",
+            "enum": [
+              "export_curtailment",
+              "production_curtailment",
+              "default"
+            ],
+            "title": "Control Type",
+            "description": "The control type for the schedule entry, determining the type of curtailment toapply. Possible values are 'export_curtailment', 'production_curtailment', and 'default'."
+          }
+        },
+        "type": "object",
+        "required": [
+          "start_time",
+          "control_type"
+        ],
+        "title": "PVScheduleEntry"
+      },
+      "PVTPMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          },
+          "production_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Unit",
+            "description": "Unit of the production values, e.g. kW"
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data in minutes."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVTPMeta"
+      },
+      "PVTPResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVPTPData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of devices"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVTPMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVTPResponse"
       },
       "Reason": {
         "type": "string",
@@ -1507,20 +2253,6 @@
         "type": "object",
         "title": "RoomSettings"
       },
-      "SteeringEnabled": {
-        "properties": {
-          "heat_pump": {
-            "type": "boolean",
-            "title": "Heat Pump",
-            "description": "Enable/disable steering for this device"
-          }
-        },
-        "type": "object",
-        "required": [
-          "heat_pump"
-        ],
-        "title": "SteeringEnabled"
-      },
       "TemperatureControlMode": {
         "type": "string",
         "enum": [
@@ -1530,77 +2262,6 @@
           "off"
         ],
         "title": "TemperatureControlMode"
-      },
-      "ThermalControlSettingsRequest": {
-        "properties": {
-          "device_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Device Id",
-            "description": "Device ID to update settings for"
-          },
-          "user_id": {
-            "type": "string",
-            "title": "User Id",
-            "description": "User ID to update settings for"
-          },
-          "room": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/RoomSettings"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Room temperature control settings"
-          },
-          "dhw": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/DHWSettings"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Domestic hot water settings"
-          },
-          "steering_enabled": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/SteeringEnabled"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Steering control settings"
-          },
-          "location": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/LocationSettings"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Location-related settings"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "user_id"
-        ],
-        "title": "ThermalControlSettingsRequest"
       },
       "Unit": {
         "type": "string",
@@ -1643,7 +2304,7 @@
         ],
         "title": "ValidationError"
       },
-      "app__models__device_models__GeneralReason": {
+      "app__models__hp__device_models__GeneralReason": {
         "type": "string",
         "enum": [
           "Heat pump connected recently, still collecting data to improve models.",
@@ -1668,7 +2329,7 @@
         ],
         "title": "GeneralReason"
       },
-      "app__models__device_models__SteerableStatus": {
+      "app__models__hp__device_models__SteerableStatus": {
         "properties": {
           "steering_enabled": {
             "anyOf": [
@@ -1709,7 +2370,7 @@
           "general_reason": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__models__device_models__GeneralReason"
+                "$ref": "#/components/schemas/app__models__hp__device_models__GeneralReason"
               },
               {
                 "type": "null"
@@ -1750,85 +2411,36 @@
             ],
             "title": "Has Cooling",
             "description": "Whether the device has cooling capabilities"
+          },
+          "being_steered": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Being Steered",
+            "description": "Whether the device is currently being steered"
+          },
+          "being_steered_start_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Being Steered Start Date",
+            "description": "Start date of when we first started steering this device."
           }
         },
         "type": "object",
         "title": "SteerableStatus"
       },
-      "app__models__device_pv_models__GeneralReason": {
-        "type": "string",
-        "enum": [
-          "PV connected recently, still collecting data to improve models.",
-          "Processing error, please contact support.",
-          "Device disconnected, it might reconnect later or be permanently be disconnected.",
-          "Device in error state. Might recover automatically later.",
-          "User settings prevent steering.",
-          "Holiday mode active, steering disabled or blocked by device.",
-          "Device is turned off, steering disabled or blocked by device.",
-          "Device is unsupported brand/model, will be supported in future updates.",
-          "Device is unsupported model, will not be supported in future updates.",
-          "Important data missing, this might improve with future updates.",
-          "Important data missing, will not be supported in future updates.",
-          "Unauthorized country, steering not allowed in this country.",
-          "Reauthentication required.",
-          "Unknown reason, please contact support."
-        ],
-        "title": "GeneralReason"
-      },
-      "app__models__device_pv_models__SteerableStatus": {
-        "properties": {
-          "steering_enabled": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Steering Enabled",
-            "description": "Whether steering is enabled"
-          },
-          "steerable": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Steerable",
-            "description": "Whether device is steerable"
-          },
-          "learning_period_ended": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Learning Period Ended",
-            "description": "Whether the learning period has ended"
-          },
-          "general_reason": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/app__models__device_pv_models__GeneralReason"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "General reason for steerable status"
-          }
-        },
-        "type": "object",
-        "title": "SteerableStatus"
-      },
-      "app__models__settings_model__OptimizationSettings": {
+      "app__models__hp__settings_model__OptimizationSettings": {
         "properties": {
           "pv_self_consumption": {
             "anyOf": [
@@ -1870,7 +2482,80 @@
         "type": "object",
         "title": "OptimizationSettings"
       },
-      "app__models__settings_pv_model__OptimizationSettings": {
+      "app__models__pv__pv_device_model__GeneralReason": {
+        "type": "string",
+        "enum": [
+          "PV connected recently, still collecting data to improve models.",
+          "Processing error, please contact support.",
+          "Device disconnected, it might reconnect later or be permanently be disconnected.",
+          "Device in error state. Might recover automatically later.",
+          "User settings prevent steering.",
+          "Holiday mode active, steering disabled or blocked by device.",
+          "Device is turned off, steering disabled or blocked by device.",
+          "Device is unsupported brand/model, will be supported in future updates.",
+          "Device is unsupported model, will not be supported in future updates.",
+          "Important data missing, this might improve with future updates.",
+          "Important data missing, will not be supported in future updates.",
+          "Unauthorized country, steering not allowed in this country.",
+          "Reauthentication required.",
+          "Unknown reason, please contact support."
+        ],
+        "title": "GeneralReason"
+      },
+      "app__models__pv__pv_device_model__SteerableStatus": {
+        "properties": {
+          "steering_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steering Enabled",
+            "description": "Whether steering is enabled"
+          },
+          "steerable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steerable",
+            "description": "Whether device is steerable"
+          },
+          "learning_period_ended": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Period Ended",
+            "description": "Whether the learning period has ended"
+          },
+          "general_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/app__models__pv__pv_device_model__GeneralReason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "General reason for steerable status"
+          }
+        },
+        "type": "object",
+        "title": "SteerableStatus"
+      },
+      "app__models__pv__pv_settings_model__OptimizationSettings": {
         "properties": {
           "pv_curtailment_mode": {
             "anyOf": [
