@@ -25,7 +25,18 @@ Use the following endpoint to connect a user to our platform and link their asse
 
 **Detailed flow**:
 
-You provide the endpoint your internal `user_id` for the end-user, a `redirect_url` where NOX Energy will send the user after the flow, and optionally a `language` and `brand` to pre-select the Authenticator UI. This can be your mobile app or website. We use the `user_id` you provide to map the device with our internal nox `user_id` and `device_id`.
+You provide the endpoint your internal `user_id` for the end-user, a `redirect_url` where NOX Energy will send the user after the flow, the `asset_type` of the device to connect, and optionally a `language` and `brand` to pre-select the Authenticator UI. This can be your mobile app or website. We use the `user_id` you provide to map the device with our internal nox `user_id` and `device_id`.
+
+##### Choosing the device type (`asset_type`)
+
+The required `asset_type` field tells NOX Energy which kind of device the user is connecting. It also determines which manufacturer brands are shown in the Authenticator UI. Supported values:
+
+| `asset_type` | Device category | Examples |
+|---|---|---|
+| `hp` | Heat pump | daikin, vaillant, nibe, … |
+| `pv` | PV solar inverter | sma, solis, huawei, … |
+
+To connect a **PV (solar) device**, set `"asset_type": "pv"` — the user will then only see PV inverter brands. To connect a **heat pump**, set `"asset_type": "hp"`. If you also pass a `brand`, it must be a valid brand for the chosen `asset_type`. See the [Supported Assets Overview](/supported-assets/supported-assets-overview) for the full list of brands per category.
 
 Example:
 ```bash
@@ -36,6 +47,7 @@ curl --request POST \
   --data '{
   "user_id": "supplier_user_id_123",
   "redirect_url": "https://your-app.com/callback",
+  "asset_type": "hp",
   "language": "en"
 }'
 ```
@@ -50,6 +62,7 @@ On a successful response, you will receive a `link_url` field.
   "supplier_user_id": "supplier_user_id_123",
   "redirect_url": "https://your-app.com/callback",
   "language": "en",
+  "asset_type": "hp",
   "brand": null,
   "completed_at": null,
   "created_at": 1703123456,
