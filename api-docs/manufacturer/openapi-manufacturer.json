@@ -331,6 +331,120 @@
             }
           }
         }
+      },
+      "get": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Get Devices Settings",
+        "description": "Get the settings of a specific device or group of devices of a user.",
+        "operationId": "get_devices_settings_v1_devices_settings_get",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n",
+              "title": "Device Id"
+            },
+            "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe ID of the user to filter on. If not provided, all users are returned.\n",
+              "title": "User Id"
+            },
+            "description": "\nThe ID of the user to filter on. If not provided, all users are returned.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response for get settings endpoint.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DevicesGetSettingsResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "device_id": "device_id_123",
+                      "room": {
+                        "temperature_lower_bound": 1.5,
+                        "temperature_upper_bound": 1.5,
+                        "preferred_temperature": 21,
+                        "schedule_enabled": true,
+                        "temperature_control_mode": "auto"
+                      },
+                      "dhw": {
+                        "temperature_upper_bound": 50,
+                        "temperature_lower_bound": 40
+                      },
+                      "optimization_settings": {
+                        "pv_self_consumption": true,
+                        "dynamic_tariff": true,
+                        "flex_trading": false
+                      },
+                      "updated_at": "2026-04-17T09:27:09.224000+00:00"
+                    },
+                    {
+                      "device_id": "device_id_456",
+                      "room": {
+                        "temperature_lower_bound": 1.5,
+                        "temperature_upper_bound": 1.5,
+                        "preferred_temperature": 21,
+                        "schedule_enabled": true
+                      },
+                      "dhw": {
+                        "temperature_upper_bound": 50,
+                        "temperature_lower_bound": 40
+                      },
+                      "optimization_settings": {
+                        "pv_self_consumption": true,
+                        "dynamic_tariff": true,
+                        "flex_trading": false
+                      },
+                      "updated_at": "2026-04-17T09:27:09.224000+00:00"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -749,6 +863,110 @@
         },
         "type": "object",
         "title": "DevicePV"
+      },
+      "DevicesGetSettingsMetadata": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          }
+        },
+        "type": "object",
+        "title": "DevicesGetSettingsMetadata"
+      },
+      "DevicesGetSettingsRequest": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Device ID to update settings for"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Room temperature control settings"
+          },
+          "dhw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DHWSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Domestic hot water settings"
+          },
+          "optimization_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OptimizationSettings-Output"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optimization settings for flex trading, dynamic tariff and PV self-consumption"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "Timestamp of the last update of the settings in ISO format"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "DevicesGetSettingsRequest"
+      },
+      "DevicesGetSettingsResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/DevicesGetSettingsRequest"
+            },
+            "type": "array",
+            "title": "Data",
+            "description": "List of device settings"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/DevicesGetSettingsMetadata",
+            "description": "Metadata related to the device settings response"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "metadata"
+        ],
+        "title": "DevicesGetSettingsResponse"
       },
       "DevicesMeta": {
         "properties": {
@@ -1198,6 +1416,57 @@
         ],
         "title": "ModelType"
       },
+      "OptimizationSettings-Output": {
+        "properties": {
+          "pv_self_consumption": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Self Consumption",
+            "description": "Enable/disable PV self-consumption optimization"
+          },
+          "dynamic_tariff": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dynamic Tariff",
+            "description": "Enable/disable dynamic tariff optimization"
+          },
+          "flex_trading": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flex Trading",
+            "description": "Enable/disable supplier flex trading optimization. If `True`, the supplier steers the device based on a schedule they provide to NOX Energy."
+          }
+        },
+        "type": "object",
+        "title": "OptimizationSettings"
+      },
+      "PVControlType": {
+        "type": "string",
+        "enum": [
+          "export_curtailment",
+          "production_curtailment",
+          "default"
+        ],
+        "title": "PVControlType"
+      },
       "PVCurtailmentMode": {
         "type": "string",
         "enum": [
@@ -1549,13 +1818,7 @@
             "description": "The end time for the schedule entry. If not provided, only a start commandwill be scheduled. If provided, both start and end commands will be scheduled."
           },
           "control_type": {
-            "type": "string",
-            "enum": [
-              "export_curtailment",
-              "production_curtailment",
-              "default"
-            ],
-            "title": "Control Type",
+            "$ref": "#/components/schemas/PVControlType",
             "description": "The control type for the schedule entry, determining the type of curtailment toapply. Possible values are 'export_curtailment', 'production_curtailment', and 'default'."
           }
         },

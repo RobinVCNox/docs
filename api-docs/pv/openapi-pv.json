@@ -119,6 +119,24 @@
               "title": "Learning Period Ended"
             },
             "description": "\nIf `True`, filter devices for which the learning period of gathering data has ended. \n\nIf `False`, filter devices for which the learning period of gathering data has not ended. \n\nIf `None`, do not filter based on learning period status. \n\n"
+          },
+          {
+            "name": "brand",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nFilter on device brand. If `None`, do not filter on brand.\n",
+              "title": "Brand"
+            },
+            "description": "\nFilter on device brand. If `None`, do not filter on brand.\n"
           }
         ],
         "responses": {
@@ -586,7 +604,7 @@
           "PV Control"
         ],
         "summary": "Post Pv Control Schedule",
-        "description": "Submit steering schedules by providing a start and end time with a 1 min granularity of when you would like\npv production/grid export curtailment to be off or 0\\% grid export curtailment.\n When you provide new scheduled controls for the same device\n  that already had an existing control, then we will overwrite any commands scheduled for the pv after\n  your earliest provided `start_time` in the newly provided schedules.\n  If an active curtailment is already active(= off or 0 \\%) and your newly submitted schedule overlaps with the active one,\n  then we will keep the active curtailment going until your end time has been reached or the start time has been reached and the\n  control-type is different than the active one.\n  `start_time` should be before `end_time` and both should be in the future. If not, the schedule will be rejected.\n  You can provide a batch of different device_id's, each with custom or equal schedules.\n  You can provide multiple schedules for the same device_id but keep in mind that the next time you\n  update the schedule for that device_id, you will overwrite all the schedules for that device_id with the new ones you provide.\n  There is a limit (250) to the number of updated device_id schedules you can provide in a batch.\n  If you have many devices, you can split them into multiple batches.\n  Make sure to not send schedules that are from users that have their external steering optimization disabled or are not yet compatible with our system.\n  We will filter these devices out of them regardless. But it is best practice to only send us schedules for users that\n  want to be curtailed and are compatible.\n \n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n \n `control_type` can be set to `export_curtailment`, `production_curtailment` or `default`.\n \n * `export_curtailment` means that we will try to keep the grid export at 0 kW during the scheduled times by curtailing the pv production if needed.\n\n * `production_curtailment` means that we will try to keep the pv production at 0 kW during the scheduled times by curtailing the pv production if needed.\n\n * `default` means that we will not curtail the pv production or export and allow the grid export to be determined by the household consumption and pv production.\nIf the `end_time` of `default` control type is reached, it will keep it as default unless another schedule overwrites it.\n\n * It is possible to not provide an `end_time` for a schedule entry. We will handle this then as start command without reverting back to it's original state.\nThis is mostly recommended if you want the user to go to it's `default` state.\n**NOTE**: \n * The pv device might need some time to react. Please provide start times at\nleast 1 minute in the future to ensure the device can react in time. Some may react slower than others.",
+        "description": "Submit steering schedules by providing a start and end time with a 1 min granularity of when you would like\npv production/grid export curtailment to be off or 0 \\% grid export curtailment.\n When you provide new scheduled controls for the same device\n  that already had an existing control, then we will overwrite any commands scheduled for the pv\n  with the newly provided schedules.\n  If an active curtailment is already active(= off or 0 \\%) and your newly submitted schedule overlaps with the active one,\n  then we will keep the active curtailment going until your end time has been reached or the start time has been reached and the\n  control-type is different than the active one.\n  `start_time` should be before `end_time` and `end_time` should be in the future. If not, the schedule will be rejected.\n  You can provide a batch of different device_id's, each with custom or equal schedules.\n  You can provide multiple schedules for the same device_id but keep in mind that the next time you\n  update the schedule for that device_id, you will overwrite all the schedules for that device_id with the new ones you provide.\n  There is a limit (250) to the number of updated device_id schedules you can provide in a batch.\n  If you have many devices, you can split them into multiple batches.\n  Make sure to not send schedules that are from users that have their external steering optimization disabled or are not yet compatible with our system.\n  We will filter these devices out of them regardless. But it is best practice to only send us schedules for users that\n  want to be curtailed and are compatible.\n \n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n \n `control_type` can be set to `export_curtailment`, `production_curtailment` or `default`.\n \n * `export_curtailment` means that we will try to keep the grid export at 0 kW during the scheduled times by curtailing the pv production if needed.\n\n * `production_curtailment` means that we will try to keep the pv production at 0 kW during the scheduled times by curtailing the pv production if needed.\n\n * `default` means that we will not curtail the pv production or export and allow the grid export to be determined by the household consumption and pv production.\nIf the `end_time` of `default` control type is reached, it will keep it as default unless another schedule overwrites it.\n\n * It is possible to not provide an `end_time` for a schedule entry. We will handle this then as start command without reverting back to it's original state.\nThis is mostly recommended if you want the user to go to it's `default` state.\n**NOTE**: \n * The pv device might need some time to react. Please provide start times at\nleast 1 minute in the future to ensure the device can react in time. Some may react slower than others.",
         "operationId": "post_pv_control_schedule_v1_devices_pv_schedules_post",
         "parameters": [],
         "requestBody": {
@@ -1223,6 +1241,110 @@
         "type": "object",
         "title": "DevicePV"
       },
+      "DevicesGetSettingsMetadata": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          }
+        },
+        "type": "object",
+        "title": "DevicesGetSettingsMetadata"
+      },
+      "DevicesGetSettingsRequest": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Device ID to update settings for"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Room temperature control settings"
+          },
+          "dhw": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DHWSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Domestic hot water settings"
+          },
+          "optimization_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OptimizationSettings-Output"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optimization settings for flex trading, dynamic tariff and PV self-consumption"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "Timestamp of the last update of the settings in ISO format"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "DevicesGetSettingsRequest"
+      },
+      "DevicesGetSettingsResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/DevicesGetSettingsRequest"
+            },
+            "type": "array",
+            "title": "Data",
+            "description": "List of device settings"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/DevicesGetSettingsMetadata",
+            "description": "Metadata related to the device settings response"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "metadata"
+        ],
+        "title": "DevicesGetSettingsResponse"
+      },
       "DevicesMeta": {
         "properties": {
           "energy_supplier": {
@@ -1671,6 +1793,57 @@
         ],
         "title": "ModelType"
       },
+      "OptimizationSettings-Output": {
+        "properties": {
+          "pv_self_consumption": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Self Consumption",
+            "description": "Enable/disable PV self-consumption optimization"
+          },
+          "dynamic_tariff": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dynamic Tariff",
+            "description": "Enable/disable dynamic tariff optimization"
+          },
+          "flex_trading": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flex Trading",
+            "description": "Enable/disable supplier flex trading optimization. If `True`, the supplier steers the device based on a schedule they provide to NOX Energy."
+          }
+        },
+        "type": "object",
+        "title": "OptimizationSettings"
+      },
+      "PVControlType": {
+        "type": "string",
+        "enum": [
+          "export_curtailment",
+          "production_curtailment",
+          "default"
+        ],
+        "title": "PVControlType"
+      },
       "PVCurtailmentMode": {
         "type": "string",
         "enum": [
@@ -2022,13 +2195,7 @@
             "description": "The end time for the schedule entry. If not provided, only a start commandwill be scheduled. If provided, both start and end commands will be scheduled."
           },
           "control_type": {
-            "type": "string",
-            "enum": [
-              "export_curtailment",
-              "production_curtailment",
-              "default"
-            ],
-            "title": "Control Type",
+            "$ref": "#/components/schemas/PVControlType",
             "description": "The control type for the schedule entry, determining the type of curtailment toapply. Possible values are 'export_curtailment', 'production_curtailment', and 'default'."
           }
         },
