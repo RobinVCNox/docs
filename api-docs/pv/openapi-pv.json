@@ -697,8 +697,11 @@
               "application/json": {
                 "example": {
                   "rejected": [
-                    "PV3",
-                    "PV4"
+                    {
+                      "device_id": "PV3",
+                      "reason": "end_time must be later than the start of the next minute.",
+                      "reason_code": 6
+                    }
                   ],
                   "meta": {
                     "energy_supplier": "Energy Supplier A",
@@ -1495,7 +1498,7 @@
               }
             ],
             "title": "Reason Code",
-            "description": "Reason code mapping to why. {'A maximum of 250 device entries can be provided.': 1, 'A maximum of 25 schedule entries can be provided per device.': 2, 'Invalid device_id format. Device_id contains forbidden characters.': 3, 'Invalid date format in schedule entry. Please use ISO 8601 format (YYYY-MM-DDTHH:MM:SS) in UTC timezone. Example: 2025-04-29T07:50:00': 4, 'start_time must be before end_time in schedule entry.': 5, 'end_time must be later than the start of the next minute.': 6, 'No properties found for the device. Could be due to recently connected device (less then 24 hours). Or this device does not exist.': 7, 'Error while fetching device properties for validation. Please try again later or contact support.': 8, 'You do not have permission to control this device.': 9, 'The user settings prevent it from being controlled.': 10, 'The device is currently not steerable, please check its steerable status.': 11}"
+            "description": "Reason code mapping to why. {'A maximum of 250 device entries can be provided.': 1, 'A maximum of 25 schedule entries can be provided per device.': 2, 'Invalid device_id format. Device_id contains forbidden characters.': 3, 'Invalid date format in schedule entry. Please use ISO 8601 format (YYYY-MM-DDTHH:MM:SS) in UTC timezone. Example: 2025-04-29T07:50:00': 4, 'start_time must be before end_time in schedule entry.': 5, 'end_time must be later than the start of the next minute.': 6, 'No properties found for the device. Could be due to recently connected device (less then 24 hours). Or this device does not exist.': 7, 'Error while fetching device properties for validation. Please try again later or contact support.': 8, 'You do not have permission to control this device.': 9, 'The user settings prevent it from being controlled.': 10, 'The device is currently not steerable, please check its steerable status.': 11}."
           }
         },
         "type": "object",
