@@ -1087,6 +1087,101 @@
           }
         }
       }
+    },
+    "/v1/devices/telemetry/current": {
+      "get": {
+        "tags": [
+          "Asset Info"
+        ],
+        "summary": "Get Devices Hp Current Telemetry",
+        "description": "Get the current telemetry data of a specific device or group of devices of a user.\nIf a device has `has_delayed_power_data_1d` equal to `True`,\nit means that the power data only gets updated once a day between 2-4 AM UTC for the full previous day.\nMeaning we cannot provide real time power data and their value will be None.\nIt is possible that the `dhw_temp` and `room_temp` values are `None` if the device \ndoes not contain this data or controls for it.",
+        "operationId": "get_devices_hp_current_telemetry_v1_devices_telemetry_current_get",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n",
+              "title": "Device Id"
+            },
+            "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe ID of the user to filter on. If not provided, all users are returned.\n",
+              "title": "User Id"
+            },
+            "description": "\nThe ID of the user to filter on. If not provided, all users are returned.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response for get hp current telemetry endpoint.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HPTelemetryCurrentResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "device_id": "device_id_123",
+                      "room_temp": 20,
+                      "dhw_temp": 45,
+                      "power": 0.03,
+                      "has_delayed_power_data_1d": false,
+                      "updated_at": "2026-04-17T09:27:09.224000+00:00"
+                    },
+                    {
+                      "device_id": "device_id_456",
+                      "room_temp": 21,
+                      "dhw_temp": 54,
+                      "power": 1.3,
+                      "has_delayed_power_data_1d": false,
+                      "updated_at": "2026-04-17T09:27:09.224000+00:00"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "temperature_unit": "°C",
+                    "power_unit": "kW"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1518,6 +1613,18 @@
             ],
             "title": "Energy Supplier",
             "description": "Energy supplier name"
+          },
+          "manufacturer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manufacturer",
+            "description": "Device manufacturer name"
           }
         },
         "type": "object",
@@ -1597,7 +1704,7 @@
             "title": "Data",
             "description": "List of device settings"
           },
-          "metadata": {
+          "meta": {
             "$ref": "#/components/schemas/DevicesGetSettingsMetadata",
             "description": "Metadata related to the device settings response"
           }
@@ -1605,7 +1712,7 @@
         "type": "object",
         "required": [
           "data",
-          "metadata"
+          "meta"
         ],
         "title": "DevicesGetSettingsResponse"
       },
@@ -1737,6 +1844,39 @@
         "type": "object",
         "title": "DevicesPVResponse"
       },
+      "DevicesPVScheduleRejectedListResponse": {
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "title": "Device Id",
+            "description": "Device ID for which the schedule could not be applied."
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "description": "Reason why the schedule for the device was rejected."
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code",
+            "description": "Reason code mapping to why. {'A maximum of 250 device entries can be provided.': 1, 'A maximum of 25 schedule entries can be provided per device.': 2, 'Invalid device_id format. Device_id contains forbidden characters.': 3, 'Invalid date format in schedule entry. Please use ISO 8601 format (YYYY-MM-DDTHH:MM:SS) in UTC timezone. Example: 2025-04-29T07:50:00': 4, 'start_time must be before end_time in schedule entry.': 5, 'end_time must be later than the start of the next minute.': 6, 'No properties found for the device. Could be due to recently connected device (less then 24 hours). Or this device does not exist.': 7, 'Error while fetching device properties for validation. Please try again later or contact support.': 8, 'You do not have permission to control this device.': 9, 'The user settings prevent it from being controlled.': 10, 'The device is currently not steerable, please check its steerable status.': 11}."
+          }
+        },
+        "type": "object",
+        "required": [
+          "device_id",
+          "reason",
+          "reason_code"
+        ],
+        "title": "DevicesPVScheduleRejectedListResponse"
+      },
       "DevicesPVScheduleRequest": {
         "properties": {
           "device_id": {
@@ -1763,11 +1903,7 @@
       "DevicesPVScheduleResponse": {
         "properties": {
           "rejected": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Rejected",
+            "$ref": "#/components/schemas/DevicesPVScheduleRejectedListResponse",
             "description": "List of device IDs for which the schedule could not be applied."
           },
           "meta": {
@@ -1964,6 +2100,135 @@
         "additionalProperties": false,
         "type": "object",
         "title": "DevicesSettingsRequest"
+      },
+      "HPTelemetryCurrentResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/HPTelemetryDataItem"
+            },
+            "type": "array",
+            "title": "Data",
+            "description": "List of telemetry data items"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/HPTelemetryMeta",
+            "description": "Metadata for the telemetry response"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "HPTelemetryCurrentResponse",
+        "description": "Model for the complete telemetry current response."
+      },
+      "HPTelemetryDataItem": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique identifier for the device"
+          },
+          "room_temp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Temp",
+            "description": "Current room temperature"
+          },
+          "dhw_temp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dhw Temp",
+            "description": "Domestic hot water temperature"
+          },
+          "power": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Power",
+            "description": "Current power consumption"
+          },
+          "has_delayed_power_data_1d": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Delayed Power Data 1D",
+            "description": "Whether this device has delayed power data."
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "Timestamp when the telemetry data was last updated"
+          }
+        },
+        "type": "object",
+        "title": "HPTelemetryDataItem",
+        "description": "Model for individual telemetry data item."
+      },
+      "HPTelemetryMeta": {
+        "properties": {
+          "energy_supplier": {
+            "type": "string",
+            "title": "Energy Supplier",
+            "description": "Name of the energy supplier"
+          },
+          "temperature_unit": {
+            "type": "string",
+            "title": "Temperature Unit",
+            "description": "Unit of temperature measurement"
+          },
+          "power_unit": {
+            "type": "string",
+            "title": "Power Unit",
+            "description": "Unit of power measurement"
+          }
+        },
+        "type": "object",
+        "required": [
+          "energy_supplier",
+          "temperature_unit",
+          "power_unit"
+        ],
+        "title": "HPTelemetryMeta",
+        "description": "Model for telemetry metadata."
       },
       "HTTPValidationError": {
         "properties": {
