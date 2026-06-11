@@ -315,7 +315,8 @@
                         "being_steered_start_date": "2025-09-30"
                       },
                       "needs_reauthentication": false,
-                      "has_room_schedule": false
+                      "has_room_schedule": false,
+                      "first_connection_at": "2025-09-30T12:00:00+00:00"
                     },
                     {
                       "model": "model_b",
@@ -355,7 +356,8 @@
                         "being_steered": false
                       },
                       "needs_reauthentication": false,
-                      "has_room_schedule": false
+                      "has_room_schedule": false,
+                      "first_connection_at": "2025-09-30T12:00:00+00:00"
                     }
                   ],
                   "meta": {
@@ -1482,6 +1484,18 @@
             ],
             "title": "Has Room Schedule",
             "description": "Whether the device has a room schedule currently set."
+          },
+          "first_connection_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Connection At",
+            "description": "The date when the device was first connected to Nox, in UTC time format."
           }
         },
         "type": "object",
