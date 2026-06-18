@@ -891,7 +891,7 @@
           "PV Control"
         ],
         "summary": "Post Pv Control Flex",
-        "description": "Execute pv flex controls at the current time based on \\% of max capacity or amount of kW in production you want to lower \nof its current aggregated production across the whole supplier client base. If you provide an \nend_time with a 1 min granularit, we will revert the curtailed amount to it's original amount at that time.\nIf no end_time is given, we do not automatically revert back.\n When you execute flex on already curtailed devices, we will overwrite their current curtailment and\n scheduled end time with the new flex command you provided.\n \n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n \n `control_type` can be set to `export_curtailment`, `production_curtailment` or `default`.\n \n * 100 \\% target_percentage means that we will enable full production on the full pv panel fleet again.\n\n**NOTE**: \n * The pv devices might need some time to react. If using end_time please provide end_time at\nleast 4 minutes in the future to ensure the device can react in time. Some may react slower than others.",
+        "description": "Execute pv flex controls at the current time based on \\% of max capacity or amount of kW in production you want to lower \nof its current aggregated production across the whole supplier client base. If you provide an \nend_time with a 1 min granularit, we will revert the curtailed amount to it's original amount at that time.\nIf no end_time is given, we do not automatically revert back.\n When you execute flex on already curtailed devices, we will overwrite their current curtailment and\n scheduled end time with the new flex command you provided.\n \n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n \n `control_type` can be set to `export_curtailment`, `production_curtailment` or `default`.\n \n * 100 \\% target_percentage means that we will enable full production on the full pv panel fleet again.\n \n * You can also provide a list of brands to filter on to fully turn off or on \n curtailment for all devices of a specific brand with the `brand_filter` parameter.\n If no brands are provided, we will execute flex on all brands.\n\n**NOTE**: \n * The pv devices might need some time to react. If using end_time please provide end_time at\nleast 4 minutes in the future to ensure the device can react in time. Some may react slower than others.",
         "operationId": "post_pv_control_flex_v1_devices_pv_flex_post",
         "parameters": [],
         "requestBody": {
@@ -911,7 +911,7 @@
                 },
                 "flex_on_percentage_capacity": {
                   "summary": "Flex based on \\% of max capacity",
-                  "description": "Example for executing flex based on a target in \\% of max capacity to reduce the production with.",
+                  "description": "Example for executing flex based on a target in \\% of max capacity to alter the production with.",
                   "value": {
                     "target_percentage": 70.0
                   }
@@ -922,6 +922,17 @@
                   "value": {
                     "target_kw": 10.0,
                     "end_time": "2025-10-01T00:00:00Z"
+                  }
+                },
+                "flex_on_brand_filter": {
+                  "summary": "Flex for 100 \\% or 0 \\% of max capacity for specific brands",
+                  "description": "Example for executing flex based on a target in \\% of max capacity to alter the production with for specific brands.",
+                  "value": {
+                    "target_percentage": 0.0,
+                    "brand_filter": [
+                      "Sma",
+                      "Solis"
+                    ]
                   }
                 }
               }
@@ -1653,6 +1664,21 @@
             ],
             "title": "End Time",
             "description": "End time for the flex request in ISO 8601 format in UTC. If not provided, the flex request will be applied indefinitely until a new request is made."
+          },
+          "brand_filter": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Filter",
+            "description": "Filter devices by brands. If not provided, all brands will be considered."
           }
         },
         "type": "object",
