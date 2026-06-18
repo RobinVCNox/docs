@@ -884,6 +884,88 @@
           }
         }
       }
+    },
+    "/v1/devices/pv/flex": {
+      "post": {
+        "tags": [
+          "PV Control"
+        ],
+        "summary": "Post Pv Control Flex",
+        "description": "Execute pv flex controls at the current time based on \\% of max capacity or amount of kW in production you want to lower \nof its current aggregated production across the whole supplier client base. If you provide an \nend_time with a 1 min granularit, we will revert the curtailed amount to it's original amount at that time.\nIf no end_time is given, we do not automatically revert back.\n When you execute flex on already curtailed devices, we will overwrite their current curtailment and\n scheduled end time with the new flex command you provided.\n \n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n \n `control_type` can be set to `export_curtailment`, `production_curtailment` or `default`.\n \n * 100 \\% target_percentage means that we will enable full production on the full pv panel fleet again.\n\n**NOTE**: \n * The pv devices might need some time to react. If using end_time please provide end_time at\nleast 4 minutes in the future to ensure the device can react in time. Some may react slower than others.",
+        "operationId": "post_pv_control_flex_v1_devices_pv_flex_post",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevicesPVFlexRequest"
+              },
+              "examples": {
+                "flex_on_target": {
+                  "summary": "Flex based on target in kW",
+                  "description": "Example for executing flex based on a target in kW to reduce the production with.",
+                  "value": {
+                    "target_kw": 2.5
+                  }
+                },
+                "flex_on_percentage_capacity": {
+                  "summary": "Flex based on \\% of max capacity",
+                  "description": "Example for executing flex based on a target in \\% of max capacity to reduce the production with.",
+                  "value": {
+                    "target_percentage": 70.0
+                  }
+                },
+                "flex_on_target_with_end_time": {
+                  "summary": "Flex based on target in kW with an end time",
+                  "description": "Example for executing flex based on a target in kW to reduce the production with.",
+                  "value": {
+                    "target_kw": 10.0,
+                    "end_time": "2025-10-01T00:00:00Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "All controls accepted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DevicesPVFlexResponse"
+                },
+                "example": {
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "None of the provided device_ids allow steering or are compatible."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
