@@ -977,6 +977,94 @@
           }
         }
       }
+    },
+    "/v1/devices/pv/flex/logs": {
+      "get": {
+        "tags": [
+          "PV Control"
+        ],
+        "summary": "Get Devices Hp Current Telemetry",
+        "description": "Get a list of logs that contain the executed flex commands for a specific energy supplier over\na time range.",
+        "operationId": "get_devices_hp_current_telemetry_v1_devices_pv_flex_logs_get",
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nStart time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "Start Time"
+            },
+            "description": "\nStart time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nEnd time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "End Time"
+            },
+            "description": "\nEnd time when the consumption measurement were taken.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response for get hp current telemetry endpoint.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DevicesPVFlexLogsResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "timestamp": "2026-04-17T09:27:09.224000+00:00",
+                      "control_type": "production_curtailment",
+                      "target_percentage": 0.0,
+                      "brand_filter": [
+                        "Sma",
+                        "Solis"
+                      ],
+                      "executed_flex_device_count": 42,
+                      "end_time": "2026-04-17T10:27:09.224000+00:00"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1613,6 +1701,129 @@
         "type": "object",
         "title": "DevicesMeta"
       },
+      "DevicesPVFlexLogsDataResponse": {
+        "properties": {
+          "timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp",
+            "description": "Timestamp of the flex log entry in ISO 8601 format in UTC."
+          },
+          "control_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Type",
+            "description": "Type of control applied, e.g. 'production_curtailment'."
+          },
+          "target_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Kw",
+            "description": "Target power in kW to reduce production with."
+          },
+          "target_percentage": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Percentage",
+            "description": "Target percentage of max capacity to reduce production with."
+          },
+          "brand_filter": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Filter",
+            "description": "Filter devices by brands. If not provided, all brands will be considered."
+          },
+          "executed_flex_device_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executed Flex Device Count",
+            "description": "Number of devices that executed the flex request."
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time",
+            "description": "End time for the flex request in ISO 8601 format in UTC. If not provided, the flex request will be applied indefinitely until a new request is made."
+          }
+        },
+        "type": "object",
+        "title": "DevicesPVFlexLogsDataResponse"
+      },
+      "DevicesPVFlexLogsResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DevicesPVFlexLogsDataResponse"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of devices flex logs."
+          },
+          "meta": {
+            "$ref": "#/components/schemas/DevicesPVFlexMeta",
+            "description": "Response metadata."
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "DevicesPVFlexLogsResponse"
+      },
       "DevicesPVFlexMeta": {
         "properties": {
           "energy_supplier": {
@@ -1644,7 +1855,9 @@
           "target_percentage": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -1687,7 +1900,8 @@
       "DevicesPVFlexResponse": {
         "properties": {
           "meta": {
-            "$ref": "#/components/schemas/DevicesPVFlexMeta"
+            "$ref": "#/components/schemas/DevicesPVFlexMeta",
+            "description": "Response metadata."
           }
         },
         "type": "object",
