@@ -983,9 +983,9 @@
         "tags": [
           "PV Control"
         ],
-        "summary": "Get Devices Hp Current Telemetry",
+        "summary": "Get Devices Pv Control Flex Logs",
         "description": "Get a list of logs that contain the executed flex commands for a specific energy supplier over\na time range.",
-        "operationId": "get_devices_hp_current_telemetry_v1_devices_pv_flex_logs_get",
+        "operationId": "get_devices_pv_control_flex_logs_v1_devices_pv_flex_logs_get",
         "parameters": [
           {
             "name": "start_time",
