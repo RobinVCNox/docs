@@ -137,6 +137,60 @@
               "title": "Brand"
             },
             "description": "\nFilter on device brand. If `None`, do not filter on brand.\n"
+          },
+          {
+            "name": "steering_enabled",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nIf `true`, return only data related to the device's which has `steering_enabled` = `true`.\n\nIf `false`, return only data related to the device's which has `steering_enabled` = `false`.\n\nIf not given, do not filter on `steering_enabled` field.\n",
+              "title": "Steering Enabled"
+            },
+            "description": "\nIf `true`, return only data related to the device's which has `steering_enabled` = `true`.\n\nIf `false`, return only data related to the device's which has `steering_enabled` = `false`.\n\nIf not given, do not filter on `steering_enabled` field.\n"
+          },
+          {
+            "name": "steerable",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nIf `true`, return only data related to the device's which has `steerable` = `true`.\n\nIf `false`, return only data related to the device's which has `steerable` = `false`.\n\nIf not given, do not filter on `steerable` field.\n",
+              "title": "Steerable"
+            },
+            "description": "\nIf `true`, return only data related to the device's which has `steerable` = `true`.\n\nIf `false`, return only data related to the device's which has `steerable` = `false`.\n\nIf not given, do not filter on `steerable` field.\n"
+          },
+          {
+            "name": "has_production_curtailment",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nIf `true`, return only data related to the device's which has `has_production_curtailment` = `true`.\n\nIf `false` return only data related to the device's which has `has_production_curtailment` = `false`.\n\nIf not given, do not filter on `has_production_curtailment` field.\n",
+              "title": "Has Production Curtailment"
+            },
+            "description": "\nIf `true`, return only data related to the device's which has `has_production_curtailment` = `true`.\n\nIf `false` return only data related to the device's which has `has_production_curtailment` = `false`.\n\nIf not given, do not filter on `has_production_curtailment` field.\n"
           }
         ],
         "responses": {
@@ -163,7 +217,9 @@
                       },
                       "needs_reauthentication": false,
                       "has_grid_export_curtailment": true,
-                      "has_production_curtailment": true
+                      "has_production_curtailment": true,
+                      "capacity_kw": 5.0,
+                      "current_production_kw": 3.2
                     },
                     {
                       "model": "model_b",
@@ -178,7 +234,9 @@
                       },
                       "needs_reauthentication": false,
                       "has_grid_export_curtailment": true,
-                      "has_production_curtailment": true
+                      "has_production_curtailment": true,
+                      "capacity_kw": 3.5,
+                      "current_production_kw": 2.1
                     }
                   ],
                   "meta": {
@@ -472,7 +530,7 @@
           "Device Production"
         ],
         "summary": "Get Device Pv Production",
-        "description": "Get the measured historical pv production data for devices associated with your energy supplier account in kWh for a specific timeframe in 15min granularity.\n\n Our example timeframe might be outside this range.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
+        "description": "Get the measured historical pv production data for devices associated with your energy supplier account in kWh for a specific timeframe in 15min granularity. Some brands might have a delay of up to 1h for the production data to be correctly available, like SMA. We recommend to fetch the production data with a delay of 1 hour.\n\n Our example timeframe might be outside this range.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
         "operationId": "get_device_pv_production_v1_devices_pv_production_get",
         "parameters": [
           {
@@ -1126,6 +1184,18 @@
             ],
             "title": "Has Room Schedule",
             "description": "Whether the device has a room schedule currently set."
+          },
+          "first_connection_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Connection At",
+            "description": "The date when the device was first connected to Nox, in UTC time format."
           }
         },
         "type": "object",
@@ -1239,6 +1309,30 @@
             ],
             "title": "Has Production Curtailment",
             "description": "Whether the device has production curtailment capabilities"
+          },
+          "capacity_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Kw",
+            "description": "PV capacity in kW"
+          },
+          "current_production_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Production Kw",
+            "description": "Current PV production in kW"
           }
         },
         "type": "object",
@@ -1425,6 +1519,74 @@
         },
         "type": "object",
         "title": "DevicesMeta"
+      },
+      "DevicesPVFlexMeta": {
+        "properties": {
+          "energy_supplier": {
+            "type": "string",
+            "title": "Energy Supplier",
+            "description": "The energy supplier associated with the PV flex request."
+          }
+        },
+        "type": "object",
+        "required": [
+          "energy_supplier"
+        ],
+        "title": "DevicesPVFlexMeta"
+      },
+      "DevicesPVFlexRequest": {
+        "properties": {
+          "target_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Kw",
+            "description": "Target power in kW to reduce production with."
+          },
+          "target_percentage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Percentage",
+            "description": "Target percentage of max capacity to reduce production with."
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time",
+            "description": "End time for the flex request in ISO 8601 format in UTC. If not provided, the flex request will be applied indefinitely until a new request is made."
+          }
+        },
+        "type": "object",
+        "title": "DevicesPVFlexRequest"
+      },
+      "DevicesPVFlexResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/DevicesPVFlexMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "DevicesPVFlexResponse"
       },
       "DevicesPVMeta": {
         "properties": {
@@ -2003,6 +2165,18 @@
             ],
             "title": "Flex Trading",
             "description": "Enable/disable supplier flex trading optimization. If `True`, the supplier steers the device based on a schedule they provide to NOX Energy."
+          },
+          "imbalance_optimization": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imbalance Optimization",
+            "description": "Enable/disable imbalance optimization. If `True`, the device will be optimized to minimize imbalances based on the imbalance prices of the users country. This setting should only be enabled/disabled internally in the backend of suppliers as only integrated users of a full-control package will have benefit out of it."
           }
         },
         "type": "object",
@@ -2817,6 +2991,18 @@
             ],
             "title": "Flex Trading",
             "description": "Enable/disable supplier flex trading optimization. If `True`, the supplier steers the device based on a schedule they provide to NOX Energy."
+          },
+          "imbalance_optimization": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imbalance Optimization",
+            "description": "Enable/disable imbalance optimization. If `True`, the device will be optimized to minimize imbalances based on the imbalance prices of the users country. This setting should only be enabled/disabled internally in the backend of suppliers as only integrated users of a full-control package will have benefit out of it."
           }
         },
         "type": "object",
@@ -2838,7 +3024,8 @@
           "Important data missing, will not be supported in future updates.",
           "Unauthorized country, steering not allowed in this country.",
           "Reauthentication required.",
-          "Unknown reason, please contact support."
+          "Unknown reason, please contact support.",
+          "Device does not support curtailment, steering not possible."
         ],
         "title": "GeneralReason"
       },
