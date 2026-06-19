@@ -219,7 +219,8 @@
                       "has_grid_export_curtailment": true,
                       "has_production_curtailment": true,
                       "capacity_kw": 5.0,
-                      "current_production_kw": 3.2
+                      "current_production_kw": 3.2,
+                      "last_updated_at": "2025-04-30T23:15:00.000Z"
                     },
                     {
                       "model": "model_b",
@@ -236,7 +237,8 @@
                       "has_grid_export_curtailment": true,
                       "has_production_curtailment": true,
                       "capacity_kw": 3.5,
-                      "current_production_kw": 2.1
+                      "current_production_kw": 2.1,
+                      "last_updated_at": "2025-04-30T23:15:00.000Z"
                     }
                   ],
                   "meta": {
@@ -1514,6 +1516,18 @@
             ],
             "title": "Current Production Kw",
             "description": "Current PV production in kW"
+          },
+          "last_updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated At",
+            "description": "ISO 8601 UTC timestamp of when current_production_kw was last measured/ingested. Treat current_production_kw as current only if this is recent (e.g. less than 5 minutes in the past)."
           }
         },
         "type": "object",

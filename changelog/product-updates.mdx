@@ -3,6 +3,13 @@ title: 'Product updates'
 description: 'Updates and Changes'
 ---
 
+<Update label="June 2026">
+  ## PV production measurement timestamp
+
+  * The `GET /v1/devices/pv` endpoint now returns a `last_updated_at` timestamp alongside `current_production_kw`, indicating when the production value was last measured. Treat `current_production_kw` as the current production only if `last_updated_at` is recent (e.g. less than 5 minutes in the past).
+
+</Update>
+
 <Update label="March 2026">
   ## Production API update and new Authenticator
 
