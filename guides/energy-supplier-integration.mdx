@@ -36,7 +36,7 @@ The required `asset_type` field tells NOX Energy which kind of device the user i
 | `hp` | Heat pump | daikin, vaillant, nibe, … |
 | `pv` | PV solar inverter | sma, solis, huawei, … |
 
-To connect a **PV (solar) device**, set `"asset_type": "pv"` — the user will then only see PV inverter brands. To connect a **heat pump**, set `"asset_type": "hp"`. If you also pass a `brand`, it must be a valid brand for the chosen `asset_type`. See the [Supported Assets Overview](/supported-assets/supported-assets-overview) for the full list of brands per category.
+To connect a **PV (solar) device**, set `"asset_type": "pv"`. The user will then only see PV inverter brands. To connect a **heat pump**, set `"asset_type": "hp"`. If you also pass a `brand` in the link-session request, then you will directly go to that brands connect page instead of first arriving to the brand selector page. This can be useful if you want to have your own style of brand selector within your app. Note that the provided brand must be a valid brand for the chosen `asset_type`. See the [Supported Assets Overview](/supported-assets/supported-assets-overview) for the full list of brands per category.
 
 Example:
 ```bash
