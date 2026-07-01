@@ -122,14 +122,14 @@ export const SupportedBrandOverviewTable = () => {
       "Bosch": [
         {
           "model": "To be determined",
-          "status": "Alpha",
+          "status": "Supported",
           "hpType": "-"
         }
       ],
       "Buderus": [
         {
           "model": "To be determined",
-          "status": "Alpha",
+          "status": "Supported",
           "hpType": "-"
         }
       ],
@@ -1512,7 +1512,7 @@ export const SupportedBrandOverviewTable = () => {
                 }
                 <tr onClick={() => toggleRow("Bosch")} style={{ cursor: 'pointer' }}>
                     <td>Bosch</td>
-                    <td>{getStatusBadge("Alpha")}</td>
+                    <td>{getStatusBadge("Production")}</td>
                     <td>To be determined</td>
                 </tr>
                 {expandedRows.has("Bosch") &&
@@ -1526,7 +1526,7 @@ export const SupportedBrandOverviewTable = () => {
                 }
                 <tr onClick={() => toggleRow("Buderus")} style={{ cursor: 'pointer' }}>
                     <td>Buderus</td>
-                    <td>{getStatusBadge("Alpha")}</td>
+                    <td>{getStatusBadge("Production")}</td>
                     <td>To be determined</td>
                 </tr>
                 {expandedRows.has("Buderus") &&

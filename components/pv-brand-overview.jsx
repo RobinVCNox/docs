@@ -38,6 +38,14 @@ export const SupportedPVBrandOverviewTable = () => {
       ],
       "Solis": [
       ],
+      "SolarEdge": [
+      ],
+      "Growatt": [
+      ],
+      "GoodWe": [
+      ],
+      "Fronius": [
+      ],
       "Enphase": [
       ]
     };
@@ -98,6 +106,58 @@ export const SupportedPVBrandOverviewTable = () => {
                 </tr>
                 {expandedRows.has("Solis") &&
                     getDeviceModels("Solis").map((device, index) => (
+                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
+                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
+                            <td>{getStatusBadge(device.status)}</td>
+                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
+                        </tr>
+                    ))
+                }
+                <tr onClick={() => toggleRow("SolarEdge")} style={{ cursor: 'pointer' }}>
+                    <td>SolarEdge</td>
+                    <td>{getStatusBadge("Production")}</td>
+                </tr>
+                {expandedRows.has("SolarEdge") &&
+                    getDeviceModels("SolarEdge").map((device, index) => (
+                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
+                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
+                            <td>{getStatusBadge(device.status)}</td>
+                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
+                        </tr>
+                    ))
+                }
+                <tr onClick={() => toggleRow("Growatt")} style={{ cursor: 'pointer' }}>
+                    <td>Growatt</td>
+                    <td>{getStatusBadge("Production")}</td>
+                </tr>
+                {expandedRows.has("Growatt") &&
+                    getDeviceModels("Growatt").map((device, index) => (
+                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
+                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
+                            <td>{getStatusBadge(device.status)}</td>
+                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
+                        </tr>
+                    ))
+                }
+                <tr onClick={() => toggleRow("GoodWe")} style={{ cursor: 'pointer' }}>
+                    <td>GoodWe</td>
+                    <td>{getStatusBadge("Production")}</td>
+                </tr>
+                {expandedRows.has("GoodWe") &&
+                    getDeviceModels("GoodWe").map((device, index) => (
+                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
+                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
+                            <td>{getStatusBadge(device.status)}</td>
+                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
+                        </tr>
+                    ))
+                }
+                <tr onClick={() => toggleRow("Fronius")} style={{ cursor: 'pointer' }}>
+                    <td>Fronius</td>
+                    <td>{getStatusBadge("Production")}</td>
+                </tr>
+                {expandedRows.has("Fronius") &&
+                    getDeviceModels("Fronius").map((device, index) => (
                         <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
                             <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
                             <td>{getStatusBadge(device.status)}</td>
