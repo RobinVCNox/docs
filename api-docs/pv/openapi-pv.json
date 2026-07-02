@@ -270,7 +270,7 @@
           "Device Production"
         ],
         "summary": "Get Devices Pv Production Forecast",
-        "description": "Get the forecasted production for pv devices associated with your energy supplier account in kWh for a specific timeframe with 15min granularity.\n\n This forecast is done everyday at a fixed time depending on supplier.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
+        "description": "Get the forecasted production for pv devices associated with your energy\n supplier account in kWh for a specific timeframe with 15min granularity.\n\n\n This forecast is done everyday at a fixed time depending on supplier.\n\n\n The timestamp refers to the data that will happen\n in the next 15 minutes after the timestamp.",
         "operationId": "get_devices_pv_production_forecast_v1_devices_pv_production_forecast_get",
         "parameters": [
           {
@@ -375,6 +375,57 @@
                   "meta": {
                     "energy_supplier": "Energy Supplier A",
                     "next_token": "AYABeH50-To0SRdAWC9BY9aCIaEAAAABAAdhd3Mta21zAE5hcm46YXdzOmttczpldS1jZW50cmFsLTE6ND",
+                    "production_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/devices/pv/production/forecast/realtime": {
+      "get": {
+        "tags": [
+          "Device Production"
+        ],
+        "summary": "Get Devices Pv Production Forecast Realtime",
+        "description": "Get the aggregated realtime PV production forecast for all devices associated with your energy\n supplier account in kWh with 15min granularity.\n\n\n The forecast window is computed server-side and covers the past 15 minutes up to 24 hours\n ahead from the moment of the request.\n\n\n The timestamp refers to the data that will happen\n in the next 15 minutes after the timestamp.\n\n\n All timestamps are in UTC.",
+        "operationId": "get_devices_pv_production_forecast_realtime_v1_devices_pv_production_forecast_realtime_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PVPForecastRealtimeResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "forecast_time": "2025-05-01T07:45:00.000Z",
+                      "production": 12.5
+                    },
+                    {
+                      "forecast_time": "2025-05-01T08:00:00.000Z",
+                      "production": 14.75
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
                     "production_unit": "kWh",
                     "granularity": "15min",
                     "output_timezone": "UTC"
@@ -1542,6 +1593,18 @@
             ],
             "title": "Last Updated At",
             "description": "ISO 8601 UTC timestamp of when current_production_kw was last measured/ingested. Treat current_production_kw as current only if this is recent (e.g. less than 5 minutes in the past)."
+          },
+          "current_curtailment_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Curtailment State",
+            "description": "Current curtailment state of the device, e.g. 'default', 'production_curtailment', 'export_curtailment'"
           }
         },
         "type": "object",
@@ -2657,6 +2720,122 @@
         },
         "type": "object",
         "title": "PVPForecastMeta"
+      },
+      "PVPForecastRealtimeData": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Timestamp of the forecast interval"
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production",
+            "description": "Aggregated PV forecast production value in kWh"
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastRealtimeData"
+      },
+      "PVPForecastRealtimeMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "production_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Unit",
+            "description": "Unit of the production values, e.g. kWh"
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data in minutes."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastRealtimeMeta"
+      },
+      "PVPForecastRealtimeResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVPForecastRealtimeData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of forecast data points"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVPForecastRealtimeMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastRealtimeResponse"
       },
       "PVPForecastResponse": {
         "properties": {
