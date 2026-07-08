@@ -447,6 +447,92 @@
         }
       }
     },
+    "/v1/fleet/pv/production/typical-production": {
+      "get": {
+        "tags": [
+          "Device Production"
+        ],
+        "summary": "Get Fleet Pv Typical Production",
+        "description": "Get the fleet level typical production forecast for the whole PV pool associated with your energy\n supplier account in kWh with 15min granularity.\n\n\n The typical production represents the aggregated production the fleet would have produced under\n the forecasted weather conditions **if no curtailment had taken place**. It is generated for a given\n `generation_time` (the moment the forecast was produced) and covers the 15min `time_bucket`s within\n the requested `start_time` and `end_time` window.\n\n\n This is typically used to quantify the impact of a curtailment event: by comparing the actual\n (curtailed) production of the fleet against this typical production, you can estimate the amount of\n power that was curtailed compared to a scenario where no curtailment would have happened.\n\n\n The timestamp (`forecast_time`) refers to the production that happens in the next 15\n minutes after the timestamp.\n\n\n All timestamps are in UTC.",
+        "operationId": "get_fleet_pv_typical_production_v1_fleet_pv_production_typical_production_get",
+        "parameters": [
+          {
+            "name": "generation_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nThe datetime at which the forecast was generated.\nOnly the forecast produced at this exact `generation_time` is returned.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "Generation Time"
+            },
+            "description": "\nThe datetime at which the forecast was generated.\nOnly the forecast produced at this exact `generation_time` is returned.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nStart of the time window (inclusive) of the forecasted 15min production buckets to return.\nFilters on the `time_bucket` of the forecast.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "Start Time"
+            },
+            "description": "\nStart of the time window (inclusive) of the forecasted 15min production buckets to return.\nFilters on the `time_bucket` of the forecast.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nEnd of the time window (inclusive) of the forecasted 15min production buckets to return.\nFilters on the `time_bucket` of the forecast.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n",
+              "title": "End Time"
+            },
+            "description": "\nEnd of the time window (inclusive) of the forecasted 15min production buckets to return.\nFilters on the `time_bucket` of the forecast.\nThe time is in UTC in ISO 8601 format.\n\n\n\nTime format examples:\n- 2023-10-01T00:00:00Z\n- 2023-10-01T00:00:00\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PVFleetTypicalProductionResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "forecast_time": "2025-05-01T07:45:00.000Z",
+                      "production": 42.75
+                    },
+                    {
+                      "forecast_time": "2025-05-01T08:00:00.000Z",
+                      "production": 48.1
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "generation_time": "2025-06-01T07:30:00Z",
+                    "production_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/devices/pv/production/typical-production": {
       "get": {
         "tags": [
@@ -717,7 +803,7 @@
           "PV Control"
         ],
         "summary": "Post Pv Control Schedule",
-        "description": "Submit steering schedules by providing a start and end time with a 1 min granularity of when you would like\npv production/grid export curtailment to be off or 0 \\% grid export curtailment.\n When you provide new scheduled controls for the same device\n  that already had an existing control, then we will overwrite any commands scheduled for the pv\n  with the newly provided schedules.\n  If an active curtailment is already active(= off or 0 \\%) and your newly submitted schedule overlaps with the active one,\n  then we will keep the active curtailment going until your end time has been reached or the start time has been reached and the\n  control-type is different than the active one.\n  `start_time` should be before `end_time` and `end_time` should be in the future. If not, the schedule will be rejected.\n  You can provide a batch of different device_id's, each with custom or equal schedules.\n  You can provide multiple schedules for the same device_id but keep in mind that the next time you\n  update the schedule for that device_id, you will overwrite all the schedules for that device_id with the new ones you provide.\n  There is a limit (250) to the number of updated device_id schedules you can provide in a batch.\n  If you have many devices, you can split them into multiple batches.\n  Make sure to not send schedules that are from users that have their external steering optimization disabled or are not yet compatible with our system.\n  We will filter these devices out of them regardless. But it is best practice to only send us schedules for users that\n  want to be curtailed and are compatible.\n \n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n \n `control_type` can be set to `export_curtailment`, `production_curtailment` or `default`.\n \n * `export_curtailment` means that we will try to keep the grid export at 0 kW during the scheduled times by curtailing the pv production if needed.\n\n * `production_curtailment` means that we will try to keep the pv production at 0 kW during the scheduled times by curtailing the pv production if needed.\n\n * `default` means that we will not curtail the pv production or export and allow the grid export to be determined by the household consumption and pv production.\nIf the `end_time` of `default` control type is reached, it will keep it as default unless another schedule overwrites it.\n\n * It is possible to not provide an `end_time` for a schedule entry. We will handle this then as start command without reverting back to it's original state.\nThis is mostly recommended if you want the user to go to it's `default` state.\n**NOTE**: \n * The pv device might need some time to react. Please provide start times at\nleast 1 minute in the future to ensure the device can react in time. Some may react slower than others.",
+        "description": "Submit steering schedules by providing a start and end time with a 1 min granularity of when you would like\npv production/grid export curtailment to be off or 0 % grid export curtailment.\n When you provide new scheduled controls for the same device\n  that already had an existing control, then we will overwrite any commands scheduled for the pv\n  with the newly provided schedules.\n  If an active curtailment is already active(= off or 0 %) and your newly submitted schedule overlaps with the active one,\n  then we will keep the active curtailment going until your end time has been reached or the start time has been reached and the\n  control-type is different than the active one.\n  `start_time` should be before `end_time` and `end_time` should be in the future. If not, the schedule will be rejected.\n  You can provide a batch of different device_id's, each with custom or equal schedules.\n  You can provide multiple schedules for the same device_id but keep in mind that the next time you\n  update the schedule for that device_id, you will overwrite all the schedules for that device_id with the new ones you provide.\n  There is a limit (250) to the number of updated device_id schedules you can provide in a batch.\n  If you have many devices, you can split them into multiple batches.\n  Make sure to not send schedules that are from users that have their external steering optimization disabled or are not yet compatible with our system.\n  We will filter these devices out of them regardless. But it is best practice to only send us schedules for users that\n  want to be curtailed and are compatible.\n \n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n \n `control_type` can be set to `export_curtailment`, `production_curtailment` or `default`.\n \n * `export_curtailment` means that we will try to keep the grid export at 0 kW during the scheduled times by curtailing the pv production if needed.\n\n * `production_curtailment` means that we will try to keep the pv production at 0 kW during the scheduled times by curtailing the pv production if needed.\n\n * `default` means that we will not curtail the pv production or export and allow the grid export to be determined by the household consumption and pv production.\nIf the `end_time` of `default` control type is reached, it will keep it as default unless another schedule overwrites it.\n\n * It is possible to not provide an `end_time` for a schedule entry. We will handle this then as start command without reverting back to it's original state.\nThis is mostly recommended if you want the user to go to it's `default` state.\n**NOTE**: \n * The pv device might need some time to react. Please provide start times at\nleast 1 minute in the future to ensure the device can react in time. Some may react slower than others.",
         "operationId": "post_pv_control_schedule_v1_devices_pv_schedules_post",
         "parameters": [],
         "requestBody": {
@@ -946,7 +1032,7 @@
           "PV Control"
         ],
         "summary": "Post Pv Control Flex",
-        "description": "Execute pv flex controls at the current time based on \\% of max capacity or amount of kW in production you want to lower \nof its current aggregated production across the whole supplier client base. If you provide an \nend_time with a 1 min granularit, we will revert the curtailed amount to it's original amount at that time.\nIf no end_time is given, we do not automatically revert back.\n When you execute flex on already curtailed devices, we will overwrite their current curtailment and\n scheduled end time with the new flex command you provided.\n \n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n \n `control_type` can be set to `export_curtailment`, `production_curtailment` or `default`.\n \n * 100 \\% target_percentage means that we will enable full production on the full pv panel fleet again.\n \n * You can also provide a list of brands to filter on to fully turn off or on \n curtailment for all devices of a specific brand with the `brand_filter` parameter.\n If no brands are provided, we will execute flex on all brands.\n\n**NOTE**: \n * The pv devices might need some time to react. If using end_time please provide end_time at\nleast 4 minutes in the future to ensure the device can react in time. Some may react slower than others.",
+        "description": "Execute pv flex controls at the current time based on % of max capacity or amount of kW in production you want to lower \nof its current aggregated production across the whole supplier client base. If you provide an \nend_time with a 1 min granularit, we will revert the curtailed amount to it's original amount at that time.\nIf no end_time is given, we do not automatically revert back.\n When you execute flex on already curtailed devices, we will overwrite their current curtailment and\n scheduled end time with the new flex command you provided.\n \n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n \n `control_type` can be set to `export_curtailment`, `production_curtailment` or `default`.\n \n * 100 % target_percentage means that we will enable full production on the full pv panel fleet again.\n \n * You can also provide a list of brands to filter on to fully turn off or on \n curtailment for all devices of a specific brand with the `brand_filter` parameter.\n If no brands are provided, we will execute flex on all brands.\n\n**NOTE**: \n * The pv devices might need some time to react. If using end_time please provide end_time at\nleast 4 minutes in the future to ensure the device can react in time. Some may react slower than others.",
         "operationId": "post_pv_control_flex_v1_devices_pv_flex_post",
         "parameters": [],
         "requestBody": {
@@ -965,8 +1051,8 @@
                   }
                 },
                 "flex_on_percentage_capacity": {
-                  "summary": "Flex based on \\% of max capacity",
-                  "description": "Example for executing flex based on a target in \\% of max capacity to alter the production with.",
+                  "summary": "Flex based on % of max capacity",
+                  "description": "Example for executing flex based on a target in % of max capacity to alter the production with.",
                   "value": {
                     "target_percentage": 70.0
                   }
@@ -980,8 +1066,8 @@
                   }
                 },
                 "flex_on_brand_filter": {
-                  "summary": "Flex for 100 \\% or 0 \\% of max capacity for specific brands",
-                  "description": "Example for executing flex based on a target in \\% of max capacity to alter the production with for specific brands.",
+                  "summary": "Flex for 100 % or 0 % of max capacity for specific brands",
+                  "description": "Example for executing flex based on a target in % of max capacity to alter the production with for specific brands.",
                   "value": {
                     "target_percentage": 0.0,
                     "brand_filter": [
@@ -2612,6 +2698,134 @@
           "off"
         ],
         "title": "PVCurtailmentMode"
+      },
+      "PVFleetTypicalProductionData": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Timestamp of the 15min production bucket (start of the interval)."
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production",
+            "description": "Fleet level typical production for the bucket in kWh (production without curtailment)."
+          }
+        },
+        "type": "object",
+        "title": "PVFleetTypicalProductionData"
+      },
+      "PVFleetTypicalProductionMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name."
+          },
+          "generation_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generation Time",
+            "description": "The datetime at which the forecast was generated."
+          },
+          "production_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Unit",
+            "description": "Unit of the production values, e.g. kWh."
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVFleetTypicalProductionMeta"
+      },
+      "PVFleetTypicalProductionResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVFleetTypicalProductionData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of fleet level typical production buckets."
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVFleetTypicalProductionMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVFleetTypicalProductionResponse"
       },
       "PVPForecastData": {
         "properties": {
