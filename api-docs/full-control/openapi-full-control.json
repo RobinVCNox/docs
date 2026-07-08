@@ -1613,6 +1613,66 @@
             ],
             "title": "Has Production Curtailment",
             "description": "Whether the device has production curtailment capabilities"
+          },
+          "capacity_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Kw",
+            "description": "PV capacity in kW"
+          },
+          "response_latency_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Latency Seconds",
+            "description": "Expected latency in seconds before the device responds to a steering command"
+          },
+          "current_production_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Production Kw",
+            "description": "Current PV production in kW"
+          },
+          "last_updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated At",
+            "description": "ISO 8601 UTC timestamp of when current_production_kw was last measured/ingested. Treat current_production_kw as current only if this is recent (e.g. less than 5 minutes in the past)."
+          },
+          "current_curtailment_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Curtailment State",
+            "description": "Current curtailment state of the device, e.g. 'default', 'production_curtailment', 'export_curtailment'"
           }
         },
         "type": "object",
@@ -1799,6 +1859,215 @@
         },
         "type": "object",
         "title": "DevicesMeta"
+      },
+      "DevicesPVFlexLogsDataResponse": {
+        "properties": {
+          "timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp",
+            "description": "Timestamp of the flex log entry in ISO 8601 format in UTC."
+          },
+          "control_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Type",
+            "description": "Type of control applied, e.g. 'production_curtailment'."
+          },
+          "target_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Kw",
+            "description": "Target power in kW to reduce production with."
+          },
+          "target_percentage": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Percentage",
+            "description": "Target percentage of max capacity to reduce production with."
+          },
+          "brand_filter": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Filter",
+            "description": "Filter devices by brands. If not provided, all brands will be considered."
+          },
+          "executed_flex_device_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executed Flex Device Count",
+            "description": "Number of devices that executed the flex request."
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time",
+            "description": "End time for the flex request in ISO 8601 format in UTC. If not provided, the flex request will be applied indefinitely until a new request is made."
+          }
+        },
+        "type": "object",
+        "title": "DevicesPVFlexLogsDataResponse"
+      },
+      "DevicesPVFlexLogsResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DevicesPVFlexLogsDataResponse"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of devices flex logs."
+          },
+          "meta": {
+            "$ref": "#/components/schemas/DevicesPVFlexMeta",
+            "description": "Response metadata."
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "DevicesPVFlexLogsResponse"
+      },
+      "DevicesPVFlexMeta": {
+        "properties": {
+          "energy_supplier": {
+            "type": "string",
+            "title": "Energy Supplier",
+            "description": "The energy supplier associated with the PV flex request."
+          }
+        },
+        "type": "object",
+        "required": [
+          "energy_supplier"
+        ],
+        "title": "DevicesPVFlexMeta"
+      },
+      "DevicesPVFlexRequest": {
+        "properties": {
+          "target_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Kw",
+            "description": "Target power in kW to reduce production with."
+          },
+          "target_percentage": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Percentage",
+            "description": "Target percentage of max capacity to reduce production with."
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time",
+            "description": "End time for the flex request in ISO 8601 format in UTC. If not provided, the flex request will be applied indefinitely until a new request is made."
+          },
+          "brand_filter": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Filter",
+            "description": "Filter devices by brands. If not provided, all brands will be considered."
+          }
+        },
+        "type": "object",
+        "title": "DevicesPVFlexRequest"
+      },
+      "DevicesPVFlexResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/DevicesPVFlexMeta",
+            "description": "Response metadata."
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "DevicesPVFlexResponse"
       },
       "DevicesPVMeta": {
         "properties": {
@@ -2412,6 +2681,134 @@
         ],
         "title": "PVCurtailmentMode"
       },
+      "PVFleetTypicalProductionData": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Timestamp of the 15min production bucket (start of the interval)."
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production",
+            "description": "Fleet level typical production for the bucket in kWh (production without curtailment)."
+          }
+        },
+        "type": "object",
+        "title": "PVFleetTypicalProductionData"
+      },
+      "PVFleetTypicalProductionMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name."
+          },
+          "generation_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generation Time",
+            "description": "The datetime at which the forecast was generated."
+          },
+          "production_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Unit",
+            "description": "Unit of the production values, e.g. kWh."
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVFleetTypicalProductionMeta"
+      },
+      "PVFleetTypicalProductionResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVFleetTypicalProductionData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of fleet level typical production buckets."
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVFleetTypicalProductionMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVFleetTypicalProductionResponse"
+      },
       "PVPForecastData": {
         "properties": {
           "forecast_time": {
@@ -2519,6 +2916,122 @@
         },
         "type": "object",
         "title": "PVPForecastMeta"
+      },
+      "PVPForecastRealtimeData": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Timestamp of the forecast interval"
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production",
+            "description": "Aggregated PV forecast production value in kWh"
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastRealtimeData"
+      },
+      "PVPForecastRealtimeMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "production_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Unit",
+            "description": "Unit of the production values, e.g. kWh"
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data in minutes."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastRealtimeMeta"
+      },
+      "PVPForecastRealtimeResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVPForecastRealtimeData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of forecast data points"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVPForecastRealtimeMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastRealtimeResponse"
       },
       "PVPForecastResponse": {
         "properties": {
@@ -3051,6 +3564,7 @@
           "Important data missing, will not be supported in future updates.",
           "Unauthorized country, steering not allowed in this country.",
           "Reauthentication required.",
+          "Too many heating zones, steering not supported for this configuration.",
           "Unknown reason, please contact support."
         ],
         "title": "GeneralReason"
