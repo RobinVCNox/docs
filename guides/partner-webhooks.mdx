@@ -103,6 +103,7 @@ def verify_webhook(raw_body: bytes, signature: str, timestamp: str, secret: str)
 | `device.steerable_status.dhw_reason.updated` | DHW (domestic hot water) reason changed | `string` or `null` |
 | `device.steerable_status.room_reason.updated` | Room heating reason changed | `string` or `null` |
 | `device.state.operation_mode.updated` | Operation mode changed (PV devices only) | enum string (e.g. `NORMAL`, `ERROR`) |
+| `device.state.pv_production.updated` | PV production reading changed, in kW (PV devices only). Because production varies continuously, expect this to fire on most processing runs while a device is reporting. | `number` |
 | `device.settings.optimization.pv_self_consumption.updated` | PV self-consumption (optimization) changed | `boolean` or `null` |
 | `device.settings.optimization.dynamic_tariff.updated` | Dynamic tariff (optimization) changed | `boolean` or `null` |
 | `device.settings.optimization.flex_trading.updated` | Flex trading (optimization) changed | `boolean` or `null` |
