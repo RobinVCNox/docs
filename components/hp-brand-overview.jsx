@@ -1512,7 +1512,7 @@ export const SupportedBrandOverviewTable = () => {
                 }
                 <tr onClick={() => toggleRow("Bosch")} style={{ cursor: 'pointer' }}>
                     <td>Bosch</td>
-                    <td>{getStatusBadge("Production")}</td>
+                    <td>{getStatusBadge("Beta")}</td>
                     <td>To be determined</td>
                 </tr>
                 {expandedRows.has("Bosch") &&
