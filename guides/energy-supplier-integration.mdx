@@ -110,6 +110,16 @@ Example decoded payload:
 }
 ```
 
+#### 1.4 Data availability after connecting
+
+<Warning>
+Completing the Authenticator flow does not guarantee that device data is immediately available. After the device is connected to NOX Energy, the connection may still need to finalize on the manufacturer's (OEM) side before we are granted the access rights required to export device data to the connecting party.
+
+As a result, the [/devices](/api-docs/full-control/asset-info/get-devices) endpoint may return an empty result right after the user completes the link session.
+</Warning>
+
+We advise the connecting party to poll the [/devices](/api-docs/full-control/asset-info/get-devices) endpoint for up to **10 minutes** after the redirect callback, while displaying a pending state to the end user. Once device data is returned, the connection is finalized and you can stop polling. If no device data is returned after 10 minutes, assume something went wrong with the connection.
+
 **Note**:
 * A link session expires 10 minutes after creation. If the session times out, the authentication will fail even if the user completes it afterwards.
 * If a user authenticates again with the same `supplier_user_id`, we overwrite the linked device with the new one while keeping the `user_id` and `supplier_user_id` the same.
