@@ -1,0 +1,269 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "NOX Authenticator API: Partner",
+    "description": "Endpoints for partners to create link sessions. A partner is any party that wants to let their users connect assets to NOX Energy: an energy supplier, an OEM, an installer, an aggregator, etc. The partner does not need to be the manufacturer of the asset being connected (e.g. a solar OEM can let its users connect a heat pump).",
+    "version": "1.0.0",
+    "contact": {
+      "name": "NOX Energy"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://auth.nox.energy/v2",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Partner",
+      "description": "Endpoints for partners to create link sessions."
+    }
+  ],
+  "paths": {
+    "/partner/link-sessions": {
+      "post": {
+        "tags": ["Partner"],
+        "summary": "Create partner link session",
+        "description": "Create a new link session to connect a user of a partner, with the intent to authenticate with the asset manufacturer. The returned `link_url` should be used to redirect the end-user to the NOX Authenticator UI.",
+        "operationId": "createPartnerLinkSession",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePartnerLinkSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Link session created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePartnerLinkSessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Missing required fields: user_id, redirect_url"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Invalid API key"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API key assigned to the partner."
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message."
+          }
+        }
+      },
+      "Brand": {
+        "type": "string",
+        "enum": [
+          "alpha-ess",
+          "alpha-innotec",
+          "apsystems",
+          "atlantic",
+          "bosch",
+          "buderus",
+          "bulex",
+          "ctc",
+          "daikin",
+          "dewarmte",
+          "deye",
+          "enphase",
+          "felicity-solar",
+          "fox-ess",
+          "fronius",
+          "fujitsu",
+          "goodwe",
+          "growatt",
+          "hitachi",
+          "hoymiles",
+          "huawei",
+          "hyxipower",
+          "ilumen",
+          "ivt",
+          "ja-solar",
+          "jaspi",
+          "jinkosolar",
+          "kostal",
+          "lg",
+          "longi",
+          "midea",
+          "mitsubishi",
+          "nibe",
+          "panasonic",
+          "saj",
+          "samsung",
+          "saunier-duval",
+          "sanyo",
+          "sigenergy",
+          "sma",
+          "sofar",
+          "solaredge",
+          "solarman",
+          "solax",
+          "solis",
+          "solarwatt",
+          "sungrow",
+          "sunpower",
+          "talesun",
+          "thermia",
+          "thermor",
+          "toshiba",
+          "trinasolar",
+          "vaillant",
+          "victron",
+          "viessmann"
+        ],
+        "description": "Manufacturer brand."
+      },
+      "Language": {
+        "type": "string",
+        "enum": ["nl", "en", "fr", "es"],
+        "default": "nl",
+        "description": "Language for the Authenticator UI."
+      },
+      "AssetType": {
+        "type": "string",
+        "enum": ["hp", "pv"],
+        "description": "Device category: `hp` (heat pump) or `pv` (PV solar inverter)."
+      },
+      "CreatePartnerLinkSessionRequest": {
+        "type": "object",
+        "required": ["user_id", "redirect_url", "asset_type"],
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "The partner's internal user ID for the end-user.",
+            "example": "partner_user_id_123"
+          },
+          "brand": {
+            "$ref": "#/components/schemas/Brand",
+            "nullable": true,
+            "description": "Optionally pre-select a manufacturer brand. Must be a valid brand for the given `asset_type`."
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "asset_type": {
+            "$ref": "#/components/schemas/AssetType",
+            "description": "Device category for this link session. Determines which brands are available. This is the type of asset your user connects. It does not need to match your own product category."
+          },
+          "redirect_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Callback URL where the user is redirected after completing the flow.",
+            "example": "https://your-app.com/callback"
+          }
+        }
+      },
+      "CreatePartnerLinkSessionResponse": {
+        "type": "object",
+        "required": ["link_url", "link_token", "partner", "partner_user_id", "redirect_url", "language", "asset_type", "created_at", "expires_at"],
+        "properties": {
+          "link_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Full URL to redirect the end-user to the NOX Authenticator UI.",
+            "example": "https://auth.nox.energy/ui?token=abc123&language=nl"
+          },
+          "link_token": {
+            "type": "string",
+            "description": "Unique token identifying this link session.",
+            "example": "abc123"
+          },
+          "brand": {
+            "$ref": "#/components/schemas/Brand",
+            "nullable": true,
+            "description": "Pre-selected brand, if provided."
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "asset_type": {
+            "$ref": "#/components/schemas/AssetType"
+          },
+          "redirect_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The redirect URL that was provided.",
+            "example": "https://your-app.com/callback"
+          },
+          "partner": {
+            "type": "string",
+            "description": "Name of the partner (resolved from API key).",
+            "example": "SolarCo"
+          },
+          "partner_user_id": {
+            "type": "string",
+            "description": "The partner's user ID.",
+            "example": "partner_user_id_123"
+          },
+          "completed_at": {
+            "type": "integer",
+            "description": "Unix timestamp when the session was completed. Always `null` on creation.",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "integer",
+            "description": "Unix timestamp when the session was created.",
+            "example": 1703123456
+          },
+          "expires_at": {
+            "type": "integer",
+            "description": "Unix timestamp when the session expires (10 minutes after creation).",
+            "example": 1703124056
+          }
+        }
+      }
+    }
+  }
+}

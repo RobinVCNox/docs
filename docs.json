@@ -23,7 +23,8 @@
           {
             "group": "Integration",
             "pages": [
-              "guides/energy-supplier-integration"
+              "guides/energy-supplier-integration",
+              "guides/partner-integration"
             ]
           },
           {
@@ -113,6 +114,16 @@
                       "POST /manufacturers/suppliers"
                     ]
                   }
+                ]
+              },
+              {
+                "group": "By partner",
+                "openapi": {
+                  "source": "api-docs/partner-integration/openapi-partner-auth.json",
+                  "directory": "api-docs/partner-integration"
+                },
+                "pages": [
+                  "POST /partner/link-sessions"
                 ]
               }
             ]
