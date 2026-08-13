@@ -23,8 +23,7 @@
           {
             "group": "Integration",
             "pages": [
-              "guides/energy-supplier-integration",
-              "guides/partner-integration"
+              "guides/energy-supplier-integration"
             ]
           },
           {
