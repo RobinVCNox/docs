@@ -198,7 +198,7 @@
           "redirect_url": {
             "type": "string",
             "format": "uri",
-            "description": "Callback URL where the user is redirected after completing the flow.",
+            "description": "Callback URL where the user is redirected after completing the flow. Must be a valid http(s) URL. When we redirect back we append a `success` query param so you can render the right state: on success `?success=true` plus a base64-encoded `data` param (JSON with nox_user_id, supplier_user_id, brand, asset_type, device_ids, connected_at); on failure `?success=false`. Any query params you include in the URL yourself are preserved.",
             "example": "https://your-app.com/callback"
           }
         }
