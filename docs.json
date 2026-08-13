@@ -8,6 +8,16 @@
     "dark": "#15803D"
   },
   "favicon": "/favicon.ico",
+  "redirects": [
+    {
+      "source": "/guides/energy-supplier-integration",
+      "destination": "/guides/new-asset-integration"
+    },
+    {
+      "source": "/guides/manufacturer-integration",
+      "destination": "/guides/new-asset-integration"
+    }
+  ],
   "navigation": {
     "tabs": [
       {
@@ -23,7 +33,9 @@
           {
             "group": "Integration",
             "pages": [
-              "guides/energy-supplier-integration"
+              "guides/integration-overview",
+              "guides/bring-your-own-connection",
+              "guides/new-asset-integration"
             ]
           },
           {

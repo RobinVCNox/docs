@@ -1,0 +1,50 @@
+---
+title: 'Bring Your Own Connection'
+description: 'Share an asset type you already have directly with NOX Energy.'
+---
+
+Use this path when you already have a working connection to the asset type you want to bring onto NOX Energy. For example, you're the OEM for the device, or you already run your own login/authentication for your users. There's no need to send users through the NOX Authenticator UI. You tell NOX who the user is and we map them to your existing connection.
+
+<Note>
+If you don't yet have a connection to the asset type you want to support, see [New Asset Integration](/guides/new-asset-integration) instead. NOX Energy can broker that connection for you.
+</Note>
+
+## Endpoint
+
+<Warning>
+This flow is currently in **BETA**. Details, like the endpoint url and payloads, may still change. Contact Nox Energy for more information regarding the progress and/or interest in this flow.
+</Warning>
+
+Use the following endpoint to register a device connection you already own:
+[Create manufacturer device connection](/api-docs/manufacturer-integration/manufacturer/create-manufacturer-device-connection)
+
+## Flow
+
+Because you already control the connection to the device, this is a single API call. There's no redirect and no brand selection involved.
+
+1. **Call our API** with your internal `user_id` for the end-user.
+2. **Done!** NOX Energy resolves or creates a `nox_user_id` for that user and returns it in the response.
+
+Example:
+```bash
+curl --request POST \
+  --url https://auth.nox.energy/v2/manufacturer/device-connections \
+  --header 'Content-Type: application/json' \
+  --header 'x-api-key: api_key_123' \
+  --data '{
+  "user_id": "manufacturer_user_id_123"
+}'
+```
+
+On a successful response, you will receive the resolved `nox_user_id`:
+
+```json
+{
+  "manufacturer_user_id": "manufacturer_user_id_123",
+  "nox_user_id": "nox_subscriber_456"
+}
+```
+
+<Note>
+This endpoint only establishes the `user_id` ↔ `nox_user_id` mapping. Reach out to your NOX Energy integration contact to agree on how device data for this connection will be shared (e.g. push API, batch export). This is set up per manufacturer partnership.
+</Note>

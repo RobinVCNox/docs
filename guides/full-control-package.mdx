@@ -149,7 +149,7 @@ puts response.read_body
 </CodeGroup>
 
 However, how you should use the [/devices](/api-docs/full-control/asset-info/get-devices) endpoint is to fetch device info
-after the user completed the [authentication flow](/guides/energy-supplier-integration). You should have received the `user_id` and/or `device_id` in the
+after the user completed the [authentication flow](/guides/new-asset-integration). You should have received the `user_id` and/or `device_id` in the
 redirect_uri callback parameters. Use the parameters received from the redirect and the
 [/devices](/api-docs/full-control/asset-info/get-devices) endpoint to fetch on a per `user_id` or per `device_id` basis.
 This can be done using the query parameters like the below example:
