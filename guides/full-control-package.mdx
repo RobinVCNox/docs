@@ -148,10 +148,10 @@ puts response.read_body
 
 </CodeGroup>
 
-However, how you should use the [/devices](/api-docs/full-control/asset-info/get-devices) endpoint is to fetch device info
+However, how you should use the [/devices](/api-docs/hp/asset-info/get-devices) endpoint is to fetch device info
 after the user completed the [authentication flow](/guides/new-asset-integration). You should have received the `user_id` and/or `device_id` in the
 redirect_uri callback parameters. Use the parameters received from the redirect and the
-[/devices](/api-docs/full-control/asset-info/get-devices) endpoint to fetch on a per `user_id` or per `device_id` basis.
+[/devices](/api-docs/hp/asset-info/get-devices) endpoint to fetch on a per `user_id` or per `device_id` basis.
 This can be done using the query parameters like the below example:
 
 <CodeGroup dropdown>
@@ -271,18 +271,18 @@ puts response.read_body
 - `has_delayed_power_data_1d` - Signifies if the device can or cannot provide real-time power data but instead
 provides its power data with a delay of 1 day between 2-4 AM UTC of the full previous day.
 
-If you read the endpoint documentation of [/devices](/api-docs/full-control/asset-info/get-devices) you will
+If you read the endpoint documentation of [/devices](/api-docs/hp/asset-info/get-devices) you will
 find that the endpoint can also return a field `steerable_status` and `legionella_config`. You will not see these fields
 in the full control package as they mostly provide information that is useful for the
 supplier control package.
 
 You can however request us to see data change events from some of these fields like
-`needs_reauthentication` through our [webhook](guides/partner-webhooks). You can communicate to us which fields you are interested in and
+`needs_reauthentication` through our [webhook](/guides/partner-webhooks). You can communicate to us which fields you are interested in and
 we can set up a custom webhook with a POST endpoint you provide to us and you will receive real-time updates on change events.
 
-We suggest you read [Partner webhooks](guides/partner-webhooks) page for more info.
+We suggest you read [Partner webhooks](/guides/partner-webhooks) page for more info.
 
-A lot of query parameters exist on the [/devices](/api-docs/full-control/asset-info/get-devices) we recommend you to use them
+A lot of query parameters exist on the [/devices](/api-docs/hp/asset-info/get-devices) we recommend you to use them
 if relevant, to reduces the size of data transfer.
 
 ### 2. Retrieving Consumption Data
@@ -415,7 +415,7 @@ Another option is to query without providing the `device_id` query parameter but
 to paginate through the data of all devices. We would only recommend this option if you are interested in all devices data and if your timeframe you are querying is small (e.g. 15minutes)
 as the amount of data can become quite large if you query a long timeframe and have many devices.
 
-More info about the [/device/consumption/historical](/api-docs/full-control/device-consumption/get-device-consumption-historical) endpoint.
+More info about the [/device/consumption/historical](/api-docs/hp/asset-info/get-device-consumption-historical) endpoint.
 
 #### 2.2 Forecasted Consumption
 Get forecasted (= nominated) consumption data for all devices of a certain timeframe:
@@ -530,8 +530,8 @@ puts response.read_body
 
 </CodeGroup>
 
-This endpoint works very similar as the [/device/consumption/historical](/api-docs/full-control/device-consumption/get-device-consumption-historical) endpoint.
-We recommend you to read the explanation at [historical consumption](/guides/full-control-package#historical-consumption) first.
+This endpoint works very similar as the [/device/consumption/historical](/api-docs/hp/asset-info/get-device-consumption-historical) endpoint.
+We recommend you to read the explanation at [historical consumption](/guides/full-control-package#2-1-historical-consumption) first.
 
 The biggest difference in this endpoint is that it also contains forecasted data for the future. This is data forecasting 1-2 days starting from the next day.
 How far in the future and when the forecasted data is provided, depends on the supplier's needs. Example: If a supplier wants us to provide forecasted data at
@@ -539,7 +539,7 @@ How far in the future and when the forecasted data is provided, depends on the s
 
 We recommend to use a 24h timeframe at the agreed forecast generation time with a `device_id` query parameter.
 
-More info about the [/device/consumption/forecast/historical](/api-docs/full-control/device-consumption/get-device-consumption-forecast-historical) endpoint.
+More info about the [/device/consumption/forecast/historical](/api-docs/hp/asset-info/get-device-consumption-forecast-historical) endpoint.
 
 #### 2.3 Typical Consumption:
 Get baseline consumption:
@@ -654,17 +654,17 @@ puts response.read_body
 
 </CodeGroup>
 
-This endpoint works very similar as the [/device/consumption/historical](/api-docs/full-control/device-consumption/get-device-consumption-historical) endpoint.
+This endpoint works very similar as the [/device/consumption/historical](/api-docs/hp/asset-info/get-device-consumption-historical) endpoint.
 We recommend you to read the explanation at [historical consumption](/guides/full-control-package#historical-consumption) first.
 
 The biggest difference in this endpoint is that it contains data of at least 1 day ago. This is data generated at 3 AM UTC for the full previous UTC day.
 
-More info about the [/device/typical-consumption/historical](/api-docs/full-control/device-consumption/get-device-typical-consumption-historical) endpoint.
+More info about the [/device/typical-consumption/historical](/api-docs/hp/asset-info/get-device-typical-consumption-historical) endpoint.
 
 ### 3. Managing User/Device Settings
 
 Update user preferences and optimization settings on a per user/device basis. We recommend to directly go to the endpoint documentation of
-[/devices/settings](/api-docs/full-control/user-management/patch-devices-settings) to seel all possible settings you can change.
+[/devices/settings](/api-docs/hp/user-management/patch-devices-settings) to seel all possible settings you can change.
 
 We recommend to at least implement the following settings options in your UI components of your website/app:
 
@@ -686,7 +686,7 @@ You can delete a single user. This operation will delete all data associated wit
 Once deleted, we can no longer provide energy consumption data of the devices of the user.
 We recommend to only use this endpoint if the user explicitly requests to delete their data from your side or when the user switches to another energy supplier.
 
-More info at the endpoint documentation of [/user](/api-docs/full-control/user-management/delete-user).
+More info at the endpoint documentation of [/user](/api-docs/hp/user-management/delete-user).
 
 ## Next Steps
 

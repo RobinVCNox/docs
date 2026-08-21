@@ -267,7 +267,7 @@
     "/v1/devices/pv/production/forecast": {
       "get": {
         "tags": [
-          "Device Production"
+          "Asset Info"
         ],
         "summary": "Get Devices Pv Production Forecast",
         "description": "Get the forecasted production for pv devices associated with your energy\n supplier account in kWh for a specific timeframe with 15min granularity.\n\n\n This forecast is done everyday at a fixed time depending on supplier.\n\n\n The timestamp refers to the data that will happen\n in the next 15 minutes after the timestamp.",
@@ -399,7 +399,7 @@
     "/v1/devices/pv/production/forecast/realtime": {
       "get": {
         "tags": [
-          "Device Production"
+          "Asset Info"
         ],
         "summary": "Get Devices Pv Production Forecast Realtime",
         "description": "Get the aggregated realtime PV production forecast for all devices associated with your energy\n supplier account in kWh with 15min granularity.\n\n\n The forecast window is computed server-side and covers the past 15 minutes up to 24 hours\n ahead from the moment of the request.\n\n\n The timestamp refers to the data that will happen\n in the next 15 minutes after the timestamp.\n\n\n All timestamps are in UTC.",
@@ -450,7 +450,7 @@
     "/v1/fleet/pv/production/typical-production": {
       "get": {
         "tags": [
-          "Device Production"
+          "Asset Info"
         ],
         "summary": "Get Fleet Pv Typical Production",
         "description": "Get the fleet level typical production forecast for the whole PV pool associated with your energy\n supplier account in kWh with 15min granularity.\n\n\n The typical production represents the aggregated production the fleet would have produced under\n the forecasted weather conditions **if no curtailment had taken place**. It is generated for a given\n `generation_time` (the moment the forecast was produced) and covers the 15min `time_bucket`s within\n the requested `start_time` and `end_time` window.\n\n\n This is typically used to quantify the impact of a curtailment event: by comparing the actual\n (curtailed) production of the fleet against this typical production, you can estimate the amount of\n power that was curtailed compared to a scenario where no curtailment would have happened.\n\n\n The timestamp (`forecast_time`) refers to the production that happens in the next 15\n minutes after the timestamp.\n\n\n All timestamps are in UTC.",
@@ -536,7 +536,7 @@
     "/v1/devices/pv/production/typical-production": {
       "get": {
         "tags": [
-          "Device Production"
+          "Asset Info"
         ],
         "summary": "Get Devices Pv Typical Production",
         "description": "Get the typical production for pv devices associated with your energy supplier account in kWh for a specific timeframe with 15min granularity.\n\n This estimation is done everyday at a fixed time depending on supplier.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
@@ -668,7 +668,7 @@
     "/v1/devices/pv/production": {
       "get": {
         "tags": [
-          "Device Production"
+          "Asset Info"
         ],
         "summary": "Get Device Pv Production",
         "description": "Get the measured historical pv production data for devices associated with your energy supplier account in kWh for a specific timeframe in 15min granularity. Some brands might have a delay of up to 1h for the production data to be correctly available, like SMA. We recommend to fetch the production data with a delay of 1 hour.\n\n Our example timeframe might be outside this range.\n\n The timestamp refers to the data that will happen in the next 15 minutes after the timestamp.",
@@ -3582,6 +3582,7 @@
           "Important data missing, will not be supported in future updates.",
           "Unauthorized country, steering not allowed in this country.",
           "Reauthentication required.",
+          "Too many heating zones, steering not supported for this configuration.",
           "Unknown reason, please contact support."
         ],
         "title": "GeneralReason"

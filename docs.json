@@ -62,17 +62,10 @@
             ]
           },
           {
-            "group": "Full NOX Control Package",
+            "group": "HP",
             "openapi": {
-              "source": "api-docs/full-control/openapi-full-control.json",
-              "directory": "api-docs/full-control"
-            }
-          },
-          {
-            "group": "Supplier Control Package", 
-            "openapi": {
-              "source": "api-docs/supplier-control/openapi-thermal-control.json",
-              "directory": "api-docs/supplier-control"
+              "source": "api-docs/hp/openapi-hp.json",
+              "directory": "api-docs/hp"
             }
           },
           {
