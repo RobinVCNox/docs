@@ -282,6 +282,10 @@ we can set up a custom webhook with a POST endpoint you provide to us and you wi
 
 We suggest you read [Partner webhooks](/guides/partner-webhooks) page for more info.
 
+Alternatively, you can also use the [/devices/telemetry/current](/api-docs/hp/asset-info/get-devices-hp-current-telemetry) endpoint to poll for current telemetry data.
+This is only recommended if you are interested to show real time data temporarily for users when they are interacting with your app. This is not meant as a solution to have consistently higher granularity telemetry data.
+If you want higher granularity telemetry data then we recommend you to use our [webhook](/guides/partner-webhooks) solution to receive real-time updates on change events.
+
 A lot of query parameters exist on the [/devices](/api-docs/hp/asset-info/get-devices) we recommend you to use them
 if relevant, to reduces the size of data transfer.
 

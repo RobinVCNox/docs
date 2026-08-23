@@ -1,0 +1,1469 @@
+---
+title: 'PV API Guide'
+description: 'Guide on how to use the NOX API for PV (solar) installations.'
+---
+
+## Overview
+
+The **NOX Control Package** provides access to:
+* Device information
+* Production data.
+    * Forecasted production (day-ahead)
+    * Realtime forecasted production
+    * Actual production
+    * Typical production as if NOX would not have curtailed the device (per device and fleet-level).
+* Changing user Settings
+
+The **Partner Control Package** provides additional access to:
+* Curtailing PV production or grid export by submitting a control schedule.
+* Executing immediate flex control across a fleet of devices.
+* Retrieving a log of executed flex controls.
+
+## Getting Started
+
+### Prerequisites
+* Valid NOX API key (see [Authentication](/api-docs/authentication))
+
+### Base URL
+All endpoints use the base URL:
+- Sandbox: `https://api.sandbox.nox.energy`
+- Production: `https://api.nox.energy`
+
+## Core Workflows
+
+<Note>
+    All our collection api endpoints use a `next_token` to paginate through results if the size limit of the response has been reached.
+    To paginate through a response, you can use the `next_token` received in the response as a query parameter and call the same endpoint with
+    the same parameters again. You can repeat this process until you have received the last page of the response, which is signified
+    by the `next_token` field becoming `null`.
+</Note>
+
+### 1. Getting Device Information
+
+To fetch all devices configuration data you can call the following endpoint:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl -X GET "https://api.nox.energy/v1/devices/pv" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+```python Python
+
+import requests
+
+url = "https://api.nox.energy/v1/devices/pv"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.request("GET", url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/devices/pv', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices/pv?limit=1000",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices/pv?limit=1000"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/devices/pv?limit=1000")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/devices/pv?limit=1000")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+However, how you should use the [/devices/pv](/api-docs/pv/asset-info/get-devices-pv) endpoint is to fetch device info
+after the user completed the [authentication flow](/guides/new-asset-integration). You should have received the `user_id` and/or `device_id` in the
+redirect_uri callback parameters. Use the parameters received from the redirect and the
+[/devices/pv](/api-docs/pv/asset-info/get-devices-pv) endpoint to fetch on a per `user_id` or per `device_id` basis.
+This can be done using the query parameters like the below example:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/devices/pv?limit=1000&user_id=user_id_1' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/devices/pv?limit=1000&user_id=user_id_1"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/devices/pv?limit=1000&user_id=user_id_1', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices/pv?limit=1000&user_id=user_id_1",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices/pv?limit=1000&user_id=user_id_1"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/devices/pv?limit=1000&user_id=user_id_1")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/devices/pv?limit=1000&user_id=user_id_1")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+**Key response fields:**
+- `device_id` - Unique identifier per device. Each nox user_id can have multiple device_id's.
+- `brand` - Manufacturer brand of the inverter.
+- `capacity_kw` - Installed PV capacity in kW.
+- `has_grid_export_curtailment` / `has_production_curtailment` - Signifies which curtailment capabilities the device supports. Use this to know whether you should submit `export_curtailment` and/or `production_curtailment` schedules for the device.
+- `current_production_kw` / `last_updated_at` - The latest known production in kW and when it was measured. Only treat `current_production_kw` as current if `last_updated_at` is recent (e.g. less than 5 minutes in the past).
+- `current_curtailment_state` - The curtailment state currently active on the device, e.g. `default`, `production_curtailment` or `export_curtailment`.
+- `response_latency_seconds` - Expected delay in seconds before the device reacts to a steering command. Use this to know how far in advance to schedule a control action.
+
+If there is a need to have real-time data updates on specific fields.
+You can request us to see data change events from some of these fields like
+`needs_reauthentication` through our [webhook](/guides/partner-webhooks). You can communicate to us which fields you are interested in and
+we can set up a custom webhook with a POST endpoint you provide to us and you will receive real-time updates on change events.
+
+We suggest you read [Partner webhooks](/guides/partner-webhooks) page for more info.
+
+A lot of query parameters exist on the [/devices/pv](/api-docs/pv/asset-info/get-devices-pv) we recommend you to use them
+if relevant, to reduces the size of data transfer.
+
+### 2. Retrieving Production Data
+
+#### 2.1 Historical Production
+Get actual measured production data of all devices of a certain timeframe:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/devices/pv/production?limit=1000&start_time=2026-08-22T16%3A15%3A00Z&end_time=2026-08-22T16%3A30%3A00Z' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/devices/pv/production?limit=1000&start_time=2026-08-22T16%3A15%3A00Z&end_time=2026-08-22T16%3A30%3A00Z"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/devices/pv/production?limit=1000&start_time=2026-08-22T16%3A15%3A00Z&end_time=2026-08-22T16%3A30%3A00Z', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices/pv/production?limit=1000&start_time=2026-08-22T16%3A15%3A00Z&end_time=2026-08-22T16%3A30%3A00Z",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices/pv/production?limit=1000&start_time=2026-08-22T16%3A15%3A00Z&end_time=2026-08-22T16%3A30%3A00Z"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/devices/pv/production?limit=1000&start_time=2026-08-22T16%3A15%3A00Z&end_time=2026-08-22T16%3A30%3A00Z")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/devices/pv/production?limit=1000&start_time=2026-08-22T16%3A15%3A00Z&end_time=2026-08-22T16%3A30%3A00Z")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+If you are interested in real-time energy production in kWh, we recommend to query the endpoint every 15 minutes for the past 15 minutes timeframe.
+Our production data is provided in 15-minute granularity at quarter hours. We recommend to query the endpoint with quarter hour timestamps
+(e.g. 16:00, 16:15, 16:30, etc.) for the past 15 minutes timeframe to get the most up-to-date data.
+
+Some brands might have a delay of up to 1 hour for the production data to be correctly available, like SMA. We recommend to fetch the production
+data with a delay of 1 hour if you need complete, non-partial data for those brands.
+
+If you are interested in aggregated production data across all devices, you can use the `aggregated=true` query parameter to
+get the aggregated production across all devices.
+
+If you are not interested in aggregated data but on a per device basis, you should use the query parameter `device_id` to get the production data on a per device basis.
+Another option is to query without providing the `device_id` query parameter but loop over the same api call using the `next_token` query parameter
+to paginate through the data of all devices. We would only recommend this option if you are interested in all devices data and if your timeframe you are querying is small (e.g. 15minutes)
+as the amount of data can become quite large if you query a long timeframe and have many devices.
+
+More info about the [/devices/pv/production](/api-docs/pv/asset-info/get-device-pv-production) endpoint.
+
+#### 2.2 Forecasted Production
+Get forecasted production data for all devices of a certain timeframe:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/devices/pv/production/forecast?limit=1000&start_time=2026-08-23T00%3A00%3A00Z&end_time=2026-08-24T00%3A00%3A00Z' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/devices/pv/production/forecast?limit=1000&start_time=2026-08-23T00%3A00%3A00Z&end_time=2026-08-24T00%3A00%3A00Z"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/devices/pv/production/forecast?limit=1000&start_time=2026-08-23T00%3A00%3A00Z&end_time=2026-08-24T00%3A00%3A00Z', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices/pv/production/forecast?limit=1000&start_time=2026-08-23T00%3A00%3A00Z&end_time=2026-08-24T00%3A00%3A00Z",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices/pv/production/forecast?limit=1000&start_time=2026-08-23T00%3A00%3A00Z&end_time=2026-08-24T00%3A00%3A00Z"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/devices/pv/production/forecast?limit=1000&start_time=2026-08-23T00%3A00%3A00Z&end_time=2026-08-24T00%3A00%3A00Z")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/devices/pv/production/forecast?limit=1000&start_time=2026-08-23T00%3A00%3A00Z&end_time=2026-08-24T00%3A00%3A00Z")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+This endpoint works very similar as the [/devices/pv/production](/api-docs/pv/asset-info/get-device-pv-production) endpoint.
+We recommend you to read the explanation at [historical production](/guides/pv-api-guide#2-1-historical-production) first.
+
+The biggest difference in this endpoint is that it contains forecasted data for the future, generated once per day at a fixed time depending on your supplier agreement with us.
+
+We recommend to use a 24h timeframe at the agreed forecast generation time with a `device_id` query parameter.
+
+More info about the [/devices/pv/production/forecast](/api-docs/pv/asset-info/get-devices-pv-production-forecast) endpoint.
+
+#### 2.3 Realtime Forecasted Production
+Get an aggregated, always up-to-date production forecast covering the past 15 minutes up to 24 hours ahead:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/devices/pv/production/forecast/realtime' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/devices/pv/production/forecast/realtime"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/devices/pv/production/forecast/realtime', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices/pv/production/forecast/realtime",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices/pv/production/forecast/realtime"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/devices/pv/production/forecast/realtime")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/devices/pv/production/forecast/realtime")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+Unlike [2.2 Forecasted Production](/guides/pv-api-guide#2-2-forecasted-production), this endpoint takes no query parameters: it always
+returns the fleet-aggregated forecast computed server-side at request time, starting 15 minutes in the past and covering up to 24 hours ahead.
+Use this endpoint if you need an always fresh forecast without tracking generation times, and [2.2 Forecasted Production](/guides/pv-api-guide#2-2-forecasted-production) if you need a per-device breakdown or a specific historical forecast vintage.
+
+More info about the [/devices/pv/production/forecast/realtime](/api-docs/pv/asset-info/get-devices-pv-production-forecast-realtime) endpoint.
+
+#### 2.4 Typical Production
+Get baseline production, i.e. the production the device(s) would have generated if NOX had not applied any curtailment:
+
+##### 2.4.1 Per-device typical production
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/devices/pv/production/typical-production?limit=1000&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/devices/pv/production/typical-production?limit=1000&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/devices/pv/production/typical-production?limit=1000&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices/pv/production/typical-production?limit=1000&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices/pv/production/typical-production?limit=1000&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/devices/pv/production/typical-production?limit=1000&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/devices/pv/production/typical-production?limit=1000&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+This endpoint works very similar as the [/devices/pv/production](/api-docs/pv/asset-info/get-device-pv-production) endpoint.
+We recommend you to read the explanation at [historical production](/guides/pv-api-guide#2-1-historical-production) first.
+
+The biggest difference in this endpoint is that it contains data of at least 1 day ago, since it is generated at a fixed time every day for the full previous UTC day.
+This is typically used to quantify the impact of a curtailment event: by comparing the actual (curtailed) production against this typical production, you can estimate how much production was curtailed compared to a scenario where no curtailment would have happened.
+
+More info about the [/devices/pv/production/typical-production](/api-docs/pv/asset-info/get-devices-pv-typical-production) endpoint.
+
+##### 2.4.2 Fleet-level typical production
+
+If you are only interested in the aggregated typical production across your whole PV pool rather than a per-device breakdown, you can use the fleet-level endpoint instead. This requires a `generation_time` in addition to the `start_time`/`end_time`, since only one forecast vintage is returned per call:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/fleet/pv/production/typical-production?generation_time=2026-08-22T07%3A30%3A00Z&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/fleet/pv/production/typical-production?generation_time=2026-08-22T07%3A30%3A00Z&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/fleet/pv/production/typical-production?generation_time=2026-08-22T07%3A30%3A00Z&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/fleet/pv/production/typical-production?generation_time=2026-08-22T07%3A30%3A00Z&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/fleet/pv/production/typical-production?generation_time=2026-08-22T07%3A30%3A00Z&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/fleet/pv/production/typical-production?generation_time=2026-08-22T07%3A30%3A00Z&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/fleet/pv/production/typical-production?generation_time=2026-08-22T07%3A30%3A00Z&start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+Because `generation_time` pins the call to one specific forecast run, only the forecast produced at that exact moment is returned — this makes results reproducible when you want to compare a specific vintage of the typical production forecast against what was actually delivered.
+
+More info about the [/fleet/pv/production/typical-production](/api-docs/pv/asset-info/get-fleet-pv-typical-production) endpoint.
+
+### 3. Managing User/Device Settings
+
+Update user preferences and optimization settings on a per user/device basis. We recommend to directly go to the endpoint documentation of
+[/devices/pv/settings](/api-docs/pv/user-management/patch-devices-pv-settings) to see all possible settings you can change.
+
+We recommend to at least implement the following settings options in your UI components of your website/app:
+
+* Optimization Settings, more specifically `pv_curtailment_mode`. This can be set to:
+    * `managed` - NOX Energy manages the PV curtailment.
+    * `external` - We follow the curtailment schedule you provide through the [schedules endpoint](/guides/pv-api-guide#4-1-submitting-a-curtailment-schedule). This should only be enabled if you are a supplier that is using the partner control package.
+    * `off` - PV curtailment is disabled entirely.
+
+We recommend to at least implement the following from a backend perspective:
+
+* Location information for better forecasting and optimization results:
+    * Country
+    * Postal code
+* [Webhooks](/guides/partner-webhooks) setup -> Real-time settings sync between all parties
+
+### 4. Curtailing PV Production
+
+<Note>
+    This feature only exists if you are using the partner control package. If you are using the NOX control package, you can skip this section.
+</Note>
+
+Before submitting any control, check the device's `steerable_status` from [/devices/pv](/api-docs/pv/asset-info/get-devices-pv): `steering_enabled` and `steerable` must both be `true`. If `steerable` is `false`, `general_reason` explains why (e.g. reauthentication required, holiday mode active, still learning the device). Also check `has_grid_export_curtailment` / `has_production_curtailment` to know which `control_type` the device actually supports.
+
+We provide two complementary ways to steer a PV device:
+* **Schedules** — plan curtailment windows ahead of time, per device.
+* **Flex** — immediately curtail (or release) production across a fleet of devices by a target kW or percentage, without pre-planning exact windows.
+
+#### 4.1 Submitting a curtailment schedule
+
+Submit a curtailment schedule with `POST /devices/pv/schedules` by providing, per device, a list of `start_time`/`end_time` windows and a `control_type`. Unlike the heat pump's fixed 96-slot schedule, PV schedules use arbitrary start/end timestamps at 1-minute granularity, so you only need to submit entries for the windows you actually want to curtail.
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request POST \
+  --url https://api.nox.energy/v1/devices/pv/schedules \
+  --header 'x-api-key: <api-key>' \
+  --header 'Content-Type: application/json' \
+  --data '[
+  {
+    "device_id": "PV123456",
+    "schedules": [
+      {
+        "start_time": "2026-08-24T10:15:00Z",
+        "end_time": "2026-08-24T10:30:00Z",
+        "control_type": "export_curtailment"
+      }
+    ]
+  }
+]'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/devices/pv/schedules"
+
+headers = {"x-api-key": "<api-key>", "Content-Type": "application/json"}
+
+payload = [
+    {
+        "device_id": "PV123456",
+        "schedules": [
+            {
+                "start_time": "2026-08-24T10:15:00Z",
+                "end_time": "2026-08-24T10:30:00Z",
+                "control_type": "export_curtailment"
+            }
+        ]
+    }
+]
+
+response = requests.post(url, headers=headers, json=payload)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {
+  method: 'POST',
+  headers: {'x-api-key': '<api-key>', 'Content-Type': 'application/json'},
+  body: JSON.stringify([
+    {
+      device_id: 'PV123456',
+      schedules: [
+        {
+          start_time: '2026-08-24T10:15:00Z',
+          end_time: '2026-08-24T10:30:00Z',
+          control_type: 'export_curtailment'
+        }
+      ]
+    }
+  ])
+};
+
+fetch('https://api.nox.energy/v1/devices/pv/schedules', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices/pv/schedules",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "POST",
+  CURLOPT_POSTFIELDS => json_encode([
+    [
+      "device_id" => "PV123456",
+      "schedules" => [
+        [
+          "start_time" => "2026-08-24T10:15:00Z",
+          "end_time" => "2026-08-24T10:30:00Z",
+          "control_type" => "export_curtailment"
+        ]
+      ]
+    ]
+  ]),
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>",
+    "Content-Type: application/json"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices/pv/schedules"
+
+	payload, _ := json.Marshal([]map[string]interface{}{
+		{
+			"device_id": "PV123456",
+			"schedules": []map[string]interface{}{
+				{
+					"start_time":   "2026-08-24T10:15:00Z",
+					"end_time":     "2026-08-24T10:30:00Z",
+					"control_type": "export_curtailment",
+				},
+			},
+		},
+	})
+
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+
+	req.Header.Add("x-api-key", "<api-key>")
+	req.Header.Add("Content-Type", "application/json")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.post("https://api.nox.energy/v1/devices/pv/schedules")
+  .header("x-api-key", "<api-key>")
+  .header("Content-Type", "application/json")
+  .body("[{\"device_id\":\"PV123456\",\"schedules\":[{\"start_time\":\"2026-08-24T10:15:00Z\",\"end_time\":\"2026-08-24T10:30:00Z\",\"control_type\":\"export_curtailment\"}]}]")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+require 'json'
+
+url = URI("https://api.nox.energy/v1/devices/pv/schedules")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Post.new(url)
+request["x-api-key"] = '<api-key>'
+request["Content-Type"] = 'application/json'
+request.body = JSON.dump([
+  {
+    "device_id" => "PV123456",
+    "schedules" => [
+      {
+        "start_time" => "2026-08-24T10:15:00Z",
+        "end_time" => "2026-08-24T10:30:00Z",
+        "control_type" => "export_curtailment"
+      }
+    ]
+  }
+])
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+- `device_id` – the device to schedule. You can batch up to 250 device_ids in a single request, each with up to 25 schedule entries.
+- `schedules[].start_time` / `schedules[].end_time` – the curtailment window in UTC. `start_time` must be before `end_time`, and `end_time` must be in the future. If `end_time` is omitted, only a start command is scheduled and it will not automatically revert.
+- `schedules[].control_type` – one of:
+    - `export_curtailment` – keep grid export at 0 kW during the scheduled window by curtailing production if needed.
+    - `production_curtailment` – keep PV production at 0 kW during the scheduled window.
+    - `default` – do not curtail; let production/export follow normal household consumption and generation. Once `end_time` for a `default` entry is reached, the device stays in `default` until another schedule overwrites it.
+
+Submitting a new schedule for a device_id overwrites all previously scheduled (not-yet-executed) commands for that device_id — always send the complete set of windows you want active. Provide start times at least 1 minute in the future so the device has time to react; some brands react slower than others (see `response_latency_seconds` on [/devices/pv](/api-docs/pv/asset-info/get-devices-pv)).
+
+Only send schedules for devices that have external steering optimization enabled (`pv_curtailment_mode` set to `external`) and are compatible — we filter out any others regardless, but this avoids unnecessary rejections.
+
+On success (all accepted):
+```json
+{
+  "rejected": [],
+  "meta": {
+    "energy_supplier": "Energy Supplier A",
+    "accepted_count": 12,
+    "rejected_count": 0
+  }
+}
+```
+
+On partial success, inspect the `rejected` array — each entry includes a `reason` and `reason_code` explaining why that specific device_id's schedule was not accepted (e.g. an invalid time range, or the device currently not being steerable):
+```json
+{
+  "rejected": [
+    {
+      "device_id": "PV3",
+      "reason": "end_time must be later than the start of the next minute.",
+      "reason_code": 6
+    }
+  ],
+  "meta": {
+    "energy_supplier": "Energy Supplier A",
+    "accepted_count": 10,
+    "rejected_count": 2
+  }
+}
+```
+
+More info at [/devices/pv/schedules](/api-docs/pv/pv-control/post-pv-control-schedule).
+
+#### 4.2 Executing fleet flex control
+
+Use `POST /devices/pv/flex` when you want to curtail (or release) production across your whole fleet **right now**, instead of pre-planning per-device windows. You express the target as either an absolute `target_kw` to reduce the aggregated production by, or a `target_percentage` of max fleet capacity, optionally scoped to specific brands and optionally reverted automatically at an `end_time`.
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request POST \
+  --url https://api.nox.energy/v1/devices/pv/flex \
+  --header 'x-api-key: <api-key>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "target_percentage": 70.0,
+  "end_time": "2026-08-24T11:00:00Z"
+}'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/devices/pv/flex"
+
+headers = {"x-api-key": "<api-key>", "Content-Type": "application/json"}
+
+payload = {
+    "target_percentage": 70.0,
+    "end_time": "2026-08-24T11:00:00Z"
+}
+
+response = requests.post(url, headers=headers, json=payload)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {
+  method: 'POST',
+  headers: {'x-api-key': '<api-key>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    target_percentage: 70.0,
+    end_time: '2026-08-24T11:00:00Z'
+  })
+};
+
+fetch('https://api.nox.energy/v1/devices/pv/flex', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices/pv/flex",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "POST",
+  CURLOPT_POSTFIELDS => json_encode([
+    "target_percentage" => 70.0,
+    "end_time" => "2026-08-24T11:00:00Z"
+  ]),
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>",
+    "Content-Type: application/json"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices/pv/flex"
+
+	payload, _ := json.Marshal(map[string]interface{}{
+		"target_percentage": 70.0,
+		"end_time":          "2026-08-24T11:00:00Z",
+	})
+
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+
+	req.Header.Add("x-api-key", "<api-key>")
+	req.Header.Add("Content-Type", "application/json")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.post("https://api.nox.energy/v1/devices/pv/flex")
+  .header("x-api-key", "<api-key>")
+  .header("Content-Type", "application/json")
+  .body("{\"target_percentage\":70.0,\"end_time\":\"2026-08-24T11:00:00Z\"}")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+require 'json'
+
+url = URI("https://api.nox.energy/v1/devices/pv/flex")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Post.new(url)
+request["x-api-key"] = '<api-key>'
+request["Content-Type"] = 'application/json'
+request.body = JSON.dump({
+  "target_percentage" => 70.0,
+  "end_time" => "2026-08-24T11:00:00Z"
+})
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+- `target_kw` – target power in kW to reduce aggregated fleet production by. Mutually exclusive with `target_percentage`.
+- `target_percentage` – target percentage (0-100) of max fleet capacity to reduce production to. A `target_percentage` of `100` releases curtailment and restores full production.
+- `end_time` – optional, UTC ISO 8601. If provided, we automatically revert to the original (pre-flex) state at that time. If omitted, the curtailment stays active until you call this endpoint again. Provide `end_time` at least 4 minutes in the future so devices have time to react.
+- `brand_filter` – optional list of brands to scope the flex command to (e.g. `["Sma", "Solis"]`). If omitted, the command applies across all brands.
+
+Calling this endpoint again while a flex control is already active overwrites the previous command and its scheduled end time with the new one.
+
+On success:
+```json
+{
+  "meta": {
+    "energy_supplier": "Energy Supplier A"
+  }
+}
+```
+
+More info at [/devices/pv/flex](/api-docs/pv/pv-control/post-pv-control-flex).
+
+#### 4.3 Getting fleet flex control logs
+
+Retrieve a history of the flex commands you have executed over a given time range, useful for auditing or reconciling with production data:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/devices/pv/flex/logs?start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/devices/pv/flex/logs?start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/devices/pv/flex/logs?start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices/pv/flex/logs?start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices/pv/flex/logs?start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/devices/pv/flex/logs?start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/devices/pv/flex/logs?start_time=2026-08-22T00%3A00%3A00Z&end_time=2026-08-23T00%3A00%3A00Z")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+Each log entry reports the `control_type`, target (`target_percentage`), any `brand_filter` applied, the `executed_flex_device_count` at that time, and the `end_time` if one was set — use this to confirm a flex command was actually picked up across the expected number of devices.
+
+More info at [/devices/pv/flex/logs](/api-docs/pv/pv-control/get-devices-pv-control-flex-logs).
+
+## Next Steps
+
+- Set up [Partner Webhooks](/guides/partner-webhooks) for real-time data updates.

@@ -42,6 +42,7 @@
             "group": "API Guides",
             "pages": [
               "guides/hp-api-guide",
+              "guides/pv-api-guide",
               "guides/partner-webhooks"
             ]
           }
