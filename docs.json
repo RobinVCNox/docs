@@ -39,14 +39,9 @@
             ]
           },
           {
-            "group": "Package Guides",
+            "group": "API Guides",
             "pages": [
-              "guides/full-control-package"
-            ]
-          },
-          {
-            "group": "Features",
-            "pages": [
+              "guides/hp-api-guide",
               "guides/partner-webhooks"
             ]
           }

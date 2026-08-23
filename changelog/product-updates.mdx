@@ -15,16 +15,20 @@ description: 'Updates and Changes'
 
   ## Device data availability after connecting
 
-  * Clarified in the [New Asset Integration](/guides/new-asset-integration) guide that device data may not be immediately available after a user completes the Authenticator flow, as the connection may still need to finalize on the manufacturer's (OEM) side. The [/devices](/api-docs/full-control/asset-info/get-devices) endpoint may return an empty result right after connecting. We advise polling for up to 10 minutes while showing a pending state to the end user.
+  * Clarified in the [New Asset Integration](/guides/new-asset-integration) guide that device data may not be immediately available after a user completes the Authenticator flow, as the connection may still need to finalize on the manufacturer's (OEM) side. The [/devices](/api-docs/hp/asset-info/get-devices) endpoint may return an empty result right after connecting. We advise polling for up to 10 minutes while showing a pending state to the end user.
 
   ## API reference reorganized by asset type
 
-  * The Full NOX Control Package and Supplier Control Package API references have been merged into a single **HP** API reference, since they covered the same heat pump endpoints under different distribution models.
+  * The NOX Control Package and Partner Control Package API references (formerly Full NOX Control Package and Supplier Control Package) have been merged into a single **HP** API reference, since they covered the same heat pump endpoints under different distribution models.
   * Endpoint tags are now consistent across API references: read-only asset endpoints (devices, settings, consumption, telemetry) are tagged **Asset Info**, and heat pump steering endpoints are split into **HP Control** (submitting a control schedule) and **Thermal Battery Control** (reading current state and forecast). PV production endpoints moved from **Device Production** to **Asset Info** for the same reason.
 
   ## New `general_reason` value
 
   * Added `Too many heating zones, steering not supported for this configuration` as a possible `general_reason` value returned for heat pump devices that cannot be steered.
+
+  ## Heat Pump API Guide
+
+  * Added a [Heat Pump API Guide](/guides/hp-api-guide) documenting the thermal-battery endpoints — current state, forecast, and submitting a control schedule — with request examples in 7 languages.
 
 </Update>
 

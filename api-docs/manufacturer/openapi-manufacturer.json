@@ -211,7 +211,7 @@
           "User Management"
         ],
         "summary": "Patch Devices Settings",
-        "description": "Update on a device or nox user level the device/user settings. If you want to update a setting on a device level, only the device_id needs to be provided.\nAny of the settings can be updated separately or together.\n\n\n You can change the following settings:\n\n * The lower and upper room comfort temperature bounds of\n end users/devices in degrees celcius.\n\n * The lower and upper bounds for domestic hot water heating in degrees celcius.\nThis will determine the maximum and minimum allowed temperatures we allow it to go.\n This should be changed carefully as it could lead to the tank temperature going too low and cause legionella growth.\n Below 40 degrees is not recommended, only during vacations.\n\n * The preferred temperature of end users/devices in degrees celcius.\nThis is also used to determine when to start cooling in temperature_control_mode auto or cooling mode.\n\n * Temperature control mode to determine if you only want heating or\n cooling or both (auto) or none of both (off). If `auto` is chosen,\n our system will decide if cooling is necessary based on outside temperature\n and upper comfort bounds. `Off` means we will turn room heating and cooling off and\n if this is not possible, we will configure the heat pump in a way so it will not cool or heat.\n If `heating` is chosen we will only heat and it will be based on the preferred temperature or the schedule and the comfort bounds.\n If `cooling` is chosen, we will only cool and it will be based on the preferred temperature or the schedule, outside temperature and the comfort bounds.\n\n * Enable/Disable steering optimizations. Flex_trading is mutually exclussive with the other optimizations. The other optimizations can be enabled together.\n If `flex_trading` is enabled, we disable all other optimizations.\n If any other optimization is enabled, we disable `flex_trading`.\n `flex_trading` means that the supplier steers the device based on a schedule they provide to NOX Energy.\n If you are a supplier that has a full-control package integration with Nox Energy, you should not enable `flex_trading` \n but instead the other optimization options like:\n `imbalance_optimization` to optimize the device to minimize imbalances based on the imbalance prices of the users country.\n `dynamic_tariff` means that we will optimize the device based on the day-ahead market prices of the users country.\n `pv_self_consumption` to optimize the device to maximize self-consumption of pv production for users that have pv panels.`\n\n * The country code and the postal code",
+        "description": "Update on a device or nox user level the device/user settings. If you want to update a setting on a device level, only the device_id needs to be provided.\nAny of the settings can be updated separately or together.\n\n\n You can change the following settings:\n\n * The lower and upper room comfort temperature bounds of\n end users/devices in degrees celcius.\n\n * The lower and upper bounds for domestic hot water heating in degrees celcius.\nThis will determine the maximum and minimum allowed temperatures we allow it to go.\n This should be changed carefully as it could lead to the tank temperature going too low and cause legionella growth.\n Below 40 degrees is not recommended, only during vacations.\n\n * The preferred temperature of end users/devices in degrees celcius.\nThis is also used to determine when to start cooling in temperature_control_mode auto or cooling mode.\n\n * Temperature control mode to determine if you only want heating or\n cooling or both (auto) or none of both (off). If `auto` is chosen,\n our system will decide if cooling is necessary based on outside temperature\n and upper comfort bounds. `Off` means we will turn room heating and cooling off and\n if this is not possible, we will configure the heat pump in a way so it will not cool or heat.\n If `heating` is chosen we will only heat and it will be based on the preferred temperature or the schedule and the comfort bounds.\n If `cooling` is chosen, we will only cool and it will be based on the preferred temperature or the schedule, outside temperature and the comfort bounds.\n\n * Enable/Disable steering optimizations. Flex_trading is mutually exclussive with the other optimizations. The other optimizations can be enabled together.\n If `flex_trading` is enabled, we disable all other optimizations.\n If any other optimization is enabled, we disable `flex_trading`.\n `flex_trading` means that the supplier steers the device based on a schedule they provide to NOX Energy.\n If you are a supplier that has a nox control package integration with Nox Energy, you should not enable `flex_trading` \n but instead the other optimization options like:\n `imbalance_optimization` to optimize the device to minimize imbalances based on the imbalance prices of the users country.\n `dynamic_tariff` means that we will optimize the device based on the day-ahead market prices of the users country.\n `pv_self_consumption` to optimize the device to maximize self-consumption of pv production for users that have pv panels.`\n\n * The country code and the postal code",
         "operationId": "patch_devices_settings_v1_devices_settings_patch",
         "parameters": [],
         "requestBody": {
@@ -875,6 +875,66 @@
             ],
             "title": "Has Production Curtailment",
             "description": "Whether the device has production curtailment capabilities"
+          },
+          "capacity_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Kw",
+            "description": "PV capacity in kW"
+          },
+          "response_latency_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Latency Seconds",
+            "description": "Expected latency in seconds before the device responds to a steering command"
+          },
+          "current_production_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Production Kw",
+            "description": "Current PV production in kW"
+          },
+          "last_updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated At",
+            "description": "ISO 8601 UTC timestamp of when current_production_kw was last measured/ingested. Treat current_production_kw as current only if this is recent (e.g. less than 5 minutes in the past)."
+          },
+          "current_curtailment_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Curtailment State",
+            "description": "Current curtailment state of the device, e.g. 'default', 'production_curtailment', 'export_curtailment'"
           }
         },
         "type": "object",
@@ -1061,6 +1121,215 @@
         },
         "type": "object",
         "title": "DevicesMeta"
+      },
+      "DevicesPVFlexLogsDataResponse": {
+        "properties": {
+          "timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp",
+            "description": "Timestamp of the flex log entry in ISO 8601 format in UTC."
+          },
+          "control_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Type",
+            "description": "Type of control applied, e.g. 'production_curtailment'."
+          },
+          "target_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Kw",
+            "description": "Target power in kW to reduce production with."
+          },
+          "target_percentage": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Percentage",
+            "description": "Target percentage of max capacity to reduce production with."
+          },
+          "brand_filter": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Filter",
+            "description": "Filter devices by brands. If not provided, all brands will be considered."
+          },
+          "executed_flex_device_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executed Flex Device Count",
+            "description": "Number of devices that executed the flex request."
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time",
+            "description": "End time for the flex request in ISO 8601 format in UTC. If not provided, the flex request will be applied indefinitely until a new request is made."
+          }
+        },
+        "type": "object",
+        "title": "DevicesPVFlexLogsDataResponse"
+      },
+      "DevicesPVFlexLogsResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DevicesPVFlexLogsDataResponse"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of devices flex logs."
+          },
+          "meta": {
+            "$ref": "#/components/schemas/DevicesPVFlexMeta",
+            "description": "Response metadata."
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "DevicesPVFlexLogsResponse"
+      },
+      "DevicesPVFlexMeta": {
+        "properties": {
+          "energy_supplier": {
+            "type": "string",
+            "title": "Energy Supplier",
+            "description": "The energy supplier associated with the PV flex request."
+          }
+        },
+        "type": "object",
+        "required": [
+          "energy_supplier"
+        ],
+        "title": "DevicesPVFlexMeta"
+      },
+      "DevicesPVFlexRequest": {
+        "properties": {
+          "target_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Kw",
+            "description": "Target power in kW to reduce production with."
+          },
+          "target_percentage": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Percentage",
+            "description": "Target percentage of max capacity to reduce production with."
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time",
+            "description": "End time for the flex request in ISO 8601 format in UTC. If not provided, the flex request will be applied indefinitely until a new request is made."
+          },
+          "brand_filter": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Filter",
+            "description": "Filter devices by brands. If not provided, all brands will be considered."
+          }
+        },
+        "type": "object",
+        "title": "DevicesPVFlexRequest"
+      },
+      "DevicesPVFlexResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/DevicesPVFlexMeta",
+            "description": "Response metadata."
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "DevicesPVFlexResponse"
       },
       "DevicesPVMeta": {
         "properties": {
@@ -1650,7 +1919,7 @@
               }
             ],
             "title": "Imbalance Optimization",
-            "description": "Enable/disable imbalance optimization. If `True`, the device will be optimized to minimize imbalances based on the imbalance prices of the users country. This setting should only be enabled/disabled internally in the backend of suppliers as only integrated users of a full-control package will have benefit out of it."
+            "description": "Enable/disable imbalance optimization. If `True`, the device will be optimized to minimize imbalances based on the imbalance prices of the users country. This setting should only be enabled/disabled internally in the backend of suppliers as only integrated users of a nox control package will have benefit out of it."
           }
         },
         "type": "object",
@@ -1673,6 +1942,134 @@
           "off"
         ],
         "title": "PVCurtailmentMode"
+      },
+      "PVFleetTypicalProductionData": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Timestamp of the 15min production bucket (start of the interval)."
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production",
+            "description": "Fleet level typical production for the bucket in kWh (production without curtailment)."
+          }
+        },
+        "type": "object",
+        "title": "PVFleetTypicalProductionData"
+      },
+      "PVFleetTypicalProductionMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name."
+          },
+          "generation_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generation Time",
+            "description": "The datetime at which the forecast was generated."
+          },
+          "production_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Unit",
+            "description": "Unit of the production values, e.g. kWh."
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVFleetTypicalProductionMeta"
+      },
+      "PVFleetTypicalProductionResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVFleetTypicalProductionData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of fleet level typical production buckets."
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVFleetTypicalProductionMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVFleetTypicalProductionResponse"
       },
       "PVPForecastData": {
         "properties": {
@@ -1781,6 +2178,122 @@
         },
         "type": "object",
         "title": "PVPForecastMeta"
+      },
+      "PVPForecastRealtimeData": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Timestamp of the forecast interval"
+          },
+          "production": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production",
+            "description": "Aggregated PV forecast production value in kWh"
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastRealtimeData"
+      },
+      "PVPForecastRealtimeMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "production_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Unit",
+            "description": "Unit of the production values, e.g. kWh"
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data in minutes."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastRealtimeMeta"
+      },
+      "PVPForecastRealtimeResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVPForecastRealtimeData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of forecast data points"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVPForecastRealtimeMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVPForecastRealtimeResponse"
       },
       "PVPForecastResponse": {
         "properties": {
@@ -2313,6 +2826,7 @@
           "Important data missing, will not be supported in future updates.",
           "Unauthorized country, steering not allowed in this country.",
           "Reauthentication required.",
+          "Too many heating zones, steering not supported for this configuration.",
           "Unknown reason, please contact support."
         ],
         "title": "GeneralReason"
@@ -2476,7 +2990,7 @@
               }
             ],
             "title": "Imbalance Optimization",
-            "description": "Enable/disable imbalance optimization. If `True`, the device will be optimized to minimize imbalances based on the imbalance prices of the users country. This setting should only be enabled/disabled internally in the backend of suppliers as only integrated users of a full-control package will have benefit out of it."
+            "description": "Enable/disable imbalance optimization. If `True`, the device will be optimized to minimize imbalances based on the imbalance prices of the users country. This setting should only be enabled/disabled internally in the backend of suppliers as only integrated users of a nox control package will have benefit out of it."
           }
         },
         "type": "object",

@@ -2675,7 +2675,7 @@
               }
             ],
             "title": "Imbalance Optimization",
-            "description": "Enable/disable imbalance optimization. If `True`, the device will be optimized to minimize imbalances based on the imbalance prices of the users country. This setting should only be enabled/disabled internally in the backend of suppliers as only integrated users of a full-control package will have benefit out of it."
+            "description": "Enable/disable imbalance optimization. If `True`, the device will be optimized to minimize imbalances based on the imbalance prices of the users country. This setting should only be enabled/disabled internally in the backend of suppliers as only integrated users of a nox control package will have benefit out of it."
           }
         },
         "type": "object",
@@ -3746,7 +3746,7 @@
               }
             ],
             "title": "Imbalance Optimization",
-            "description": "Enable/disable imbalance optimization. If `True`, the device will be optimized to minimize imbalances based on the imbalance prices of the users country. This setting should only be enabled/disabled internally in the backend of suppliers as only integrated users of a full-control package will have benefit out of it."
+            "description": "Enable/disable imbalance optimization. If `True`, the device will be optimized to minimize imbalances based on the imbalance prices of the users country. This setting should only be enabled/disabled internally in the backend of suppliers as only integrated users of a nox control package will have benefit out of it."
           }
         },
         "type": "object",
