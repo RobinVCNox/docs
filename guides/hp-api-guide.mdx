@@ -694,16 +694,132 @@ More info at the endpoint documentation of [/user](/api-docs/hp/user-management/
 
 ### 5. Heat pumps as a thermal battery
 
-#### 5.1 Getting Heat pump information representated as a battery
-
 <Note>
     This feature only exists if you are using the partner control package. If you are using the NOX control package, you can skip this section.
 </Note>
 
-The heat pump's thermal model is exposed as two virtual batteries: the **domestic hot water (DHW) tank** and the **house** (space heating/cooling). Each has an energy state, comfort bounds, and a power draw per heating/cooling stage ("activation level").
-This is very similar to a battery's state-of-charge, min/max limits, and charge/discharge power.
-We have 2 endpoints. One returns the current state, which should mainly be used for monitoring of unexpected events like getting close to the comfort bounds of the user.
-The other returns a forecast of the energy state and comfort bounds, which should mainly be used for scheduling of the heat pump controls within your control algorithm.
+For partners who want to run their own optimization, a set of additional endpoints exposes the heat pump in a form you can schedule against directly.
+
+We deliberately express that data the same way you would express a battery: a state of charge, an upper and a lower bound, a passive drain, a charge rate, and the electrical power that comes with it.
+The intent is that you don't have to model any aspects of the tank or the building yourself, we do that on our side, so that you can put your effort into the optimization instead.
+
+#### 5.1 Getting Heat pump information representated as a thermal battery
+
+Every heat pump is exposed as **two independent batteries**: the **domestic hot water (DHW) tank** and the **house** (space heating/cooling).
+They are modelled separately, forecasted separately, and steered separately.
+
+| Battery concept | DHW tank | House |
+| --- | --- | --- |
+| What is stored | heat in the tank water | heat in the building mass |
+| State of charge | `DHW_temperature` (measured) | `Space_temperature` (measured) |
+| Min / max limits | `lowerbound_X` / `upperbound_Z` | `lowerbound_X` / `upperbound_Z` |
+| Passive drain | `T_loss` — always a drain | `T_natural` — signed, can charge or drain |
+| Charging | `T_gain` | `T_heating` |
+| Discharging | not possible, a tank cannot be actively cooled | `T_cooling` |
+| Electrical power that goes with it | `P_if_activated` | `P_heating` / `P_cooling` |
+| Horizon of the arrays | 4 × 15 min = 1 hour | 8 × 15 min = 2 hours |
+| Extra constraint | `tank_activation_limit_temp` | `Y_ideal`, the user's preferred temperature |
+
+Two endpoints serve this data:
+
+| Endpoint | Refreshed | Use it for |
+| --- | --- | --- |
+| [`/device/thermal-control/current-state`](/api-docs/hp/thermal-battery-control/get-thermal-control-current-state) | every 15 minutes | the **measured starting point** of your optimization, and monitoring for unexpected events such as a user approaching their comfort bounds |
+| [`/device/thermal-control/forecast`](/api-docs/hp/thermal-battery-control/get-thermal-control-forecast) | every hour | **scheduling**: the comfort bounds and the expected thermal behaviour over the coming ~72 hours |
+
+The forecast is most accurate for roughly the first 12 hours and degrades gradually after that, as it depends on weather forecasts and on user behaviour.
+Because we regenerate it every hour, re-querying it hourly always gives you the best available prediction. Querying it more often than once per hour has no benefit.
+Note that the comfort bounds are not static: they change when the heat pump switches between a heating or a cooling regime, or when the user changes their comfort settings.
+
+##### Always request `unit=celsius`
+
+Both endpoints accept a `unit` query parameter. `kWh` is still the default for backwards compatibility, but **we recommend building against `unit=celsius` and we intend to phase `kWh` out.**
+
+You lose nothing by switching. All `P_*` fields stay in **kW regardless of the unit**, so you can still compute energy and cost exactly as before — see the [worked example](#worked-example-scheduling-a-dhw-cycle) below.
+If you are migrating an existing integration, the fields map one to one:
+
+| `unit=kWh` (deprecated) | `unit=celsius` (recommended) |
+| --- | --- |
+| `Y`, `Y_avg`, `Y_ideal`, `lowerbound_X`, `upperbound_Z` in kWh | the same fields in °C |
+| `Q_loss`, `Q_gain` in kW | `T_loss`, `T_gain` in °C per 15 min |
+| `Q_natural`, `Q_heating`, `Q_cooling` in kW | `T_natural`, `T_heating`, `T_cooling` in °C per 15 min |
+| `tank_activation_limit` in kWh | `tank_activation_limit_temp` in °C |
+| `P_if_activated`, `P_heating`, `P_cooling` in kW | unchanged, still kW |
+
+The rest of this guide uses `unit=celsius`.
+
+##### How to read the 15-minute grid
+
+This is the part that most often causes confusion, so it is worth being explicit.
+
+**1. Each forecast entry is one 15-minute slot.** A record with `timestamp: "2025-01-15 12:00:00"` describes the period 12:00–12:15 UTC.
+
+**2. Inside a slot, the arrays describe a single activation started in that slot.** `T_gain`, `T_heating`, `T_cooling`, `P_if_activated`, `P_heating` and `P_cooling` are arrays because the effect of heating changes the longer the heat pump runs. Index `0` covers minutes 0–15 of the activation, index `1` minutes 15–30, index `2` minutes 30–45, and so on.
+
+<Warning>
+  These array positions are sometimes called *activation levels*, which is misleading. They are **positions in time within one activation, not power settings you can choose from.**
+  You cannot pick index 3 to heat harder; you reach index 3 by having heated for 45 minutes already.
+</Warning>
+
+**3. The arrays are 4 long for the tank and 8 long for the house.** A DHW heating cycle is typically shorter than an hour for most heat pump brands, so one hour of look-ahead is enough. Space heating and cooling cycles run longer, so those arrays cover two hours. If you want to keep heating beyond the end of an array, **hold the last value** for the following slots.
+
+**4. Start a new activation, start again at index 0.** If you decide to heat at 12:15 instead of 12:00, use the arrays of the 12:15 record starting at index `0`. The arrays are always relative to the start of the activation, never absolute clock positions.
+
+##### What each field means
+
+**The state of charge**
+
+`DHW_temperature` and `Space_temperature` in the current-state response are **measured** values. This is what you should drive your optimization from.
+
+`Y_avg` in the forecast is the **midpoint of the comfort band** for that slot, `(upperbound_Z + lowerbound_X) / 2`. It is a reference point, not a prediction of where the temperature will actually be. Do not use it as the starting state of a simulation three hours out — take the measured temperature from the current state and simulate forward yourself. `Y_ideal` (house only) is a genuine target: the temperature the user asked for.
+
+<Note>
+  We compute the `T_gain` / `T_heating` and `P_*` profiles for a slot by simulating an activation that starts at that slot's `Y_avg`. If your own simulated temperature ends up far from `Y_avg`, treat those numbers as approximate rather than exact.
+</Note>
+
+**The passive behaviour: `T_loss` and `T_natural`**
+
+`T_loss` (tank) is the temperature drop we expect over that 15-minute slot **if you do not activate**. It is a single value per slot rather than an array because it does not depend on how long the heat pump has been running. It covers both the standing heat loss of the tank *and* the hot water draw-off we expect in that slot, which is why it is much larger around a forecasted shower than it is at night. Those draw-offs are also what produces the steep drops in the chart below.
+
+`T_natural` (house) is the net natural temperature change of the building over that slot: conduction and convection losses, ventilation, internal gains and solar gain combined. It is **signed** — negative on a cold winter night, positive on a sunny day.
+
+**The active behaviour: `T_gain`, `T_heating`, `T_cooling`**
+
+These describe what happens **if you do activate**: the temperature change the heat pump adds in each 15-minute bucket of the activation. `T_cooling` is the temperature it can remove from the house; it is only non-zero on devices that support cooling.
+
+These are *gross* effects — the passive drain keeps running underneath them. For the tank, `T_loss` is usually negligible next to `T_gain`, but not when a draw-off is expected in the same slot, so the safe rule is to apply both.
+
+**The electrical side: `P_if_activated`, `P_heating`, `P_cooling`**
+
+These are the electrical power (kW) the heat pump draws over each bucket of that same activation. Multiply by 0.25 h to get kWh, and by your price to get cost.
+
+The thermal effect divided by the electrical power is the COP at that point in the cycle. Because the thermal side is expressed in °C, they are two different physical quantities: `T_gain` is what happens to the water, `P_if_activated` is what you pay for it.
+
+<Note>
+  `P_if_activated` rises across the array. That is not a menu of power levels — it is what one and the same activation draws as it progresses.
+  As the tank warms up, the heat pump has to lift the refrigerant to a higher condensing temperature, which costs more electrical power for the same heat.
+  You cannot borrow that higher power at a lower tank temperature: the sizing of the heat exchanger caps how much you can push in at any given temperature.
+</Note>
+
+**The tank's own start condition: `tank_activation_limit_temp`**
+
+The heat pump will only *begin* a DHW cycle when the tank is below this temperature. It is derived from the device's maximum DHW setpoint minus its hysteresis, so it is a property of the appliance, not something we impose. Scheduling `tank: true` while the tank sits above this limit will simply not produce a heating cycle. Check it before you plan a DHW activation. It is returned by the forecast endpoint only.
+
+##### The bounds in practice
+
+The chart below shows one real DHW tank over roughly 20 hours: `upperbound_Z` in red, `lowerbound_X` in blue, and the measured `DHW_temperature` in green.
+
+![DHW tank thermal bounds](images/thermal_bounds_dhw.png)
+
+Three things to read out of it:
+
+- **`upperbound_Z` is flat** at 60 °C. It is the device's maximum DHW setpoint and rarely moves.
+- **`lowerbound_X` sits at 42 °C but spikes.** Each spike is a single 15-minute interval placed just ahead of hot water demand we expect, and it raises the floor to the temperature needed to serve that demand. Read it as a deadline: *the tank must be at least this warm by this interval*. Those spikes are the main reason to plan against the forecast rather than only reacting to the current state.
+- **The steep drops in green are draw-offs**, and the sharp recoveries are DHW heating cycles. Note how each recovery follows a spike in the lower bound.
+
+Your schedule has to keep the green line between the two bounds. If it does not, we step in — see the failsafes in [5.2](#5-2-controlling-the-heat-pump).
+
+The house battery behaves the same way, with the addition of `Y_ideal`, the temperature the user actually asked for:
 
 ![Thermal space bounds](images/thermal_space_bounds.png)
 
@@ -713,14 +829,14 @@ The other returns a forecast of the energy state and comfort bounds, which shoul
 
 ```bash cURL
 curl --request GET \
-  --url 'https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456' \
+  --url 'https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456&unit=celsius' \
   --header 'x-api-key: <api-key>'
 ```
 
 ```python Python
 import requests
 
-url = "https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456"
+url = "https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456&unit=celsius"
 
 headers = {"x-api-key": "<api-key>"}
 
@@ -732,7 +848,7 @@ print(response.text)
 ```javascript JavasScript
 const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
 
-fetch('https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456', options)
+fetch('https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456&unit=celsius', options)
   .then(res => res.json())
   .then(res => console.log(res))
   .catch(err => console.error(err));
@@ -744,7 +860,7 @@ fetch('https://api.nox.energy/v1/device/thermal-control/current-state?device_id=
 $curl = curl_init();
 
 curl_setopt_array($curl, [
-  CURLOPT_URL => "https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456",
+  CURLOPT_URL => "https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456&unit=celsius",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => "",
   CURLOPT_MAXREDIRS => 10,
@@ -779,7 +895,7 @@ import (
 
 func main() {
 
-	url := "https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456"
+	url := "https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456&unit=celsius"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -796,7 +912,7 @@ func main() {
 ```
 
 ```java Java
-HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456")
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456&unit=celsius")
   .header("x-api-key", "<api-key>")
   .asString();
 ```
@@ -805,7 +921,7 @@ HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/device/th
 require 'uri'
 require 'net/http'
 
-url = URI("https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456")
+url = URI("https://api.nox.energy/v1/device/thermal-control/current-state?device_id=HP123456&unit=celsius")
 
 http = Net::HTTP.new(url.host, url.port)
 http.use_ssl = true
@@ -819,11 +935,38 @@ puts response.read_body
 
 </CodeGroup>
 
+```json
+{
+  "data": {
+    "device_id": "HP123456",
+    "timestamp": "2025-01-15 11:58:12",
+    "tank": {
+      "DHW_temperature": 43.0,
+      "T_loss": 0.29,
+      "T_gain": [7.65, 7.65, 7.65, 7.65],
+      "P_if_activated": [2.37, 2.89, 3.27, 3.48]
+    },
+    "house": {
+      "Space_temperature": 21.4,
+      "T_natural": -0.02,
+      "T_heating": [0.063, 0.063, 0.063, 0.063, 0.063, 0.063, 0.063, 0.063],
+      "T_cooling": [0, 0, 0, 0, 0, 0, 0, 0],
+      "P_heating": [1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8],
+      "P_cooling": [0, 0, 0, 0, 0, 0, 0, 0]
+    }
+  },
+  "meta": { "timestamp_time_zone": "UTC", "temperature_unit": "°C", "...": "..." }
+}
+```
+
 Key fields:
-- `Y` – current energy state of the tank/house in kWh (think state-of-charge). Only present when `unit=kWh` (default).
-- `DHW_temperature` / `Space_temperature` – current temperature in °C, returned regardless of `unit`.
-- `Q_gain` / `Q_loss` (or `T_gain` / `T_loss` with `unit=celsius`) – how fast the tank/house gains or loses energy at each activation level.
-- `P_if_activated` / `P_heating` / `P_cooling` – power (kW) the heat pump draws at each activation level.
+- `DHW_temperature` / `Space_temperature` – the **measured** temperature right now, in °C. This is the starting point for your optimization.
+- `T_loss` / `T_natural` – expected temperature change over the coming 15 minutes if you do nothing.
+- `T_gain` / `T_heating` / `T_cooling` – expected temperature change per 15-minute bucket if you activate now.
+- `P_if_activated` / `P_heating` / `P_cooling` – electrical power (kW) drawn per 15-minute bucket of that same activation.
+
+This endpoint does **not** return the comfort bounds — those come from the forecast.
+With `unit=kWh` the temperatures are replaced by `Y` in kWh and the `T_*` fields by their `Q_*` equivalents in kW.
 
 More info at [/device/thermal-control/current-state](/api-docs/hp/thermal-battery-control/get-thermal-control-current-state).
 
@@ -833,14 +976,14 @@ More info at [/device/thermal-control/current-state](/api-docs/hp/thermal-batter
 
 ```bash cURL
 curl --request GET \
-  --url 'https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z' \
+  --url 'https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&unit=celsius&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z' \
   --header 'x-api-key: <api-key>'
 ```
 
 ```python Python
 import requests
 
-url = "https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z"
+url = "https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&unit=celsius&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z"
 
 headers = {"x-api-key": "<api-key>"}
 
@@ -852,7 +995,7 @@ print(response.text)
 ```javascript JavasScript
 const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
 
-fetch('https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z', options)
+fetch('https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&unit=celsius&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z', options)
   .then(res => res.json())
   .then(res => console.log(res))
   .catch(err => console.error(err));
@@ -864,7 +1007,7 @@ fetch('https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123
 $curl = curl_init();
 
 curl_setopt_array($curl, [
-  CURLOPT_URL => "https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z",
+  CURLOPT_URL => "https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&unit=celsius&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => "",
   CURLOPT_MAXREDIRS => 10,
@@ -899,7 +1042,7 @@ import (
 
 func main() {
 
-	url := "https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z"
+	url := "https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&unit=celsius&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -916,7 +1059,7 @@ func main() {
 ```
 
 ```java Java
-HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z")
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&unit=celsius&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z")
   .header("x-api-key", "<api-key>")
   .asString();
 ```
@@ -925,7 +1068,7 @@ HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/device/th
 require 'uri'
 require 'net/http'
 
-url = URI("https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z")
+url = URI("https://api.nox.energy/v1/device/thermal-control/forecast?device_id=HP123456&unit=celsius&start_time=2023-10-01T00%3A00%3A00Z&end_time=2023-10-02T00%3A00%3A00Z")
 
 http = Net::HTTP.new(url.host, url.port)
 http.use_ssl = true
@@ -939,15 +1082,120 @@ puts response.read_body
 
 </CodeGroup>
 
-Key fields:
-- `upperbound_Z` / `lowerbound_X` – comfort bounds the energy state must stay within.
-- `Y_avg` (and `Y_ideal` for the house) – expected/ideal state if left unsteered.
-- `tank_activation_limit` – tank state below which DHW heating should trigger to stay in bounds.
+```json
+{
+  "data": {
+    "device_id": "HP123456",
+    "forecasts": [
+      {
+        "timestamp": "2025-01-15 12:00:00",
+        "tank": {
+          "upperbound_Z": 60,
+          "lowerbound_X": 42,
+          "Y_avg": 51,
+          "T_loss": 0.29,
+          "T_gain": [7.65, 7.65, 7.65, 7.65],
+          "P_if_activated": [2.37, 2.89, 3.27, 3.48],
+          "tank_activation_limit_temp": 45
+        },
+        "house": {
+          "upperbound_Z": 22.3,
+          "lowerbound_X": 20.5,
+          "Y_avg": 21.4,
+          "Y_ideal": 22,
+          "T_natural": -0.02,
+          "T_heating": [0.063, 0.063, 0.063, 0.063, 0.063, 0.063, 0.063, 0.063],
+          "T_cooling": [0, 0, 0, 0, 0, 0, 0, 0],
+          "P_heating": [1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8],
+          "P_cooling": [0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      },
+      {
+        "timestamp": "2025-01-15 12:15:00",
+        "tank": {
+          "upperbound_Z": 60,
+          "lowerbound_X": 42,
+          "Y_avg": 51,
+          "T_loss": 0.29,
+          "T_gain": [7.65, 7.65, 7.65, 7.65],
+          "P_if_activated": [2.36, 2.88, 3.27, 3.48],
+          "tank_activation_limit_temp": 45
+        },
+        "house": { "...": "..." }
+      }
+    ]
+  },
+  "meta": {
+    "timestamp_time_zone": "UTC",
+    "tank_upperbound_Z_unit": "°C",
+    "tank_T_gain_unit": "°C",
+    "tank_P_if_activated_unit": "kW",
+    "...": "..."
+  }
+}
+```
+
+On top of the fields described above, the forecast adds:
+- `upperbound_Z` / `lowerbound_X` – the comfort bounds your schedule must keep the temperature between. For the tank, watch for the single-interval spikes in `lowerbound_X` that mark expected hot water demand.
+- `Y_avg` – the midpoint of the comfort band. `Y_ideal` (house only) – the temperature the user asked for.
+- `tank_activation_limit_temp` – the tank must be below this temperature for a DHW cycle to start at all.
+
+Note that each entry carries its own `T_loss` and its own `P_if_activated`: both change over the day, the first because of expected hot water usage, the second because of the outdoor temperature.
 
 We recommend you to only query the `forecast` once per hour or less.
 The comfort bounds might change depending on if the heat pump is switching between a heating day or a cooling day or if the users changes their comfort bounds with the user settings api endpoint.
 
 More info at [/device/thermal-control/forecast](/api-docs/hp/thermal-battery-control/get-thermal-control-forecast).
+
+##### Worked example: scheduling a DHW cycle
+
+Assume it is `2025-01-15 11:58 UTC` and you want to know whether to heat the tank, for how long, and what it will cost. The two responses above are the ones you just pulled.
+
+<Steps>
+
+<Step title="Take the measured starting point">
+The current state gives `DHW_temperature = 43.0 °C`. This is your starting temperature — not `Y_avg`, which is only the midpoint of the comfort band.
+</Step>
+
+<Step title="Check that you are allowed to start">
+The forecast entry for 12:00 gives `tank_activation_limit_temp = 45.0 °C`. The tank is at 43.0 °C, so it is below the limit and a DHW cycle will actually start. Had the tank been at, say, 52 °C, scheduling `tank: true` would have produced nothing.
+</Step>
+
+<Step title="Simulate forward to find how long you can heat">
+Your schedule starts at the next quarter hour, 12:00, so you use the arrays of the `12:00:00` entry starting at index `0`. Per bucket: add `T_gain`, subtract that slot's `T_loss`, and stop before you cross `upperbound_Z = 60 °C`.
+
+| Bucket | Clock | Array index | Start | `T_gain` | `T_loss` | End | `P_if_activated` | Energy |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 12:00–12:15 | `0` | 43.00 °C | +7.65 | −0.29 | 50.36 °C | 2.37 kW | 0.593 kWh |
+| 2 | 12:15–12:30 | `1` | 50.36 °C | +7.65 | −0.29 | 57.72 °C | 2.89 kW | 0.723 kWh |
+| 3 | 12:30–12:45 | `2` | 57.72 °C | +7.65 | −0.29 | 65.08 °C ✗ | – | – |
+
+A third bucket would push the tank past 60 °C, so the answer is **two buckets, 30 minutes of DHW heating**.
+
+Two caps would have stopped you earlier if the bound had not: the `T_gain` array is only 4 entries long, and DHW heating is cut off after 1 continuous hour anyway (see the failsafes in [5.2](#5-2-controlling-the-heat-pump)).
+</Step>
+
+<Step title="Work out the cost">
+Energy is power × 0.25 h per bucket: `2.37 × 0.25 + 2.89 × 0.25 = 1.32 kWh`. Multiply each bucket by the price of the corresponding market interval to get the cost of this activation, and compare it against activating in a later, cheaper slot.
+
+This is also the answer to "how much electricity can I put into this heat pump right now": 1.32 kWh, spread over 30 minutes. It is bounded by the upper comfort bound, not by the heat pump's nameplate power.
+</Step>
+
+<Step title="Work out how long it buys you">
+From 57.72 °C, walk forward through the following forecast entries and subtract each one's own `T_loss`, checking against that entry's own `lowerbound_X`. Two things move: `T_loss` is small overnight but several degrees in a slot where we expect a shower, and `lowerbound_X` spikes above 42 °C just before that demand. Whichever you hit first is your deadline for the next activation.
+</Step>
+
+<Step title="Submit the schedule">
+Two buckets of DHW heating starting at 12:00 becomes `tank: [true, true, false, false, ...]` for a schedule with `timestamp: "2025-01-15T12:00:00Z"`. See [5.2](#5-2-controlling-the-heat-pump) for the request itself.
+</Step>
+
+</Steps>
+
+The house works identically, with 8 buckets instead of 4. Suppose it is 21.0 °C inside, `upperbound_Z` is 21.5 °C, `T_heating = [0.1, 0.1, ...]` and `P_heating = [2.0, 2.0, ...]`. You can heat for five buckets before hitting the bound (`21.0 + 5 × 0.1 = 21.5 °C`), which costs `5 × 2.0 kW × 0.25 h = 2.5 kWh`.
+
+<Note>
+  Treat this as a rolling plan, not a one-off calculation. We regenerate the forecast every hour and refresh the current state every 15 minutes, so the natural pattern is a model predictive controller: re-simulate from the newest measured temperature on every refresh, keep the first steps of the resulting plan, and only submit a new schedule when the plan actually changed.
+</Note>
 
 #### 5.2 Controlling the heat pump
 
