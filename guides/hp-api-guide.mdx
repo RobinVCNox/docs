@@ -698,36 +698,29 @@ More info at the endpoint documentation of [/user](/api-docs/hp/user-management/
     This feature only exists if you are using the partner control package. If you are using the NOX control package, you can skip this section.
 </Note>
 
-For partners who want to run their own optimization, a set of additional endpoints exposes the heat pump in a form you can schedule against directly.
+For partners who want to run their own optimization, a set of additional endpoints exposes the heat pump in a form that is ready to optimize.
 
-We deliberately express that data the same way you would express a battery: a state of charge, an upper and a lower bound, a passive drain, a charge rate, and the electrical power that comes with it. The intent is that you never have to build a thermal model of a hot water tank or of a building — we do that on our side — so that you can put your effort into the optimization itself.
+This data is deliberately expressed in a way similar to how a battery would be described: a value representing the current state of the system (the current temperature), an upper and a lower bound, a passive drain, a charge rate, and the electrical power that comes with it. The intent is that no modeling of the heat pump, the domestic hot water tank or the house is required, allowing partners to focus on the optimization itself.
 
 #### 5.1 Getting Heat pump information representated as a thermal battery
 
-Here is one real domestic hot water tank over about twenty hours.
+Each heat pump is exposed as two independent parts: the domestic hot water (DHW) tank and the house. Two endpoints carry the model. [`current-state`](/api-docs/hp/thermal-battery-control/get-thermal-control-current-state) returns the measured thermal state and refreshes every 15 minutes; [`forecast`](/api-docs/hp/thermal-battery-control/get-thermal-control-forecast) returns the comfort bounds and the expected thermal behaviour as 15-minute records, 72 hours ahead, regenerated hourly.
+
+This section works through a complete DHW scheduling decision and introduces each field at the point where it is used. The exhaustive field reference for both endpoints, including the deprecated `Q_*` variants, is in the API reference.
+
+##### The battery model
+
+The chart below shows the DHW tank of a single device over roughly 20 hours.
 
 ![DHW tank thermal bounds](images/thermal_bounds_dhw.png)
 
-Read it as a battery. The green line is the state of charge. The red line is full, the blue line is empty. The steep drops in green are someone taking a shower — self-discharge you do not control. The sharp rises are the heat pump charging, because you asked it to.
+`DHW_temperature` (green) is the state of charge; `upperbound_Z` (red) and `lowerbound_X` (blue) are the limits it has to stay between. The steep declines are hot water draw-off, which you do not control. The sharp recoveries are heat pump activations, which you do.
 
-Your job is one decision, repeated every fifteen minutes: **charge, or don't.**
+Scheduling therefore reduces to one binary decision per 15-minute slot: activate, or do not. The rest of this section covers the data needed to make that decision well.
 
-The rest of this section is one worked example of making that decision. Every field is introduced at the point where you actually need it; the complete field list for both endpoints lives in the API reference.
+##### Establishing the current state
 
-##### The situation
-
-It is `11:58` on a winter morning. Electricity is cheap right now and expensive from 17:00 onwards, so you would like to know whether it is worth heating this tank before the price goes up.
-
-Four questions get you there:
-
-1. Where is the tank right now?
-2. How far can it go?
-3. What happens if you switch on?
-4. What happens if you don't?
-
-##### 1. Where is the tank right now?
-
-Ask the current state endpoint:
+The scenario used throughout is a device at `2025-01-15 11:58 UTC`, with day-ahead prices low over the early afternoon and high from 17:00 onwards.
 
 <CodeGroup dropdown>
 
@@ -839,7 +832,7 @@ puts response.read_body
 
 </CodeGroup>
 
-Trimmed to the tank, this comes back:
+Restricted to the tank, the response is:
 
 ```json
 {
@@ -855,11 +848,9 @@ Trimmed to the tank, this comes back:
 }
 ```
 
-**43.0 °C.** That number is measured, not predicted, which makes it the only honest starting point for a simulation. It refreshes every fifteen minutes, so this is also the endpoint you poll to notice a user drifting somewhere they should not be.
+`DHW_temperature` is measured rather than predicted, which makes it the only defensible initial condition for a forward simulation. This endpoint is also what you poll to detect a device drifting towards its comfort bounds.
 
-##### 2. How far can it go?
-
-Ask the forecast endpoint:
+##### Comfort bounds and activation constraints
 
 <CodeGroup dropdown>
 
@@ -971,7 +962,7 @@ puts response.read_body
 
 </CodeGroup>
 
-The forecast returns one record per fifteen minutes, roughly 36 hours ahead. The record covering 12:00 to 12:15 looks like this:
+The forecast returns one record per 15 minutes. The record covering 12:00–12:15 is:
 
 ```json
 {
@@ -983,76 +974,60 @@ The forecast returns one record per fifteen minutes, roughly 36 hours ahead. The
     "T_loss": 0.29,
     "T_gain": [7.65, 7.65, 7.65, 7.65],
     "P_if_activated": [2.37, 2.89, 3.27, 3.48],
-    "tank_activation_limit_temp": 45
+    "tank_activation_limit_temp": 55
   }
 }
 ```
 
-**Full is 60 °C, empty is 42 °C.** At 43.0 °C the tank is nearly flat, and you have roughly 17 °C of room to charge into.
+`upperbound_Z` and `lowerbound_X` delimit the usable capacity. At 60 °C and 42 °C respectively, a tank measuring 43.0 °C is close to depleted and has roughly 17 °C of headroom.
 
-Now look at the chart again. The red line never moves — that is the appliance's maximum setpoint. The blue line mostly sits at 42 °C, but it **spikes**, and those spikes matter. Each one is a single fifteen-minute interval placed just ahead of hot water we expect the household to use, lifting the floor to whatever temperature is needed to serve it.
+`upperbound_Z` is the appliance's maximum DHW setpoint and is effectively constant. `lowerbound_X` is not. In the chart it rests at 42 °C but rises for isolated 15-minute intervals; each of those is positioned immediately ahead of hot water demand we expect the household to draw, and raises the floor to the temperature required to serve it. Treat such an interval as a deadline, the tank must be at least that warm by then. It is visible only in the forecast, never in the current state, which is the main reason to plan against the forecast rather than react to the measured temperature.
 
-Read a spike as a deadline: *be at least this warm by this interval.* It is the single best reason to plan against the forecast rather than react to the current temperature — by the time the tank is actually cold, the shower has already started.
+`tank_activation_limit_temp` is a hard precondition. A heat pump only initiates a DHW cycle once the tank has fallen below its own restart threshold, being the appliance's maximum setpoint minus its hysteresis. We report that threshold; we do not impose it. At 43.0 °C the tank is below the 55 °C limit, so an activation will take effect. Above the limit, a request to heat the tank is accepted by the API and then produces nothing.
 
 <Note>
-  The record also carries `Y_avg`. It is simply the midpoint between the two bounds, `(60 + 42) / 2`, not a prediction of where the tank will be. Do not start a simulation from it; start from the measured temperature you got in question 1.
+  `Y_avg` is the midpoint of the comfort band, `(60 + 42) / 2`, and used as a reference to calculate `T_loss, T_gain & P_if_activated`, since these variables are temperature dependent. `Y_avg` is not a prediction of the tank temperature. It should not be used as the initial condition of a simulation.
 </Note>
 
-##### 3. What happens if you switch on?
+##### Activation profiles
 
-First, a precondition that is easy to miss: **`"tank_activation_limit_temp": 45`**.
+`T_gain` and `P_if_activated` describe the consequences of activating. Both are arrays, because both change as an activation progresses.
 
-A heat pump only *begins* a hot water cycle once the tank has cooled below its own restart threshold — the appliance's maximum setpoint minus its hysteresis. We report that threshold; we do not set it. At 43.0 °C you are below 45 °C, so asking for hot water will genuinely start a cycle. Had the tank been at 52 °C, the same request would have done nothing at all, silently. Check this before you plan a hot water activation.
-
-With that out of the way, two fields answer the question, and both are arrays.
-
-**`"T_gain": [7.65, 7.65, 7.65, 7.65]` — how much the water warms up.**
-
-Four numbers rather than one, because the answer changes the longer the heat pump runs. They describe **one single activation, sliced into quarters of an hour**: 7.65 °C during minutes 0–15, another 7.65 °C during minutes 15–30, and so on.
+Each array describes **one activation, divided into consecutive quarter hours**. Index `0` covers minutes 0–15 of that activation, index `1` minutes 15–30, and so on. `T_gain` is the temperature the water gains over each quarter, in °C; `P_if_activated` is the average electrical power drawn over the same quarter, in kW.
 
 <Warning>
-  This is a **timeline, not a menu.** You cannot pick the fourth number to charge harder — you *arrive* at the fourth number by having heated for 45 minutes already. And if you decide to switch on at 12:15 instead of 12:00, you read the 12:15 record starting from *its* first value: the array is always relative to the moment the heat pump switches on, never to the clock.
+  The indices are positions in time, not selectable power levels. Index `3` is not a higher setting — it is the state of the same activation after 45 minutes of running. An activation beginning at 12:15 rather than 12:00 is read from index `0` of the 12:15 record: the arrays are always relative to the moment of activation, never to the clock.
 </Warning>
 
-Why four? A hot water cycle rarely runs longer than an hour on most brands, so an hour of look-ahead is enough. Space heating gets eight values, two hours, for the same reason. If you want to run longer than the array covers, keep using its last value.
+Tank profiles hold 4 values, covering 1 hour, since DHW cycles on most brands are shorter than that. Space heating and cooling profiles hold 8 values, covering 2 hours. To model an activation running beyond the end of an array, hold its last value.
 
-That is enough to answer *how long*. Start at 43.0 °C and add a quarter at a time, without crossing 60 °C:
+`P_if_activated` typically increases across the array because the same activation becomes less efficient as it proceeds: a warmer tank requires a higher condensing temperature, which costs more electrical power per unit of heat delivered. That higher power is not available at a lower tank temperature, as heat exchanger sizing caps the input at any given temperature. Read side by side, the two arrays show the efficiency degrading over the cycle: 7.65 °C of gain for 2.37 kW in the first quarter, the same gain for 3.48 kW in the fourth.
 
-| Quarter | Clock | Array index | Start | Warms by | Ends at |
-| --- | --- | --- | --- | --- | --- |
-| 1 | 12:00–12:15 | `0` | 43.00 °C | +7.65 °C | 50.65 °C |
-| 2 | 12:15–12:30 | `1` | 50.65 °C | +7.65 °C | 58.30 °C |
-| 3 | 12:30–12:45 | `2` | 58.30 °C | +7.65 °C | 65.95 °C — over the bound |
+Note that `P_if_activated` is returned in kW under both `unit` settings.
 
-**Two quarters. Thirty minutes of heating.**
+##### Standing loss and expected demand
 
-**`"P_if_activated": [2.37, 2.89, 3.27, 3.48]` — what it costs you.**
+`T_loss` is the temperature the tank loses over the record's 15-minute slot if it is not activated. It is a scalar rather than an array, since the loss does not depend on how long the heat pump has been running.
 
-The same four quarters of the same activation, but electrical, in kW. Multiply by 0.25 h to get energy:
+It is not restricted to insulation losses. `T_loss` also carries the hot water we expect the household to draw during that interval, so it is a fraction of a degree overnight and can reach several degrees in an interval containing expected demand. Because the value varies per record, a forward simulation must read each record's own `T_loss` rather than assume a constant.
 
-`2.37 × 0.25 + 2.89 × 0.25 =` **`1.32 kWh`**
+##### Worked example: scheduling a DHW cycle
 
-That is also the answer to "how much electricity can I put into this heat pump right now" — 1.32 kWh, spread over half an hour. Note what limits it: the comfort bound, not the compressor's nameplate rating. Multiply each quarter by the price of its market interval and you have the cost of heating now, ready to compare against heating at 15:00 instead.
+Starting from the measured 43.0 °C and using the 12:00 record, simulate an activation beginning at the next quarter hour. Per quarter, apply `T_gain` and subtract `T_loss`, stopping before `upperbound_Z` is crossed:
 
-Holding the two arrays side by side shows the efficiency falling as the cycle runs: the same 7.65 °C of warming costs 2.37 kW in the first quarter and 3.48 kW in the fourth.
+| Quarter | Interval | Index | Start | `T_gain` | `T_loss` | End | `P_if_activated` | Energy |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 12:00–12:15 | `0` | 43.00 °C | +7.65 | −0.29 | 50.36 °C | 2.37 kW | 0.593 kWh |
+| 2 | 12:15–12:30 | `1` | 50.36 °C | +7.65 | −0.29 | 57.72 °C | 2.89 kW | 0.723 kWh |
+| 3 | 12:30–12:45 | `2` | 57.72 °C | +7.65 | −0.29 | 65.08 °C | — | — |
 
-<Note>
-  **Why does the power climb?** Because it is one activation getting further along, not four settings. As the tank warms, the heat pump has to lift the refrigerant to a higher condensing temperature, which costs more electricity for the same heat. You cannot borrow that higher power at a lower tank temperature — the sizing of the heat exchanger caps how much you can push in at any given temperature.
-</Note>
+Two quarters fit; a third would exceed 60 °C. The activation runs from 12:00 to 12:30 and consumes `(2.37 + 2.89) × 0.25 h = 1.32 kWh`.
 
-##### 4. What happens if you don't switch on?
+That figure is also the answer to how much electrical energy the device can absorb at this moment: 1.32 kWh over 30 minutes, limited by the comfort bound rather than by the compressor rating. Priced against the corresponding day-ahead intervals, it can be compared directly against activating later in the day.
 
-**`"T_loss": 0.29` — how much the tank cools.**
+To establish when the next activation becomes necessary, continue the simulation past 12:30 without activating, subtracting each record's `T_loss` and testing the result against that record's `lowerbound_X`. Whichever occurs first — depletion to the standing floor, or a floor raised ahead of expected demand — sets the deadline.
 
-One number this time, not four, because the drain does not care how long anything has been running.
-
-It is not only insulation losses. `T_loss` also contains **the hot water we expect the household to draw during that interval**, which is why it varies so much across the day: a fraction of a degree at 03:00, several degrees in the interval where we expect a shower. Those are exactly the steep drops in the chart.
-
-So to find your next deadline, walk forward from 58.30 °C through the following records, subtracting each record's own `T_loss` and checking it against that record's own `lowerbound_X`. Whichever runs out first tells you when you have to heat again.
-
-##### Putting it together
-
-You now know that switching on at 12:00 gives you two quarters of heating for 1.32 kWh, that it will carry the tank until the next expected draw-off, and what the alternative slots cost. Turn the decision into a schedule:
+The resulting decision is submitted as a schedule:
 
 ```json
 {
@@ -1062,54 +1037,50 @@ You now know that switching on at 12:00 gives you two quarters of heating for 1.
 }
 ```
 
-That is the whole loop, and it is a model predictive controller: take the measured temperature, simulate forward with `T_gain` when you heat and `T_loss` when you do not, keep the plan inside the bounds, and pick the cheapest one. See [5.2](#5-2-controlling-the-heat-pump) for the request itself and for the failsafes that will override you — including the one that cuts hot water heating off after an hour no matter what you send.
+See [5.2](#5-2-controlling-the-heat-pump) for the request itself and for the failsafes that can override it, including the cut-off that terminates DHW heating after 1 continuous hour.
 
-Re-run it whenever fresh data lands: the current state every fifteen minutes, the forecast every hour. Keep only the first steps of each plan, and submit a new schedule only when the plan actually changed.
+The pattern generalises to a model predictive controller: take the measured temperature, simulate forward under `T_gain` while activating and `T_loss` while not, constrain the trajectory to the bounds, and select the cheapest feasible schedule. Recompute as new data lands — current state every 15 minutes, forecast every hour — retain only the leading slots of each solution, and submit only when the plan changes.
 
 <Note>
-  Two smaller things to know when simulating. `T_gain` is a *gross* gain — the drain keeps running underneath it — so the strict rule is `+T_gain − T_loss` per quarter. For the tank the correction is usually negligible, but not in an interval where we expect a shower. And we compute `T_gain` and `P_if_activated` for a record by simulating an activation that starts at that record's `Y_avg`, so treat them as approximate if your own simulated temperature has drifted far from the middle of the band.
+  Two refinements to the simulation. `T_gain` is a gross gain, so the strict per-quarter update is `+T_gain − T_loss`; for the tank that correction is minor except in intervals carrying expected demand. And the profiles attached to a record are computed by simulating an activation starting from that record's `Y_avg`, so their accuracy degrades as your simulated temperature diverges from the middle of the band.
 </Note>
 
-##### The house is the same battery
+##### Space heating and cooling
 
-Space heating and cooling work identically, with different labels:
+The house battery follows the same structure under different field names:
 
-| Hot water tank | House |
+| DHW tank | House |
 | --- | --- |
-| `T_loss`, always a drain | `T_natural`, **signed** — a sunny afternoon charges the building, a cold night drains it |
-| `T_gain` | `T_heating`, and `T_cooling` on devices that can cool |
+| `T_loss`, always a loss | `T_natural`, signed — solar gain warms the building, cold weather cools it |
+| `T_gain` | `T_heating`, plus `T_cooling` on devices that support cooling |
 | `P_if_activated` | `P_heating` / `P_cooling` |
-| 4 quarters (1 hour) | 8 quarters (2 hours) |
-| `tank_activation_limit_temp` gates whether a cycle starts | no equivalent — heating starts whenever you schedule it |
+| 4-value profiles (1 hour) | 8-value profiles (2 hours) |
+| `tank_activation_limit_temp` gates activation | no equivalent |
 
-There is one extra field, `Y_ideal`: the temperature the user actually asked for, as opposed to the bounds they will tolerate.
+The house additionally returns `Y_ideal`, the temperature the user has requested, as distinct from the bounds they will tolerate.
 
-![Thermal space bounds](images/thermal_space_bounds.png)
+Simulation is identical in form: apply `T_heating` or `T_cooling` per quarter while activating and `T_natural` while not, and keep the trajectory within `lowerbound_X` and `upperbound_Z`.
 
-The arithmetic is the same. Say it is 21.0 °C inside, `upperbound_Z` is 21.5 °C, `T_heating` is `[0.1, 0.1, ...]` and `P_heating` is `[2.0, 2.0, ...]`. You can heat for five quarters before hitting the bound — `21.0 + 5 × 0.1 = 21.5 °C` — and that costs `5 × 2.0 kW × 0.25 h = 2.5 kWh`.
+##### Units
 
-##### Always ask for `unit=celsius`
-
-Everything above used `unit=celsius`. The endpoints still default to `unit=kWh`, which returns the same physics as energy in kWh and thermal flows as `Q_loss` / `Q_gain` / `Q_natural` in kW, but **we intend to phase that out.**
+Every example above uses `unit=celsius`. The endpoints still default to `unit=kWh`, which returns the same model with state and bounds expressed in kWh and thermal flows as `Q_loss` / `Q_gain` / `Q_natural` in kW. We intend to phase that representation out.
 
 <Warning>
-  The kWh view is derived from the temperature model by multiplying through a fixed thermal capacity. For our more advanced models that round-trip loses physical meaning and can produce COPs that look wrong, particularly on systems with fast dynamics such as air-to-air units. Celsius is what the models actually produce, so it stays correct as they improve.
+  The kWh view is derived from the temperature model through a fixed thermal capacity. For our more advanced models that conversion loses physical meaning and can yield implausible COPs, particularly on systems with fast dynamics such as air-to-air units. The celsius values are what the models produce directly, and will remain correct as those models develop.
 </Warning>
 
-You lose nothing by switching. The `P_*` fields stay in kW under either unit, so energy, cost and consumption reporting work exactly as they did — as the example above shows, you never left kWh for anything you actually bill.
+Migration carries no functional cost. The `P_*` fields are returned in kW under either setting, so energy, cost and consumption reporting are unaffected by the change.
 
-##### How often to call
+##### Call frequency
 
-| Endpoint | New data | Use it for |
+| Endpoint | New data | Purpose |
 | --- | --- | --- |
-| [`/device/thermal-control/current-state`](/api-docs/hp/thermal-battery-control/get-thermal-control-current-state) | every 15 minutes | the measured starting point, and monitoring users drifting toward their bounds |
-| [`/device/thermal-control/forecast`](/api-docs/hp/thermal-battery-control/get-thermal-control-forecast) | every hour | scheduling: bounds and expected behaviour ~36 hours out |
+| [`/device/thermal-control/current-state`](/api-docs/hp/thermal-battery-control/get-thermal-control-current-state) | every 15 minutes | measured initial condition; monitoring devices approaching their comfort bounds |
+| [`/device/thermal-control/forecast`](/api-docs/hp/thermal-battery-control/get-thermal-control-forecast) | every hour | scheduling: comfort bounds and expected behaviour up to ~36 hours ahead |
 
-The forecast is most accurate over roughly the first twelve hours and degrades gradually after that, since it depends on weather and on user behaviour. Because we regenerate it hourly, re-querying it once an hour always gives you the best available prediction; polling faster gains you nothing.
+The forecast is most accurate over approximately the first 12 hours and degrades gradually beyond that, being dependent on weather forecasts and occupant behaviour. Because it is regenerated hourly, querying it once per hour always returns the current best prediction; polling more frequently returns the same data.
 
-Do not cache the bounds. They move when the heat pump switches between a heating day and a cooling day, and when the user changes their comfort settings.
-
-The full field reference for both endpoints, including the deprecated `Q_*` variants, is at [current-state](/api-docs/hp/thermal-battery-control/get-thermal-control-current-state) and [forecast](/api-docs/hp/thermal-battery-control/get-thermal-control-forecast).
+Comfort bounds should not be cached. They change when the heat pump switches between heating and cooling operation, and when the user modifies their comfort settings.
 
 #### 5.2 Controlling the heat pump
 

@@ -1190,11 +1190,6 @@ export const SupportedBrandOverviewTable = () => {
           "model": "VVM 500",
           "status": "Supported",
           "hpType": "Air to Water"
-        },
-        {
-          "model": "WZSV 62K3M",
-          "status": "Supported",
-          "hpType": "-"
         }
       ],
       "Panasonic": [
