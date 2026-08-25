@@ -900,7 +900,7 @@ export const SupportedBrandOverviewTable = () => {
           "hpType": "Air to Water"
         }
       ],
-      "Nibe": [
+      "NIBE": [
         {
           "model": "BA-SVM 10-200/12 E",
           "status": "Supported",
@@ -1190,7 +1190,12 @@ export const SupportedBrandOverviewTable = () => {
           "model": "VVM 500",
           "status": "Supported",
           "hpType": "Air to Water"
-        }
+        },
+        {
+          "model": "VVM 500 R",
+          "status": "Supported",
+          "hpType": "Air to Water"
+        },
       ],
       "Panasonic": [
         {
@@ -1687,13 +1692,13 @@ export const SupportedBrandOverviewTable = () => {
                         </tr>
                     ))
                 }
-                <tr onClick={() => toggleRow("Nibe")} style={{ cursor: 'pointer' }}>
-                    <td>Nibe</td>
+                <tr onClick={() => toggleRow("NIBE")} style={{ cursor: 'pointer' }}>
+                    <td>NIBE</td>
                     <td>{getStatusBadge("Production")}</td>
                     <td>Air to Water, Water to Water</td>
                 </tr>
-                {expandedRows.has("Nibe") &&
-                    getDeviceModels("Nibe").map((device, index) => (
+                {expandedRows.has("NIBE") &&
+                    getDeviceModels("NIBE").map((device, index) => (
                         <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
                             <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
                             <td>{getStatusBadge(device.status)}</td>
