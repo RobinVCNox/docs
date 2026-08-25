@@ -898,7 +898,7 @@ puts response.read_body
 
 </CodeGroup>
 
-Because `generation_time` pins the call to one specific forecast run, only the forecast produced at that exact moment is returned — this makes results reproducible when you want to compare a specific vintage of the typical production forecast against what was actually delivered.
+Because `generation_time` pins the call to one specific forecast run, only the forecast produced at that exact moment is returned. This makes results reproducible when you want to compare a specific vintage of the typical production forecast against what was actually delivered.
 
 More info about the [/fleet/pv/production/typical-production](/api-docs/pv/asset-info/get-fleet-pv-typical-production) endpoint.
 
@@ -930,8 +930,8 @@ We recommend to at least implement the following from a backend perspective:
 Before submitting any control, check the device's `steerable_status` from [/devices/pv](/api-docs/pv/asset-info/get-devices-pv): `steering_enabled` and `steerable` must both be `true`. If `steerable` is `false`, `general_reason` explains why (e.g. reauthentication required, holiday mode active, still learning the device). Also check `has_grid_export_curtailment` / `has_production_curtailment` to know which `control_type` the device actually supports.
 
 We provide two complementary ways to steer a PV device:
-* **Schedules** — plan curtailment windows ahead of time, per device.
-* **Flex** — immediately curtail (or release) production across a fleet of devices by a target kW or percentage, without pre-planning exact windows.
+* **Schedules**: plan curtailment windows ahead of time, per device.
+* **Flex**: immediately curtail (or release) production across a fleet of devices by a target kW or percentage, without pre-planning exact windows.
 
 #### 4.1 Submitting a curtailment schedule
 
@@ -1140,9 +1140,9 @@ puts response.read_body
     - `production_curtailment` – keep PV production at 0 kW during the scheduled window.
     - `default` – do not curtail; let production/export follow normal household consumption and generation. Once `end_time` for a `default` entry is reached, the device stays in `default` until another schedule overwrites it.
 
-Submitting a new schedule for a device_id overwrites all previously scheduled (not-yet-executed) commands for that device_id — always send the complete set of windows you want active. Provide start times at least 1 minute in the future so the device has time to react; some brands react slower than others (see `response_latency_seconds` on [/devices/pv](/api-docs/pv/asset-info/get-devices-pv)).
+Submitting a new schedule for a device_id overwrites all previously scheduled (not-yet-executed) commands for that device_id. Always send the complete set of windows you want active. Provide start times at least 1 minute in the future so the device has time to react; some brands react slower than others (see `response_latency_seconds` on [/devices/pv](/api-docs/pv/asset-info/get-devices-pv)).
 
-Only send schedules for devices that have external steering optimization enabled (`pv_curtailment_mode` set to `external`) and are compatible — we filter out any others regardless, but this avoids unnecessary rejections.
+Only send schedules for devices that have external steering optimization enabled (`pv_curtailment_mode` set to `external`) and are compatible. We filter out any others regardless, but this avoids unnecessary rejections.
 
 On success (all accepted):
 ```json
@@ -1156,7 +1156,7 @@ On success (all accepted):
 }
 ```
 
-On partial success, inspect the `rejected` array — each entry includes a `reason` and `reason_code` explaining why that specific device_id's schedule was not accepted (e.g. an invalid time range, or the device currently not being steerable):
+On partial success, inspect the `rejected` array. Each entry includes a `reason` and `reason_code` explaining why that specific device_id's schedule was not accepted (e.g. an invalid time range, or the device currently not being steerable):
 ```json
 {
   "rejected": [
@@ -1460,7 +1460,7 @@ puts response.read_body
 
 </CodeGroup>
 
-Each log entry reports the `control_type`, target (`target_percentage`), any `brand_filter` applied, the `executed_flex_device_count` at that time, and the `end_time` if one was set — use this to confirm a flex command was actually picked up across the expected number of devices.
+Each log entry reports the `control_type`, target (`target_percentage`), any `brand_filter` applied, the `executed_flex_device_count` at that time, and the `end_time` if one was set, use this to confirm a flex command was actually picked up across the expected number of devices.
 
 More info at [/devices/pv/flex/logs](/api-docs/pv/pv-control/get-devices-pv-control-flex-logs).
 

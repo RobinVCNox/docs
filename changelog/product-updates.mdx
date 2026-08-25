@@ -6,7 +6,7 @@ description: 'Updates and Changes'
 <Update label="August 2026">
   ## `success` parameter on the redirect callback
 
-  * The Authenticator now appends a `success` query parameter to your `redirect_url` when redirecting the user back: `?success=true` (alongside the existing base64 `data` payload, which now also includes `asset_type`) on success, or `?success=false` on failure — including when the user declines consent on the manufacturer's OAuth screen. This lets a single redirect URL render both outcomes without inspecting the `data` payload. Applies to both the Energy Supplier and Manufacturer/OEM flows — see [New Asset Integration](/guides/new-asset-integration). `redirect_url` must be a valid `http(s)` URL; any query params you include are preserved.
+  * The Authenticator now appends a `success` query parameter to your `redirect_url` when redirecting the user back: `?success=true` (alongside the existing base64 `data` payload, which now also includes `asset_type`) on success, or `?success=false` on failure, including when the user declines consent on the manufacturer's OAuth screen. This lets a single redirect URL render both outcomes without inspecting the `data` payload. Applies to both the Energy Supplier and Manufacturer/OEM flows. See [New Asset Integration](/guides/new-asset-integration). `redirect_url` must be a valid `http(s)` URL; any query params you include are preserved.
 
   ## Integration guides reorganized
 
@@ -28,7 +28,7 @@ description: 'Updates and Changes'
 
   ## Heat Pump API Guide
 
-  * Added a [Heat Pump API Guide](/guides/hp-api-guide) documenting the thermal-battery endpoints — current state, forecast, and submitting a control schedule — with request examples in 7 languages.
+  * Added a [Heat Pump API Guide](/guides/hp-api-guide) documenting the thermal-battery endpoints: current state, forecast, and submitting a control schedule, with request examples in 7 languages.
   * Documented polling [/devices/telemetry/current](/api-docs/hp/asset-info/get-devices-hp-current-telemetry) for temporary real-time telemetry in the UI; recommended the [webhook](/guides/partner-webhooks) solution instead for consistently higher-granularity telemetry.
 
   ## PV API Guide

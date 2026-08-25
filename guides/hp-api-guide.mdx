@@ -996,7 +996,7 @@ The forecast returns one record per 15 minutes. The record covering 12:00–12:1
 Each array describes **one activation, divided into consecutive quarter hours**. Index `0` covers minutes 0–15 of that activation, index `1` minutes 15–30, and so on. `T_gain` is the temperature the water gains over each quarter, in °C; `P_if_activated` is the average electrical power drawn over the same quarter, in kW.
 
 <Warning>
-  The indices are positions in time, not selectable power levels. Index `3` is not a higher setting — it is the state of the same activation after 45 minutes of running. An activation beginning at 12:15 rather than 12:00 is read from index `0` of the 12:15 record: the arrays are always relative to the moment of activation, never to the clock.
+  The indices are positions in time, not selectable power levels. Index `3` is not a higher setting. It is the state of the same activation after 45 minutes of running. An activation beginning at 12:15 rather than 12:00 is read from index `0` of the 12:15 record: the arrays are always relative to the moment of activation, never to the clock.
 </Warning>
 
 Tank profiles hold 4 values, covering 1 hour, since DHW cycles on most brands are shorter than that. Space heating and cooling profiles hold 8 values, covering 2 hours. To model an activation running beyond the end of an array, hold its last value.
@@ -1025,7 +1025,7 @@ Two quarters fit; a third would exceed 60 °C. The activation runs from 12:00 to
 
 That figure is also the answer to how much electrical energy the device can absorb at this moment: 1.32 kWh over 30 minutes, limited by the comfort bound rather than by the compressor rating. Priced against the corresponding day-ahead intervals, it can be compared directly against activating later in the day.
 
-To establish when the next activation becomes necessary, continue the simulation past 12:30 without activating, subtracting each record's `T_loss` and testing the result against that record's `lowerbound_X`. Whichever occurs first — depletion to the standing floor, or a floor raised ahead of expected demand — sets the deadline.
+To establish when the next activation becomes necessary, continue the simulation past 12:30 without activating, subtracting each record's `T_loss` and testing the result against that record's `lowerbound_X`. Whichever occurs first, depletion to the standing floor, or a floor raised ahead of expected demand, sets the deadline.
 
 The resulting decision is submitted as a schedule:
 
@@ -1039,7 +1039,7 @@ The resulting decision is submitted as a schedule:
 
 See [5.2](#5-2-controlling-the-heat-pump) for the request itself and for the failsafes that can override it, including the cut-off that terminates DHW heating after 1 continuous hour.
 
-The pattern generalises to a model predictive controller: take the measured temperature, simulate forward under `T_gain` while activating and `T_loss` while not, constrain the trajectory to the bounds, and select the cheapest feasible schedule. Recompute as new data lands — current state every 15 minutes, forecast every hour — retain only the leading slots of each solution, and submit only when the plan changes.
+The pattern generalises to a model predictive controller: take the measured temperature, simulate forward under `T_gain` while activating and `T_loss` while not, constrain the trajectory to the bounds, and select the cheapest feasible schedule. Recompute as new data lands, `current state` every 15 minutes, `forecast` every hour, retain only the leading slots of each solution, and submit only when the plan changes.
 
 <Note>
   Two refinements to the simulation. `T_gain` is a gross gain, so the strict per-quarter update is `+T_gain − T_loss`; for the tank that correction is minor except in intervals carrying expected demand. And the profiles attached to a record are computed by simulating an activation starting from that record's `Y_avg`, so their accuracy degrades as your simulated temperature diverges from the middle of the band.
@@ -1051,7 +1051,7 @@ The house battery follows the same structure under different field names:
 
 | DHW tank | House |
 | --- | --- |
-| `T_loss`, always a loss | `T_natural`, signed — solar gain warms the building, cold weather cools it |
+| `T_loss`, always a loss | `T_natural`, signed: solar gain warms the building, cold weather cools it |
 | `T_gain` | `T_heating`, plus `T_cooling` on devices that support cooling |
 | `P_if_activated` | `P_heating` / `P_cooling` |
 | 4-value profiles (1 hour) | 8-value profiles (2 hours) |
