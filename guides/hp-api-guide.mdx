@@ -1057,7 +1057,7 @@ The house battery follows the same structure under different field names:
 | 4-value profiles (1 hour) | 8-value profiles (2 hours) |
 | `tank_activation_limit_temp` gates activation | no equivalent |
 
-The house additionally returns `Y_ideal`, the temperature the user has requested, as distinct from the bounds they will tolerate.
+The house additionally returns `Y_ideal`, the temperature the user sees as his ideal temperature between their comfort bounds.
 
 Simulation is identical in form: apply `T_heating` or `T_cooling` per quarter while activating and `T_natural` while not, and keep the trajectory within `lowerbound_X` and `upperbound_Z`.
 
