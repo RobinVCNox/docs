@@ -4420,7 +4420,8 @@
           "Room schedule not writable and enabled, ask end user to disable it.",
           "Uncertain heat pump activity, waiting for more data.",
           "Cannot steer space heating when ata is off.",
-          "Processing error, please contact support."
+          "Processing error, please contact support.",
+          "Space heating unit is turned off, cannot steer space heating."
         ],
         "title": "Reason"
       },
