@@ -6,6 +6,62 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/v1/user": {
+      "delete": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Delete User",
+        "description": "Delete all data and connections associated to the user and the energy supplier. Some delete operations might be delayed by 1 day.",
+        "operationId": "delete_user_v1_user_delete",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "\nNox User ID of the user to delete all associated data for.\n",
+              "title": "User Id"
+            },
+            "description": "\nNox User ID of the user to delete all associated data for.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Delete User V1 User Delete"
+                },
+                "example": {
+                  "status": "success",
+                  "message": "User 1234578 deleted successfully.",
+                  "meta": {
+                    "energy_supplier": [
+                      "Energy Supplier A"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/devices/pv": {
       "get": {
         "tags": [
@@ -3414,7 +3470,8 @@
           "Room schedule not writable and enabled, ask end user to disable it.",
           "Uncertain heat pump activity, waiting for more data.",
           "Cannot steer space heating when ata is off.",
-          "Processing error, please contact support."
+          "Processing error, please contact support.",
+          "Space heating unit is turned off, cannot steer space heating."
         ],
         "title": "Reason"
       },
