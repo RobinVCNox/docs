@@ -129,7 +129,7 @@ export const SupportedBrandOverviewTable = () => {
       "Buderus": [
         {
           "model": "To be determined",
-          "status": "Supported",
+          "status": "Beta",
           "hpType": "-"
         }
       ],
@@ -1526,7 +1526,7 @@ export const SupportedBrandOverviewTable = () => {
                 }
                 <tr onClick={() => toggleRow("Buderus")} style={{ cursor: 'pointer' }}>
                     <td>Buderus</td>
-                    <td>{getStatusBadge("Production")}</td>
+                    <td>{getStatusBadge("Beta")}</td>
                     <td>To be determined</td>
                 </tr>
                 {expandedRows.has("Buderus") &&
