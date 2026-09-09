@@ -121,16 +121,121 @@ export const SupportedBrandOverviewTable = () => {
       ],
       "Bosch": [
         {
-          "model": "To be determined",
-          "status": "Supported",
-          "hpType": "-"
+          "model": "Compress 3000 AWS",
+          "status": "Unsupported",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Compress 3400i AWS",
+          "status": "Unsupported",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Compress 3800i AW",
+          "status": "Beta",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Compress 5800i AW",
+          "status": "Beta",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Compress 6800i AW",
+          "status": "Beta",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Compress 7000i AW",
+          "status": "Unsupported",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Compress 7400i AW",
+          "status": "Unsupported",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Compress 7000i LW",
+          "status": "Unsupported",
+          "hpType": "Ground to Water"
+        },
+        {
+          "model": "Compress 7800i LW",
+          "status": "Unsupported",
+          "hpType": "Ground to Water"
+        },
+        {
+          "model": "Compress 7801i LW",
+          "status": "Beta",
+          "hpType": "Ground to Water"
+        },
+        {
+          "model": "Compress 8800i AW",
+          "status": "Beta",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Compress 3800i EW",
+          "status": "Unsupported",
+          "hpType": "Air to Water"
         }
       ],
       "Buderus": [
         {
-          "model": "To be determined",
+          "model": "Logatherm WPLS.2",
+          "status": "Unsupported",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Logatherm WLW 166i",
+          "status": "Unsupported",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Logatherm WLW MBB AR",
           "status": "Beta",
-          "hpType": "-"
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Logatherm WLW 176i",
+          "status": "Beta",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Logatherm WLW 186i",
+          "status": "Beta",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Logatherm WLW 196i",
+          "status": "Unsupported",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Logatherm WLW 196i S+",
+          "status": "Unsupported",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Logatherm WSW 186i",
+          "status": "Unsupported",
+          "hpType": "Ground to Water"
+        },
+        {
+          "model": "Logatherm WSW 196.2i",
+          "status": "Unsupported",
+          "hpType": "Ground to Water"
+        },
+        {
+          "model": "Logatherm WSW 186.2",
+          "status": "Beta",
+          "hpType": "Ground to Water"
+        },
+        {
+          "model": "Logatherm WLW MB E+ AR",
+          "status": "Beta",
+          "hpType": "Air to Water"
         }
       ],
       "Bulex": [
@@ -337,44 +442,49 @@ export const SupportedBrandOverviewTable = () => {
       ],
       "IVT Värmepumpar": [
         {
-            "model": "AirX 400",
-            "status": "Alpha",
-            "hpType": "Air to Water"
-        },
-        {
-            "model": "AirX 400S",
-            "status": "Alpha",
-            "hpType": "Air to Water"
-        },
-        {
-            "model": "AirX 500",
-            "status": "Alpha",
+            "model": "AirSplit 200",
+            "status": "Unsupported",
             "hpType": "Air to Water"
         },
         {
             "model": "AirSplit 300",
-            "status": "Alpha",
+            "status": "Unsupported",
             "hpType": "Air to Water"
         },
         {
-            "model": "Greenline HE",
-            "status": "Alpha",
-            "hpType": "Ground to Water"
+            "model": "AirX 400",
+            "status": "Unsupported",
+            "hpType": "Air to Water"
         },
         {
-            "model": "PremiumLine HQ",
-            "status": "Alpha",
+            "model": "AirX 400S",
+            "status": "Unsupported",
+            "hpType": "Air to Water"
+        },
+        {
+            "model": "AirX 500",
+            "status": "Beta",
+            "hpType": "Air to Water"
+        },
+        {
+            "model": "Geo 500",
+            "status": "Unsupported",
             "hpType": "Ground to Water"
         },
         {
             "model": "Geo 600",
-            "status": "Alpha",
+            "status": "Unsupported",
             "hpType": "Ground to Water"
         },
         {
-            "model": "Geo 200",
-            "status": "Alpha",
+            "model": "Geo 700",
+            "status": "Unsupported",
             "hpType": "Ground to Water"
+        },
+        {
+            "model": "Vent 402",
+            "status": "Unsupported",
+            "hpType": "Air to Water"
         }
       ],
       "Jäspi": [
@@ -1513,7 +1623,7 @@ export const SupportedBrandOverviewTable = () => {
                 <tr onClick={() => toggleRow("Bosch")} style={{ cursor: 'pointer' }}>
                     <td>Bosch</td>
                     <td>{getStatusBadge("Beta")}</td>
-                    <td>To be determined</td>
+                    <td>Air to Water, Ground to Water</td>
                 </tr>
                 {expandedRows.has("Bosch") &&
                     getDeviceModels("Bosch").map((device, index) => (
@@ -1527,7 +1637,7 @@ export const SupportedBrandOverviewTable = () => {
                 <tr onClick={() => toggleRow("Buderus")} style={{ cursor: 'pointer' }}>
                     <td>Buderus</td>
                     <td>{getStatusBadge("Beta")}</td>
-                    <td>To be determined</td>
+                    <td>Air to Water, Ground to Water</td>
                 </tr>
                 {expandedRows.has("Buderus") &&
                     getDeviceModels("Buderus").map((device, index) => (
@@ -1624,7 +1734,7 @@ export const SupportedBrandOverviewTable = () => {
                 }
                 <tr onClick={() => toggleRow("IVT Värmepumpar")} style={{ cursor: 'pointer' }}>
                     <td>IVT Värmepumpar</td>
-                    <td>{getStatusBadge("Alpha")}</td>
+                    <td>{getStatusBadge("Beta")}</td>
                     <td>Air to Water, Ground to Water</td>
                 </tr>
                 {expandedRows.has("IVT Värmepumpar") &&
