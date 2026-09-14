@@ -1,18 +1,18 @@
 export const SupportedPVBrandOverviewTable = () => {
     const getStatusBadge = (status) => {
-        const statusStyles = {
-            Alpha: "mint-bg-orange-100 mint-text-orange-800",
-            Beta: "mint-bg-blue-100 mint-text-blue-800",
-            Production: "mint-bg-green-100 mint-text-green-800",
-            Limited: "mint-bg-yellow-100 mint-text-yellow-800",
-            Unsupported: "mint-bg-red-100 mint-text-red-800",
-            Supported: "mint-bg-green-100 mint-text-green-800"
+        const statusColors = {
+            Alpha: "orange",
+            Beta: "blue",
+            Production: "green",
+            Limited: "yellow",
+            Unsupported: "red",
+            Supported: "green"
         };
 
         return (
-            <span className={`mint-inline-flex mint-items-center mint-px-2.5 mint-py-0.5 mint-rounded-full mint-text-xs mint-font-medium ${statusStyles[status]}`}>
+            <Badge color={statusColors[status]} shape="pill" size="sm">
                 {status}
-            </span>
+            </Badge>
         );
     };
 

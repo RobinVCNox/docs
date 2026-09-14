@@ -1,18 +1,18 @@
 export const SupportedBrandOverviewTable = () => {
     const getStatusBadge = (status) => {
-        const statusStyles = {
-            Alpha: "mint-bg-orange-100 mint-text-orange-800",
-            Beta: "mint-bg-blue-100 mint-text-blue-800",
-            Production: "mint-bg-green-100 mint-text-green-800",
-            Limited: "mint-bg-yellow-100 mint-text-yellow-800",
-            Unsupported: "mint-bg-red-100 mint-text-red-800",
-            Supported: "mint-bg-green-100 mint-text-green-800"
+        const statusColors = {
+            Alpha: "orange",
+            Beta: "blue",
+            Production: "green",
+            Limited: "yellow",
+            Unsupported: "red",
+            Supported: "green"
         };
 
         return (
-            <span className={`mint-inline-flex mint-items-center mint-px-2.5 mint-py-0.5 mint-rounded-full mint-text-xs mint-font-medium ${statusStyles[status]}`}>
+            <Badge color={statusColors[status]} shape="pill" size="sm">
                 {status}
-            </span>
+            </Badge>
         );
     };
 
@@ -132,17 +132,17 @@ export const SupportedBrandOverviewTable = () => {
         },
         {
           "model": "Compress 3800i AW",
-          "status": "Beta",
+          "status": "Supported",
           "hpType": "Air to Water"
         },
         {
           "model": "Compress 5800i AW",
-          "status": "Beta",
+          "status": "Supported",
           "hpType": "Air to Water"
         },
         {
           "model": "Compress 6800i AW",
-          "status": "Beta",
+          "status": "Supported",
           "hpType": "Air to Water"
         },
         {
@@ -167,12 +167,12 @@ export const SupportedBrandOverviewTable = () => {
         },
         {
           "model": "Compress 7801i LW",
-          "status": "Beta",
+          "status": "Supported",
           "hpType": "Ground to Water"
         },
         {
           "model": "Compress 8800i AW",
-          "status": "Beta",
+          "status": "Supported",
           "hpType": "Air to Water"
         },
         {
@@ -194,17 +194,17 @@ export const SupportedBrandOverviewTable = () => {
         },
         {
           "model": "Logatherm WLW MBB AR",
-          "status": "Beta",
+          "status": "Supported",
           "hpType": "Air to Water"
         },
         {
           "model": "Logatherm WLW 176i",
-          "status": "Beta",
+          "status": "Supported",
           "hpType": "Air to Water"
         },
         {
           "model": "Logatherm WLW 186i",
-          "status": "Beta",
+          "status": "Supported",
           "hpType": "Air to Water"
         },
         {
@@ -229,12 +229,12 @@ export const SupportedBrandOverviewTable = () => {
         },
         {
           "model": "Logatherm WSW 186.2",
-          "status": "Beta",
+          "status": "Supported",
           "hpType": "Ground to Water"
         },
         {
           "model": "Logatherm WLW MB E+ AR",
-          "status": "Beta",
+          "status": "Supported",
           "hpType": "Air to Water"
         }
       ],
@@ -463,7 +463,7 @@ export const SupportedBrandOverviewTable = () => {
         },
         {
             "model": "AirX 500",
-            "status": "Beta",
+            "status": "Supported",
             "hpType": "Air to Water"
         },
         {
@@ -1622,7 +1622,7 @@ export const SupportedBrandOverviewTable = () => {
                 }
                 <tr onClick={() => toggleRow("Bosch")} style={{ cursor: 'pointer' }}>
                     <td>Bosch</td>
-                    <td>{getStatusBadge("Beta")}</td>
+                    <td>{getStatusBadge("Production")}</td>
                     <td>Air to Water, Ground to Water</td>
                 </tr>
                 {expandedRows.has("Bosch") &&
@@ -1636,7 +1636,7 @@ export const SupportedBrandOverviewTable = () => {
                 }
                 <tr onClick={() => toggleRow("Buderus")} style={{ cursor: 'pointer' }}>
                     <td>Buderus</td>
-                    <td>{getStatusBadge("Beta")}</td>
+                    <td>{getStatusBadge("Production")}</td>
                     <td>Air to Water, Ground to Water</td>
                 </tr>
                 {expandedRows.has("Buderus") &&
@@ -1734,7 +1734,7 @@ export const SupportedBrandOverviewTable = () => {
                 }
                 <tr onClick={() => toggleRow("IVT Värmepumpar")} style={{ cursor: 'pointer' }}>
                     <td>IVT Värmepumpar</td>
-                    <td>{getStatusBadge("Beta")}</td>
+                    <td>{getStatusBadge("Production")}</td>
                     <td>Air to Water, Ground to Water</td>
                 </tr>
                 {expandedRows.has("IVT Värmepumpar") &&
