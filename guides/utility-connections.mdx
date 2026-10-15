@@ -28,6 +28,10 @@ Utility connections use the [NOX Connections API](/api-docs/connect/connections/
    - **Not yet a customer:** they enter their EAN, continue to the utility's signup page, and come back to finish. This records a **lead**.
 4. **The user lands back on your `redirect_url`** with the outcome.
 
+With `connection_type: "utility"`, the user first picks the utility they have a contract with, or the one they want to switch to:
+
+![Utility selection](/guides/images/utility_connection_flow.png)
+
 ```bash
 curl --request POST \
   --url https://api.connect.nox.energy/v1/link \
