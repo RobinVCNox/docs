@@ -277,7 +277,8 @@
                       "capacity_kw": 5.0,
                       "response_latency_seconds": 30,
                       "current_production_kw": 3.2,
-                      "last_updated_at": "2025-04-30T23:15:00.000Z"
+                      "last_updated_at": "2025-04-30T23:15:00.000Z",
+                      "first_connection_at": "2025-02-30T12:00:00.000Z"
                     },
                     {
                       "model": "model_b",
@@ -296,7 +297,8 @@
                       "capacity_kw": 3.5,
                       "response_latency_seconds": 45,
                       "current_production_kw": 2.1,
-                      "last_updated_at": "2025-04-30T23:15:00.000Z"
+                      "last_updated_at": "2025-04-30T23:15:00.000Z",
+                      "first_connection_at": "2025-09-30T12:00:00.000Z"
                     }
                   ],
                   "meta": {
@@ -1759,6 +1761,18 @@
             ],
             "title": "Current Curtailment State",
             "description": "Current curtailment state of the device, e.g. 'default', 'production_curtailment', 'export_curtailment'"
+          },
+          "first_connection_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Connection At",
+            "description": "The date when the device was first connected to Nox, in UTC time format."
           }
         },
         "type": "object",
