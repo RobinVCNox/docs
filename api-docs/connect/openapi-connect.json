@@ -1,0 +1,919 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "NOX Connections API",
+    "version": "1.0.0",
+    "description": "Connect a user's account at a provider (a device brand or a utility) to NOX Energy, and manage that access."
+  },
+  "servers": [
+    {
+      "url": "https://api.connect.nox.energy/v1",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "apiKey": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Connections",
+      "description": "Creating, listing and revoking connections."
+    },
+    {
+      "name": "Households",
+      "description": "The dwelling a person's connections belong to."
+    }
+  ],
+  "paths": {
+    "/link": {
+      "post": {
+        "summary": "Create a link session",
+        "description": "Creates a single-use link to send your user to. Pass a `provider` to connect that provider directly, or a `connection_type` (for example `utility`) to let the user choose one. The link expires after 60 minutes.",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Session created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was rejected; `error` says which field, rule or provider.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or unknown API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A bug on our side; `code` is `unexpected`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/connections": {
+      "post": {
+        "summary": "Connect a user you already identify",
+        "description": "For consumers that are themselves a provider: connects one of your own users without a browser. The provider comes from your API key, so it cannot be named in the body. The identifier is checked by listing the devices it yields; no devices means it is refused.",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DirectConnectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Connection created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Connection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was rejected; `error` says which field, rule or provider.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or unknown API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "This API key's consumer is not a provider, so it has no users of its own to connect.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A bug on our side; `code` is `unexpected`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List a user's connections",
+        "description": "Only connections your own grants cover, even if another consumer shares the account.",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "description": "Your internal user ID.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "provider",
+            "in": "query",
+            "required": false,
+            "description": "Limit to one provider.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user's connections; empty when there are none.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was rejected; `error` says which field, rule or provider.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or unknown API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A bug on our side; `code` is `unexpected`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Disconnect a user",
+        "description": "Revokes your access. When no consumer holds a grant any more, the connection and its stored provider credentials are deleted and cannot be recovered -- which is why the scope must be stated rather than defaulted.",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "description": "Your internal user ID.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "provider",
+            "in": "query",
+            "required": false,
+            "description": "Disconnect only this provider. Mutually exclusive with `all`.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "all",
+            "in": "query",
+            "required": false,
+            "description": "Set true to disconnect every provider. Mutually exclusive with `provider`.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Disconnected."
+          },
+          "400": {
+            "description": "The request was rejected; `error` says which field, rule or provider.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or unknown API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nothing matched.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A bug on our side; `code` is `unexpected`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/households": {
+      "get": {
+        "summary": "Read a user's household",
+        "description": "The dwelling this user's connections belong to. It exists only once they have connected something, so this answers 404 before the first connection.",
+        "tags": [
+          "Households"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "description": "Your internal user ID.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The household.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Household"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was rejected; `error` says which field, rule or provider.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or unknown API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nothing matched.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A bug on our side; `code` is `unexpected`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Describe a user's household",
+        "description": "Fills in the address and owner of the dwelling. Only the fields you send change; a field sent as `null` is cleared.\n\n`country` accepts a country code (`BE`) or name in any language (`Belgium`, `Belgi\u00eb`). An unknown country returns a 400.\n\nA household is shared between consumers: what one consumer sets, others see too. The latest update wins.",
+        "tags": [
+          "Households"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "description": "Your internal user ID.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HouseholdRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The household as it now stands.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Household"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was rejected; `error` says which field, rule or provider.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or unknown API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nothing matched.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A bug on our side; `code` is `unexpected`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Your consumer API key."
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "What went wrong, in full."
+          },
+          "code": {
+            "description": "Present when the failure has one: the same closed set the connect UI translates.",
+            "$ref": "#/components/schemas/ConnectFailureCode"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "ConnectionType": {
+        "enum": [
+          "oem",
+          "oem.hp",
+          "oem.pv",
+          "utility"
+        ],
+        "title": "ConnectionType",
+        "type": "string"
+      },
+      "LinkRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "user_id": {
+            "minLength": 1,
+            "title": "User Id",
+            "type": "string",
+            "description": "Your internal user ID."
+          },
+          "redirect_url": {
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1,
+            "title": "Redirect Url",
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Provider"
+          },
+          "connection_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConnectionType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "language": {
+            "default": "nl",
+            "enum": [
+              "nl",
+              "en",
+              "fr",
+              "es"
+            ],
+            "title": "Language",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "redirect_url"
+        ],
+        "title": "LinkRequest",
+        "type": "object"
+      },
+      "LinkResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "link_token": {
+            "title": "Link Token",
+            "type": "string"
+          },
+          "link_url": {
+            "title": "Link Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "link_token",
+          "link_url"
+        ],
+        "title": "LinkResponse",
+        "type": "object"
+      },
+      "DirectConnectRequest": {
+        "additionalProperties": false,
+        "description": "A consumer that is itself a provider, connecting one of its own users.",
+        "properties": {
+          "user_id": {
+            "minLength": 1,
+            "title": "User Id",
+            "type": "string",
+            "description": "Your internal user ID."
+          },
+          "identifier": {
+            "type": "string",
+            "title": "Identifier",
+            "description": "The identifier NOX Energy uses to find this user's devices at your brand. Optional: when omitted, the `user_id` is used as the identifier."
+          }
+        },
+        "required": [
+          "user_id"
+        ],
+        "title": "DirectConnectRequest",
+        "type": "object"
+      },
+      "CredentialType": {
+        "enum": [
+          "oauth",
+          "app_credentials",
+          "manufacturer_identifier",
+          "ean"
+        ],
+        "title": "CredentialType",
+        "type": "string"
+      },
+      "Connection": {
+        "additionalProperties": false,
+        "properties": {
+          "connection_id": {
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "consumer_user_id": {
+            "title": "Consumer User Id",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "credential_type": {
+            "$ref": "#/components/schemas/CredentialType"
+          },
+          "device_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Device Ids",
+            "type": "array"
+          },
+          "needs_reauth": {
+            "title": "Needs Reauth",
+            "type": "boolean"
+          },
+          "connected_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connected At"
+          }
+        },
+        "required": [
+          "connection_id",
+          "consumer_user_id",
+          "provider",
+          "credential_type",
+          "device_ids",
+          "needs_reauth",
+          "connected_at"
+        ],
+        "title": "Connection",
+        "type": "object"
+      },
+      "ConnectionsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "connections": {
+            "items": {
+              "$ref": "#/components/schemas/Connection"
+            },
+            "title": "Connections",
+            "type": "array"
+          }
+        },
+        "required": [
+          "connections"
+        ],
+        "title": "ConnectionsResponse",
+        "type": "object"
+      },
+      "Coordinates": {
+        "additionalProperties": false,
+        "properties": {
+          "latitude": {
+            "maximum": 90,
+            "minimum": -90,
+            "title": "Latitude",
+            "type": "number"
+          },
+          "longitude": {
+            "maximum": 180,
+            "minimum": -180,
+            "title": "Longitude",
+            "type": "number"
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "title": "Coordinates",
+        "type": "object"
+      },
+      "Location": {
+        "additionalProperties": false,
+        "properties": {
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Country"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "City"
+          },
+          "postal_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Postal Code"
+          },
+          "street": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Street"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Number"
+          },
+          "coordinates": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Coordinates"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "title": "Location",
+        "type": "object"
+      },
+      "Owner": {
+        "additionalProperties": false,
+        "properties": {
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "First Name"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Last Name"
+          }
+        },
+        "title": "Owner",
+        "type": "object"
+      },
+      "HouseholdRequest": {
+        "additionalProperties": false,
+        "description": "Nothing is required: a PATCH names the fields it changes, the rest keep their value,\nand a field sent as null is cleared.",
+        "properties": {
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Location"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Owner"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "title": "HouseholdRequest",
+        "type": "object"
+      },
+      "Household": {
+        "additionalProperties": false,
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/Owner"
+          }
+        },
+        "required": [
+          "location",
+          "owner"
+        ],
+        "title": "Household",
+        "type": "object"
+      },
+      "ConnectFailureCode": {
+        "description": "Ported from what the legacy authenticator-api tells users.",
+        "enum": [
+          "no_devices",
+          "unsupported_device",
+          "invalid_credentials",
+          "unsupported_country",
+          "not_account_owner",
+          "multiple_users",
+          "missing_site_id",
+          "invalid_ean",
+          "invalid_site_id",
+          "onboarding_failed",
+          "registration_failed",
+          "missing_permissions",
+          "hybrid_inverter_not_allowed",
+          "session_not_found",
+          "session_expired",
+          "authorization_spent",
+          "provider_unavailable",
+          "rate_limited",
+          "invalid_request",
+          "unexpected"
+        ],
+        "title": "ConnectFailureCode",
+        "type": "string"
+      }
+    }
+  }
+}

@@ -35,7 +35,8 @@
             "pages": [
               "guides/integration-overview",
               "guides/bring-your-own-connection",
-              "guides/new-asset-integration"
+              "guides/new-asset-integration",
+              "guides/utility-connections"
             ]
           },
           {
@@ -127,6 +128,13 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "NOX Connections API",
+            "openapi": {
+              "source": "api-docs/connect/openapi-connect.json",
+              "directory": "api-docs/connect"
+            }
           },
           {
             "group": "PV",
