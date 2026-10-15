@@ -8,9 +8,13 @@ description: 'Updates and Changes'
 
   * Added a **Battery** section to the [Supported Assets Overview](/supported-assets/supported-assets-overview), listing the supported battery brands and models.
 
+  ## Heat pump capacity
+
+  * The [/devices](/api-docs/hp/asset-info/get-devices) endpoint now returns a `capacity_kw` field, indicating the maximum measured power of the heat pump in kW. The field is `null` when the capacity is unknown.
+
   ## PV first connection timestamp
 
-  * The `GET /v1/devices/pv` endpoint now returns a `first_connection_at` field, indicating when the device was first connected to NOX Energy (UTC). The field is `null` when the date is unknown.
+  * The [/devices/pv](/api-docs/pv/asset-info/get-devices-pv) endpoint now returns a `first_connection_at` field, indicating when the device was first connected to NOX Energy (UTC). The field is `null` when the date is unknown.
 
 </Update>
 
