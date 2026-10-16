@@ -80,6 +80,11 @@ export const SupportedBrandOverviewTable = () => {
           "model": "WZSV 92K3M",
           "status": "Beta",
           "hpType": "Water to Water"
+        },
+        {
+          "model": "SWCV 62K3",
+          "status": "Supported",
+          "hpType": "-"
         }
       ],
       "Atlantic": [
@@ -536,17 +541,57 @@ export const SupportedBrandOverviewTable = () => {
       ],
       "LG": [
         {
-          "model": "DEVICE_AIR_CONDITIONER",
+          "model": "Artcool",
           "status": "Unsupported",
           "hpType": "Air to Air"
         },
         {
-          "model": "DEVICE_SYSTEM_BOILER",
+          "model": "Dual Cool",
+          "status": "Unsupported",
+          "hpType": "Air to Air"
+        },
+        {
+          "model": "Standard Plus",
+          "status": "Unsupported",
+          "hpType": "Air to Air"
+        },
+        {
+          "model": "Libero Smart",
+          "status": "Unsupported",
+          "hpType": "Air to Air"
+        },
+        {
+          "model": "Multi F",
+          "status": "Unsupported",
+          "hpType": "Air to Air"
+        },
+        {
+          "model": "Multi V",
+          "status": "Unsupported",
+          "hpType": "Air to Air"
+        },
+        {
+          "model": "DEVICE_WATER_HEATER",
           "status": "Supported",
           "hpType": "Air to Water"
         },
         {
-          "model": "DEVICE_WATER_HEATER",
+          "model": "Therma V R32 Monobloc S (HM051M / HM071M / HM091M)",
+          "status": "Supported",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Therma V R32 Monobloc S (HM121M / HM141M / HM161M)",
+          "status": "Supported",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Therma V R32 Split (HU091MR + HN091MR)",
+          "status": "Supported",
+          "hpType": "Air to Water"
+        },
+        {
+          "model": "Therma V R32 Split (HU121MR / HU141MR / HU161MR + HN1616M)",
           "status": "Supported",
           "hpType": "Air to Water"
         }
@@ -1275,11 +1320,6 @@ export const SupportedBrandOverviewTable = () => {
           "model": "SMO S40",
           "status": "Supported",
           "hpType": "Air to Water"
-        },
-        {
-          "model": "SWCV 62K3",
-          "status": "Supported",
-          "hpType": "-"
         },
         {
           "model": "VVM 225 E EM 3x400V",
