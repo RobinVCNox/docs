@@ -445,6 +445,23 @@ export const SupportedBrandOverviewTable = () => {
             "hpType": "Air to Air"
         }
       ],
+      "Intergas": [
+        {
+          "model": "Xtend Split",
+          "status": "Alpha",
+          "hpType": "Hybrid"
+        },
+        {
+          "model": "Xtend Monoblock",
+          "status": "Alpha",
+          "hpType": "Hybrid"
+        },
+        {
+          "model": "Xtend Hybrid",
+          "status": "Alpha",
+          "hpType": "Hybrid"
+        }
+      ],
       "IVT Värmepumpar": [
         {
             "model": "AirSplit 200",
@@ -1374,6 +1391,28 @@ export const SupportedBrandOverviewTable = () => {
           "hpType": "Air to Water"
         }
       ],
+      "Remeha": [
+        {
+          "model": "Elga Ace 4 kW",
+          "status": "Alpha",
+          "hpType": "Hybrid"
+        },
+        {
+          "model": "Elga Ace 6 kW",
+          "status": "Alpha",
+          "hpType": "Hybrid"
+        },
+        {
+          "model": "Elga Ace All-in-one",
+          "status": "Alpha",
+          "hpType": "Hybrid"
+        },
+        {
+          "model": "Elga Ace H",
+          "status": "Alpha",
+          "hpType": "Hybrid"
+        }
+      ],
       "Samsung": [
         {
           "model": "DA-AC-EHS-01001",
@@ -1416,6 +1455,23 @@ export const SupportedBrandOverviewTable = () => {
           "model": "GeniaAir Hybrid",
           "status": "Production",
           "hpType": "Air to Water"
+        }
+      ],
+      "Stiebel Eltron": [
+        {
+          "model": "WPL 13 ACS classic Hybrid Set",
+          "status": "Alpha",
+          "hpType": "Hybrid"
+        },
+        {
+          "model": "WPL 17 ACS classic Hybrid Set",
+          "status": "Alpha",
+          "hpType": "Hybrid"
+        },
+        {
+          "model": "WPL-A 07 HK 230 Premium Hybrid Set",
+          "status": "Alpha",
+          "hpType": "Hybrid"
         }
       ],
       "Thermia": [
@@ -1617,6 +1673,18 @@ export const SupportedBrandOverviewTable = () => {
           "status": "Supported",
           "hpType": "-"
         }
+      ],
+      "Weheat": [
+        {
+          "model": "Blackbird",
+          "status": "Alpha",
+          "hpType": "Hybrid"
+        },
+        {
+          "model": "Sparrow",
+          "status": "Alpha",
+          "hpType": "Hybrid"
+        }
       ]
     };
         return deviceData[brandName] || [];
@@ -1772,6 +1840,20 @@ export const SupportedBrandOverviewTable = () => {
                         </tr>
                     ))
                 }
+                <tr onClick={() => toggleRow("Intergas")} style={{ cursor: 'pointer' }}>
+                    <td>Intergas</td>
+                    <td>{getStatusBadge("Alpha")}</td>
+                    <td>Hybrid</td>
+                </tr>
+                {expandedRows.has("Intergas") &&
+                    getDeviceModels("Intergas").map((device, index) => (
+                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
+                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
+                            <td>{getStatusBadge(device.status)}</td>
+                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
+                        </tr>
+                    ))
+                }
                 <tr onClick={() => toggleRow("IVT Värmepumpar")} style={{ cursor: 'pointer' }}>
                     <td>IVT Värmepumpar</td>
                     <td>{getStatusBadge("Production")}</td>
@@ -1870,6 +1952,20 @@ export const SupportedBrandOverviewTable = () => {
                         </tr>
                     ))
                 }
+                <tr onClick={() => toggleRow("Remeha")} style={{ cursor: 'pointer' }}>
+                    <td>Remeha</td>
+                    <td>{getStatusBadge("Alpha")}</td>
+                    <td>Hybrid</td>
+                </tr>
+                {expandedRows.has("Remeha") &&
+                    getDeviceModels("Remeha").map((device, index) => (
+                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
+                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
+                            <td>{getStatusBadge(device.status)}</td>
+                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
+                        </tr>
+                    ))
+                }
                 <tr onClick={() => toggleRow("Samsung")} style={{ cursor: 'pointer' }}>
                     <td>Samsung</td>
                     <td>{getStatusBadge("Limited")}</td>
@@ -1891,6 +1987,20 @@ export const SupportedBrandOverviewTable = () => {
                 </tr>
                 {expandedRows.has("Saunier Duval") &&
                     getDeviceModels("Saunier Duval").map((device, index) => (
+                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
+                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
+                            <td>{getStatusBadge(device.status)}</td>
+                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
+                        </tr>
+                    ))
+                }
+                <tr onClick={() => toggleRow("Stiebel Eltron")} style={{ cursor: 'pointer' }}>
+                    <td>Stiebel Eltron</td>
+                    <td>{getStatusBadge("Alpha")}</td>
+                    <td>Hybrid</td>
+                </tr>
+                {expandedRows.has("Stiebel Eltron") &&
+                    getDeviceModels("Stiebel Eltron").map((device, index) => (
                         <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
                             <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
                             <td>{getStatusBadge(device.status)}</td>
@@ -1961,6 +2071,20 @@ export const SupportedBrandOverviewTable = () => {
                 </tr>
                 {expandedRows.has("Viessmann") &&
                     getDeviceModels("Viessmann").map((device, index) => (
+                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
+                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
+                            <td>{getStatusBadge(device.status)}</td>
+                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
+                        </tr>
+                    ))
+                }
+                <tr onClick={() => toggleRow("Weheat")} style={{ cursor: 'pointer' }}>
+                    <td>Weheat</td>
+                    <td>{getStatusBadge("Alpha")}</td>
+                    <td>Hybrid</td>
+                </tr>
+                {expandedRows.has("Weheat") &&
+                    getDeviceModels("Weheat").map((device, index) => (
                         <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
                             <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
                             <td>{getStatusBadge(device.status)}</td>
