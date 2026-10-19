@@ -1,0 +1,172 @@
+---
+title: 'Battery API Guide'
+description: 'Guide on how to use the NOX API for home batteries and the households they are part of.'
+---
+
+<Warning>
+  **Preview: not available yet.** The battery and household endpoints are documented ahead of their
+  release. They currently answer `501 Not Implemented`, and their contract may still change before release.
+</Warning>
+
+## Overview
+
+A home battery is rarely alone: it shares a grid connection with pv panels, sometimes a heat pump, and is
+often wired through the same inverter as the pv. That is why the battery API has two levels:
+
+* **Households**: a house and all the NOX-connected devices in it, behind its grid connection. A household
+  shows how its devices are wired and carries the optimization settings they share.
+* **Batteries**: the individual devices. Steering capabilities (`allowed_modes`), schedules and the
+  per-device enable flag live here.
+
+A household adds no identity to its devices: the `device_id`s it lists are the same ones the
+[heat pump](/guides/hp-api-guide), [pv](/guides/pv-api-guide) and battery endpoints return.
+
+Who steers a battery, NOX Energy or you, is fixed by your contract and shown as `controlled_by` on every
+battery:
+
+| | `controlled_by` = `nox` | `controlled_by` = `supplier` |
+|---|---|---|
+| Device info, telemetry, historical and typical data | ✅ | ✅ |
+| Household settings (`objective`, `imbalance_reaction`) take effect | ✅ | ❌ |
+| Battery forecast, to use in your nominations | ✅ | ❌ |
+| Submitting battery schedules | ❌ | ✅ |
+
+## Getting Started
+
+### Prerequisites
+* Valid NOX API key with access to the battery features (see [Authentication](/api-docs/authentication))
+
+### Base URL
+All endpoints use the base URL:
+- Sandbox: `https://api.sandbox.nox.energy`
+- Production: `https://api.nox.energy`
+
+## Core Workflows
+
+<Note>
+    All our collection api endpoints use a `next_token` to paginate through results if the size limit of the response has been reached.
+    To paginate through a response, you can use the `next_token` received in the response as a query parameter and call the same endpoint with
+    the same parameters again. You can repeat this process until you have received the last page of the response, which is signified
+    by the `next_token` field becoming `null`.
+</Note>
+
+### 1. Getting households and batteries
+
+Fetch the households of a user, then the batteries in them:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/households?supplier_user_id=1234' \
+  --header 'x-api-key: <api-key>'
+
+curl --request GET \
+  --url 'https://api.nox.energy/v1/devices/battery?household_id=<household_id>' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+headers = {"x-api-key": "<api-key>"}
+
+households = requests.get("https://api.nox.energy/v1/households",
+                          params={"supplier_user_id": "1234"}, headers=headers).json()
+
+household_id = households["data"][0]["household_id"]
+batteries = requests.get("https://api.nox.energy/v1/devices/battery",
+                         params={"household_id": household_id}, headers=headers).json()
+```
+
+</CodeGroup>
+
+A household's `inverters` tell you how pv and batteries are wired:
+
+* `hybrid`: pv and battery share one inverter (DC-coupled).
+* `string`: a pv-only inverter.
+* `battery`: a battery-only inverter (AC-coupled).
+
+The wiring, together with the battery model, determines each battery's `allowed_modes`.
+
+### 2. Battery modes
+
+You steer a battery by asking it to follow a **battery mode** during a time window:
+
+| Mode | Behaviour | Typical use |
+|---|---|---|
+| `self_consumption` | Pv surplus charges the battery, the battery covers the house load, the grid covers the rest. | Default; most hours. |
+| `pause_charge` | The battery does not charge; pv surplus is exported. It can still discharge. | Keep headroom for negative-price hours later; export while injection prices are high. |
+| `pause_discharge` | The battery does not discharge; the grid covers the house load. Pv can still charge it. | Cheap import now, keep the stored energy for the evening peak. |
+| `force_charge` | Charge at the battery's fixed charge power, from pv first and the grid for the rest. | Negative or very low prices. |
+| `force_discharge` | Discharge at the battery's fixed discharge power, to the house first and the grid for the rest. | Price spikes. |
+
+Only modes listed in the battery's `allowed_modes` are accepted. NOX Energy always keeps the state of charge
+between 20 % and 80 %.
+
+### 3. Submitting schedules (`controlled_by` = `supplier`)
+
+Send one schedule per battery with [POST /devices/battery/schedules](/api-docs/battery/battery-control/post-battery-control-schedule).
+A new schedule for a battery replaces everything previously sent for it. Outside your time windows the battery
+falls back to `self_consumption`, and every `start_time` must be at least 1 minute in the future.
+
+```bash cURL
+curl --request POST \
+  --url 'https://api.nox.energy/v1/devices/battery/schedules' \
+  --header 'x-api-key: <api-key>' \
+  --header 'Content-Type: application/json' \
+  --data '[
+    {
+      "device_id": "e4da3b7f-bbce-4a45-9d2b-1c0e8f7a6b5c",
+      "schedules": [
+        {"start_time": "2026-10-17T11:00:00Z", "end_time": "2026-10-17T14:00:00Z", "mode": "pause_charge"},
+        {"start_time": "2026-10-17T18:00:00Z", "end_time": "2026-10-17T19:30:00Z", "mode": "force_discharge"}
+      ]
+    }
+  ]'
+```
+
+A `200` means every schedule was accepted. A `207` lists the rejected batteries with a `reason` and
+`reason_code`, for example when the mode is not in `allowed_modes` or the battery has optimization disabled.
+
+### 4. Nominating NOX-steered batteries (`controlled_by` = `nox`)
+
+For batteries NOX Energy steers, fetch the planned 15 minute charge and discharge with
+[GET /devices/battery/forecast/historical](/api-docs/battery/asset-info/get-devices-battery-forecast-historical)
+and include it in your nominations, just as you do with the heat pump consumption forecast.
+The forecast is made every day at a fixed time depending on supplier.
+
+To know what the household will consume without its battery, use
+[GET /households/house-load/forecast](/api-docs/household/asset-info/get-households-house-load-forecast).
+The house load excludes the battery and is taken before pv production is subtracted; heat pump consumption
+is included.
+
+### 5. Measuring the value of steering
+
+[GET /devices/battery/typical-charge-discharge/historical](/api-docs/battery/asset-info/get-devices-battery-typical-charge-discharge-historical)
+returns a simulated baseline: how each battery would have behaved in pure `self_consumption`, using the realised
+pv production and house load. Compare it per 15 minutes with the measured values from
+[GET /devices/battery/charge-discharge/historical](/api-docs/battery/asset-info/get-devices-battery-charge-discharge-historical)
+to calculate what steering earned.
+
+### 6. Settings
+
+Settings are split over two levels on purpose:
+
+* **Per household**, with [PATCH /households/settings](/api-docs/household/user-management/patch-households-settings):
+  the `objective` NOX Energy optimizes against (`customer_tariff`, `market` or `none`) and whether it also
+  reacts to imbalance prices (`imbalance_reaction`). All devices behind one grid connection share one objective,
+  so a battery can never optimize on the market while the pv on the same meter optimizes on the customer tariff.
+* **Per battery**, with [PATCH /devices/battery/settings](/api-docs/battery/user-management/patch-devices-battery-settings):
+  `optimization_enabled`. Set it to `false` to leave a battery untouched while the other devices in the
+  household are still optimized.
+
+```bash cURL
+curl --request PATCH \
+  --url 'https://api.nox.energy/v1/households/settings' \
+  --header 'x-api-key: <api-key>' \
+  --header 'Content-Type: application/json' \
+  --data '{"household_id": "8f14e45f-ceea-467a-9575-6c1b1f1e7c2a", "optimization": {"objective": "market", "imbalance_reaction": true}}'
+```
+
+Who steers a battery (`controlled_by`) comes from your contract and cannot be changed through the API.
