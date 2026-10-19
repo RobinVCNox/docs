@@ -52,7 +52,7 @@ All endpoints use the base URL:
 
 ### 1. Getting households and batteries
 
-Fetch the households of a user, then the batteries in them:
+Fetch the household of a user, then their batteries:
 
 <CodeGroup dropdown>
 
@@ -62,7 +62,7 @@ curl --request GET \
   --header 'x-api-key: <api-key>'
 
 curl --request GET \
-  --url 'https://api.nox.energy/v1/devices/battery?household_id=<household_id>' \
+  --url 'https://api.nox.energy/v1/devices/battery?user_id=1234' \
   --header 'x-api-key: <api-key>'
 ```
 
@@ -74,9 +74,8 @@ headers = {"x-api-key": "<api-key>"}
 households = requests.get("https://api.nox.energy/v1/households",
                           params={"user_id": "1234"}, headers=headers).json()
 
-household_id = households["data"][0]["household_id"]
 batteries = requests.get("https://api.nox.energy/v1/devices/battery",
-                         params={"household_id": household_id}, headers=headers).json()
+                         params={"user_id": "1234"}, headers=headers).json()
 ```
 
 </CodeGroup>

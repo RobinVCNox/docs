@@ -130,6 +130,13 @@
             }
           },
           {
+            "group": "NOX Connections API",
+            "openapi": {
+              "source": "api-docs/connect/openapi-connect.json",
+              "directory": "api-docs/connect"
+            }
+          },
+          {
             "group": "PV",
             "openapi": {
               "source": "api-docs/pv/openapi-pv.json",
