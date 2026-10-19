@@ -12,7 +12,7 @@
           "Asset Info"
         ],
         "summary": "Get Devices Battery",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet information about all NOX-connected batteries associated with your energy supplier account.\n\n\n * `allowed_modes` lists the battery modes the battery accepts in a schedule. They depend on the\nbattery model and on the other devices in its household.\n\n * `min_soc_pct` is the discharge limit: NOX Energy never discharges the battery below this state\nof charge, whatever the requested mode. It is fixed at 20 % for now.\n\n * The optimization settings of a battery are available with `GET /v1/devices/battery/settings`.\n\nIf you want to know the response structure or possible enum values, like steerable reasons,\nyou can check it in the response model `schema`.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet information about all NOX-connected batteries associated with your energy supplier account.\n\n\n * `allowed_modes` lists the battery modes the battery accepts in a schedule. They depend on the\nbattery model and on the other devices in its household.\n\n * `min_soc_pct` is the lower limit for `force_discharge`: below it, NOX Energy takes control and\nputs the battery in the default mode `auto`. It does not limit `auto` itself, where the battery may\nkeep covering the house load. It is fixed at 20 % for now.\n\n * The optimization settings of a battery are available with `GET /v1/devices/battery/settings`.\n\nThe battery modes:\n\n\n * `auto` (default): the battery follows its own logic. Pv surplus charges the battery, the battery\ncovers the house load, the grid covers the rest. The battery returns to `auto` outside your\nschedules and whenever NOX Energy takes over.\n\n * `pause_charge`: the battery does not charge. Pv surplus is exported, the battery can still\ndischarge.\n\n * `pause_discharge`: the battery does not discharge. The grid covers the house load, pv surplus\ncan still charge the battery.\n\n * `force_charge`: the battery charges at its fixed charge power, from pv first and from the grid\nfor the rest.\n\n * `force_discharge`: the battery discharges at its fixed discharge power, to the house first and\nto the grid for the rest. Only while the state of charge is above `min_soc_pct`: when it reaches\nthat limit, NOX Energy takes control and puts the battery in `auto` for the rest of the entry.\n\nIf you want to know the response structure or possible enum values, like steerable reasons,\nyou can check it in the response model `schema`.",
         "operationId": "get_devices_battery_v1_devices_battery_get",
         "parameters": [
           {
@@ -110,7 +110,7 @@
                         "learning_period_ended": true
                       },
                       "allowed_modes": [
-                        "self_consumption",
+                        "auto",
                         "pause_charge",
                         "pause_discharge",
                         "force_charge",
@@ -235,7 +235,7 @@
                       "measured_at": "2026-10-17T12:03:00Z",
                       "soc_pct": 70.0,
                       "power_kw": 0.4,
-                      "mode": "self_consumption"
+                      "mode": "auto"
                     }
                   ],
                   "meta": {
@@ -449,7 +449,7 @@
           "Asset Info"
         ],
         "summary": "Get Devices Battery Typical Charge Discharge Historical",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the typical charge and discharge of your batteries in kWh for a specific timeframe with\n15 min granularity.\n\nThis is a simulated baseline: how the battery would have behaved in pure `self_consumption`,\nusing the realised pv production and house load. Compare it with the measured charge and discharge\nto calculate the value of steering.\n\nThe timestamp refers to the 15 minutes after it. `soc_pct` is the state of charge at the end of\nthat interval.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the typical charge and discharge of your batteries in kWh for a specific timeframe with\n15 min granularity.\n\nThis is a simulated baseline: how the battery would have behaved in `auto` (pure self-consumption),\nusing the realised pv production and house load. Compare it with the measured charge and discharge\nto calculate the value of steering.\n\nThe timestamp refers to the 15 minutes after it. `soc_pct` is the state of charge at the end of\nthat interval.",
         "operationId": "get_devices_battery_typical_charge_discharge_historical_v1_devices_battery_typical_charge_discharge_historical_get",
         "parameters": [
           {
@@ -763,7 +763,7 @@
           "Battery Control"
         ],
         "summary": "Post Battery Control Schedule",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nSubmit battery schedules: per battery, a list of time windows with the battery mode to apply.\nSchedules are only accepted for batteries with `flex_trading` enabled in their settings\n(see `PATCH /v1/devices/battery/settings`).\n\n`mode` can be set to:\n\n * `self_consumption`: the default behaviour. Pv surplus charges the battery, the battery covers\nthe house load, the grid covers the rest.\n\n * `pause_charge`: the battery does not charge. Pv surplus is exported, the battery can still\ndischarge.\n\n * `pause_discharge`: the battery does not discharge. The grid covers the house load, pv surplus\ncan still charge the battery.\n\n * `force_charge`: the battery charges at its fixed charge power, from pv first and from the grid\nfor the rest.\n\n * `force_discharge`: the battery discharges at its fixed discharge power, to the house first and\nto the grid for the rest.\n\nOnly the modes in the battery's `allowed_modes` are accepted. Outside your time windows the battery\nfalls back to `self_consumption`. Whatever the requested mode, NOX Energy never discharges the\nbattery below its `min_soc_pct` (fixed at 20 % for now).\n\nWhen you send a new schedule for a battery, it replaces every schedule previously sent for that\nbattery. You can send schedules for many batteries in one request.\n\n\n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n**NOTE**: \n * The battery might need some time to react. `start_time` must be at least 1 minute in\nthe future.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nSubmit battery schedules: per battery, a list of time windows with the battery mode to apply.\nSchedules are only accepted for batteries with `flex_trading` enabled in their settings\n(see `PATCH /v1/devices/battery/settings`).\n\n`mode` can be set to:\n\n\n * `auto` (default): the battery follows its own logic. Pv surplus charges the battery, the battery\ncovers the house load, the grid covers the rest. The battery returns to `auto` outside your\nschedules and whenever NOX Energy takes over.\n\n * `pause_charge`: the battery does not charge. Pv surplus is exported, the battery can still\ndischarge.\n\n * `pause_discharge`: the battery does not discharge. The grid covers the house load, pv surplus\ncan still charge the battery.\n\n * `force_charge`: the battery charges at its fixed charge power, from pv first and from the grid\nfor the rest.\n\n * `force_discharge`: the battery discharges at its fixed discharge power, to the house first and\nto the grid for the rest. Only while the state of charge is above `min_soc_pct`: when it reaches\nthat limit, NOX Energy takes control and puts the battery in `auto` for the rest of the entry.\n\nOnly the modes in the battery's `allowed_modes` are accepted. Outside your time windows the battery\nfalls back to `auto`. A `force_discharge` entry that starts while the state of charge is already at\nor below `min_soc_pct` is accepted, but the battery stays in `auto` until the entry ends.\n\nWhen you send a new schedule for a battery, it replaces every schedule previously sent for that\nbattery. You can send schedules for many batteries in one request.\n\n\n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n**NOTE**: \n * The battery might need some time to react. `start_time` must be at least 1 minute in\nthe future.",
         "operationId": "post_battery_control_schedule_v1_devices_battery_schedules_post",
         "parameters": [],
         "requestBody": {
@@ -1463,7 +1463,7 @@
       "BatteryMode": {
         "type": "string",
         "enum": [
-          "self_consumption",
+          "auto",
           "pause_charge",
           "pause_discharge",
           "force_charge",
@@ -1536,7 +1536,7 @@
           "end_time": {
             "type": "string",
             "title": "End Time",
-            "description": "End of the entry in ISO 8601 UTC format. After the end, the battery falls back to `self_consumption` unless another entry starts."
+            "description": "End of the entry in ISO 8601 UTC format. After the end, the battery falls back to `auto` unless another entry starts."
           },
           "mode": {
             "$ref": "#/components/schemas/BatteryMode",
@@ -2159,7 +2159,7 @@
               }
             ],
             "title": "Min Soc Pct",
-            "description": "Discharge limit: NOX Energy never discharges the battery below this state of charge in %, whatever the requested mode. Fixed at 20 % for now."
+            "description": "Lower limit for `force_discharge`, as a state of charge in %. Below it, NOX Energy takes control and puts the battery in the default mode `auto`. Fixed at 20 % for now."
           },
           "allowed_modes": {
             "anyOf": [
