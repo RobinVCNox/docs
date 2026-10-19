@@ -12,7 +12,7 @@
           "Asset Info"
         ],
         "summary": "Get Households",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the households of your users and the NOX-connected devices in them.\n\nA household is a house and all the devices connected in it, behind its grid connection. It adds no\nidentity to its devices: the `device_id`s are the same ones the heat pump, pv and battery device\nendpoints return. The inverters describe how pv and batteries are wired, which determines which\nbattery modes a battery allows.\n\n`optimization` shows the current household settings, see `PATCH /v1/households/settings`.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the households of your users and the NOX-connected devices in them.\n\nA household is a house and all the devices connected in it, behind its grid connection. It adds no\nidentity to its devices: the `device_id`s are the same ones the heat pump, pv and battery device\nendpoints return. The inverters describe how pv and batteries are wired, which determines which\nbattery modes a battery allows.",
         "operationId": "get_households_v1_households_get",
         "parameters": [
           {
@@ -128,11 +128,7 @@
                           "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
                           "asset_type": "heat_pump"
                         }
-                      ],
-                      "optimization": {
-                        "objective": "customer_tariff",
-                        "imbalance_reaction": false
-                      }
+                      ]
                     }
                   ],
                   "meta": {
@@ -419,84 +415,6 @@
                 }
               }
             }
-          },
-          "403": {
-            "description": "Your API key has no access to the battery features",
-            "content": {
-              "application/json": {
-                "example": {
-                  "detail": "Energy Supplier A is not authorized to access this feature."
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "Not implemented yet",
-            "content": {
-              "application/json": {
-                "example": {
-                  "detail": "This endpoint is not available yet."
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/households/settings": {
-      "patch": {
-        "tags": [
-          "User Management"
-        ],
-        "summary": "Patch Households Settings",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nUpdate the optimization settings of a household. They apply to every device NOX Energy optimizes\nin the household, so all devices behind the same grid connection share one objective.\n\n\n * `objective`: the price signal NOX Energy optimizes against. `customer_tariff` optimizes on\nthe customer's own tariff, `market` on market prices regardless of the customer's tariff, `none`\ndisables optimization. Defaults to `none`.\n\n * `imbalance_reaction`: whether NOX Energy also reacts to imbalance prices on top of the\nobjective. Defaults to `false`.\n\nOmitted fields are left unchanged. These settings only take effect for devices steered by NOX\nEnergy (`controlled_by` = `nox`) with `optimization_enabled` = `true`.",
-        "operationId": "patch_households_settings_v1_households_settings_patch",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/HouseholdSettingsRequest"
-              },
-              "examples": {
-                "market_with_imbalance": {
-                  "summary": "Optimize on the market and react to imbalance",
-                  "value": {
-                    "household_id": "8f14e45f-ceea-467a-9575-6c1b1f1e7c2a",
-                    "optimization": {
-                      "objective": "market",
-                      "imbalance_reaction": true
-                    }
-                  }
-                },
-                "objective_only": {
-                  "summary": "Only change the objective",
-                  "description": "imbalance_reaction is left unchanged.",
-                  "value": {
-                    "household_id": "8f14e45f-ceea-467a-9575-6c1b1f1e7c2a",
-                    "optimization": {
-                      "objective": "customer_tariff"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "No Content - Settings updated successfully"
           },
           "403": {
             "description": "Your API key has no access to the battery features",
@@ -877,7 +795,7 @@
           "Processing error, please contact support.",
           "Device disconnected, it might reconnect later or be permanently be disconnected.",
           "Device in error state. Might recover automatically later.",
-          "Optimization is disabled for this device.",
+          "User settings prevent steering.",
           "Device is unsupported brand/model, will be supported in future updates.",
           "Device is unsupported model, will not be supported in future updates.",
           "Important data missing, this might improve with future updates.",
@@ -897,6 +815,61 @@
           "force_discharge"
         ],
         "title": "BatteryMode"
+      },
+      "BatteryOptimizationSettings": {
+        "properties": {
+          "pv_self_consumption": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Self Consumption",
+            "description": "Enable/disable PV self-consumption optimization"
+          },
+          "dynamic_tariff": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dynamic Tariff",
+            "description": "Enable/disable dynamic tariff optimization"
+          },
+          "flex_trading": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flex Trading",
+            "description": "Enable/disable supplier flex trading. If `True`, the supplier steers the battery based on the schedules they provide to NOX Energy."
+          },
+          "imbalance_optimization": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imbalance Optimization",
+            "description": "Enable/disable imbalance optimization. If `True`, the battery will be optimized to minimize imbalances based on the imbalance prices of the users country."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "BatteryOptimizationSettings"
       },
       "BatteryScheduleEntry": {
         "properties": {
@@ -927,8 +900,7 @@
         "type": "string",
         "enum": [
           "No battery found for this device_id.",
-          "This battery is steered by NOX Energy under your contract and does not accept schedules.",
-          "Optimization is disabled for this battery.",
+          "flex_trading is not enabled in the optimization settings of this battery.",
           "The device is currently not steerable, please check its steerable status.",
           "The requested mode is not in the allowed_modes of this battery.",
           "start_time must be at least 1 minute in the future.",
@@ -1116,14 +1088,6 @@
         },
         "type": "object",
         "title": "BatteryTelemetryCurrentResponse"
-      },
-      "ControlledBy": {
-        "type": "string",
-        "enum": [
-          "nox",
-          "supplier"
-        ],
-        "title": "ControlledBy"
       },
       "CycleConfig": {
         "properties": {
@@ -1557,29 +1521,6 @@
             "title": "Allowed Modes",
             "description": "Battery modes this battery accepts in a schedule. Depends on the battery model and on the other devices in its household."
           },
-          "controlled_by": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ControlledBy"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Who steers this battery, as fixed by your contract with NOX Energy. `supplier` batteries accept schedules, `nox` batteries are steered by NOX Energy."
-          },
-          "optimization_enabled": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Optimization Enabled",
-            "description": "Whether NOX Energy may act on this battery. Set it with `PATCH /v1/devices/battery/settings`."
-          },
           "needs_reauthentication": {
             "anyOf": [
               {
@@ -1793,6 +1734,87 @@
         "type": "object",
         "title": "DevicePV"
       },
+      "DevicesBatteryGetSettings": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Battery device ID"
+          },
+          "optimization_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatteryOptimizationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optimization settings for flex trading, dynamic tariff, PV self-consumption and imbalance optimization"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "Timestamp of the last update of the settings in ISO format"
+          }
+        },
+        "type": "object",
+        "title": "DevicesBatteryGetSettings"
+      },
+      "DevicesBatteryGetSettingsMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          }
+        },
+        "type": "object",
+        "title": "DevicesBatteryGetSettingsMeta"
+      },
+      "DevicesBatteryGetSettingsResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/DevicesBatteryGetSettings"
+            },
+            "type": "array",
+            "title": "Data",
+            "description": "List of battery settings"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/DevicesBatteryGetSettingsMeta",
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "DevicesBatteryGetSettingsResponse"
+      },
       "DevicesBatteryMeta": {
         "properties": {
           "energy_supplier": {
@@ -1901,7 +1923,7 @@
               }
             ],
             "title": "Reason Code",
-            "description": "Reason code mapping to the reason. {'No battery found for this device_id.': 1, 'This battery is steered by NOX Energy under your contract and does not accept schedules.': 2, 'Optimization is disabled for this battery.': 3, 'The device is currently not steerable, please check its steerable status.': 4, 'The requested mode is not in the allowed_modes of this battery.': 5, 'start_time must be at least 1 minute in the future.': 6, 'start_time and end_time must be ISO 8601 UTC timestamps with start_time before end_time.': 7, 'Schedule entries for the same device overlap.': 8}."
+            "description": "Reason code mapping to the reason. {'No battery found for this device_id.': 1, 'flex_trading is not enabled in the optimization settings of this battery.': 2, 'The device is currently not steerable, please check its steerable status.': 3, 'The requested mode is not in the allowed_modes of this battery.': 4, 'start_time must be at least 1 minute in the future.': 5, 'start_time and end_time must be ISO 8601 UTC timestamps with start_time before end_time.': 6, 'Schedule entries for the same device overlap.': 7}."
           }
         },
         "type": "object",
@@ -1957,22 +1979,43 @@
       "DevicesBatterySettingsRequest": {
         "properties": {
           "device_id": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Device Id",
             "description": "Battery device ID to update settings for"
           },
-          "optimization_enabled": {
-            "type": "boolean",
-            "title": "Optimization Enabled",
-            "description": "Whether NOX Energy may act on this battery. If `false`, the battery is left untouched, while other devices in the same household can still be optimized."
+          "supplier_user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier User Id",
+            "description": "Your ID of the user to update the settings of all their batteries for"
+          },
+          "optimization_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatteryOptimizationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optimization settings for flex trading, dynamic tariff, PV self-consumption and imbalance optimization"
           }
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "device_id",
-          "optimization_enabled"
-        ],
         "title": "DevicesBatterySettingsRequest"
       },
       "DevicesGetSettingsMetadata": {
@@ -3034,17 +3077,6 @@
             ],
             "title": "Devices",
             "description": "NOX-connected devices in the household"
-          },
-          "optimization": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/HouseholdOptimization"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Current optimization settings of the household"
           }
         },
         "type": "object",
@@ -3119,56 +3151,6 @@
         },
         "type": "object",
         "title": "HouseholdInverter"
-      },
-      "HouseholdOptimization": {
-        "properties": {
-          "objective": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/OptimizationObjective"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Price signal NOX Energy optimizes the household against. `customer_tariff` optimizes on the customer's own tariff, `market` on market prices regardless of the customer's tariff, `none` disables optimization. Defaults to `none`."
-          },
-          "imbalance_reaction": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Imbalance Reaction",
-            "description": "Whether NOX Energy also reacts to imbalance prices on top of the objective. Defaults to `false`."
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "title": "HouseholdOptimization"
-      },
-      "HouseholdSettingsRequest": {
-        "properties": {
-          "household_id": {
-            "type": "string",
-            "title": "Household Id",
-            "description": "Household ID to update settings for"
-          },
-          "optimization": {
-            "$ref": "#/components/schemas/HouseholdOptimization",
-            "description": "Optimization settings shared by all devices of the household. Omitted fields are left unchanged."
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "household_id",
-          "optimization"
-        ],
-        "title": "HouseholdSettingsRequest"
       },
       "HouseholdTelemetryCurrent": {
         "properties": {
@@ -3447,15 +3429,6 @@
           "wtw"
         ],
         "title": "ModelType"
-      },
-      "OptimizationObjective": {
-        "type": "string",
-        "enum": [
-          "customer_tariff",
-          "market",
-          "none"
-        ],
-        "title": "OptimizationObjective"
       },
       "OptimizationSettings-Output": {
         "properties": {
@@ -4688,10 +4661,6 @@
     {
       "name": "Asset Info",
       "description": "API to get basic information about your assets."
-    },
-    {
-      "name": "User Management",
-      "description": "API endpoints to manage users and their data."
     }
   ],
   "security": [

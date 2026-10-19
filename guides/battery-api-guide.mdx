@@ -14,22 +14,22 @@ A home battery is rarely alone: it shares a grid connection with pv panels, some
 often wired through the same inverter as the pv. That is why the battery API has two levels:
 
 * **Households**: a house and all the NOX-connected devices in it, behind its grid connection. A household
-  shows how its devices are wired and carries the optimization settings they share.
-* **Batteries**: the individual devices. Steering capabilities (`allowed_modes`), schedules and the
-  per-device enable flag live here.
+  shows how its devices are wired. It is read-only.
+* **Batteries**: the individual devices. Steering capabilities (`allowed_modes`), schedules and settings
+  live here.
 
 A household adds no identity to its devices: the `device_id`s it lists are the same ones the
 [heat pump](/guides/hp-api-guide), [pv](/guides/pv-api-guide) and battery endpoints return.
 
-Who steers a battery, NOX Energy or you, is fixed by your contract and shown as `controlled_by` on every
-battery:
+Who steers a battery follows from its optimization settings, exactly as for heat pumps:
 
-| | `controlled_by` = `nox` | `controlled_by` = `supplier` |
+| | NOX optimizes (`dynamic_tariff`, `pv_self_consumption` or `imbalance_optimization` on) | You steer (`flex_trading` on) |
 |---|---|---|
 | Device info, telemetry, historical and typical data | ✅ | ✅ |
-| Household settings (`objective`, `imbalance_reaction`) take effect | ✅ | ❌ |
 | Battery forecast, to use in your nominations | ✅ | ❌ |
 | Submitting battery schedules | ❌ | ✅ |
+
+With every optimization off, NOX Energy leaves the battery untouched.
 
 ## Getting Started
 
@@ -104,9 +104,9 @@ You steer a battery by asking it to follow a **battery mode** during a time wind
 Only modes listed in the battery's `allowed_modes` are accepted. NOX Energy always keeps the state of charge
 between 20 % and 80 %.
 
-### 3. Submitting schedules (`controlled_by` = `supplier`)
+### 3. Submitting schedules (`flex_trading` on)
 
-Send one schedule per battery with [POST /devices/battery/schedules](/api-docs/battery/battery-control/post-battery-control-schedule).
+Enable `flex_trading` for the battery (see [Settings](#6-settings)), then send one schedule per battery with [POST /devices/battery/schedules](/api-docs/battery/battery-control/post-battery-control-schedule).
 A new schedule for a battery replaces everything previously sent for it. Outside your time windows the battery
 falls back to `self_consumption`, and every `start_time` must be at least 1 minute in the future.
 
@@ -127,11 +127,11 @@ curl --request POST \
 ```
 
 A `200` means every schedule was accepted. A `207` lists the rejected batteries with a `reason` and
-`reason_code`, for example when the mode is not in `allowed_modes` or the battery has optimization disabled.
+`reason_code`, for example when the mode is not in `allowed_modes` or `flex_trading` is not enabled for the battery.
 
-### 4. Nominating NOX-steered batteries (`controlled_by` = `nox`)
+### 4. Nominating NOX-optimized batteries
 
-For batteries NOX Energy steers, fetch the planned 15 minute charge and discharge with
+For batteries NOX Energy optimizes, fetch the planned 15 minute charge and discharge with
 [GET /devices/battery/forecast/historical](/api-docs/battery/asset-info/get-devices-battery-forecast-historical)
 and include it in your nominations, just as you do with the heat pump consumption forecast.
 The forecast is made every day at a fixed time depending on supplier.
@@ -151,22 +151,23 @@ to calculate what steering earned.
 
 ### 6. Settings
 
-Settings are split over two levels on purpose:
+Battery settings work like the heat pump settings: per device, updated with
+[PATCH /devices/battery/settings](/api-docs/battery/user-management/patch-devices-battery-settings) and read with
+[GET /devices/battery/settings](/api-docs/battery/user-management/get-devices-battery-settings).
+Provide a `device_id` to update one battery, or a `supplier_user_id` to update all batteries of a user.
 
-* **Per household**, with [PATCH /households/settings](/api-docs/household/user-management/patch-households-settings):
-  the `objective` NOX Energy optimizes against (`customer_tariff`, `market` or `none`) and whether it also
-  reacts to imbalance prices (`imbalance_reaction`). All devices behind one grid connection share one objective,
-  so a battery can never optimize on the market while the pv on the same meter optimizes on the customer tariff.
-* **Per battery**, with [PATCH /devices/battery/settings](/api-docs/battery/user-management/patch-devices-battery-settings):
-  `optimization_enabled`. Set it to `false` to leave a battery untouched while the other devices in the
-  household are still optimized.
+`optimization_settings` decides who steers the battery:
+
+* `dynamic_tariff`, `pv_self_consumption` and `imbalance_optimization`: NOX Energy optimizes the battery.
+  They can be combined.
+* `flex_trading`: you steer the battery with your own schedules. It is mutually exclusive with the other
+  optimizations: enabling it disables them, and enabling any of them disables `flex_trading`.
+* Everything off: NOX Energy leaves the battery untouched.
 
 ```bash cURL
 curl --request PATCH \
-  --url 'https://api.nox.energy/v1/households/settings' \
+  --url 'https://api.nox.energy/v1/devices/battery/settings' \
   --header 'x-api-key: <api-key>' \
   --header 'Content-Type: application/json' \
-  --data '{"household_id": "8f14e45f-ceea-467a-9575-6c1b1f1e7c2a", "optimization": {"objective": "market", "imbalance_reaction": true}}'
+  --data '{"device_id": "e4da3b7f-bbce-4a45-9d2b-1c0e8f7a6b5c", "optimization_settings": {"dynamic_tariff": true, "imbalance_optimization": true}}'
 ```
-
-Who steers a battery (`controlled_by`) comes from your contract and cannot be changed through the API.

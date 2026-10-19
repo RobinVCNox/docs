@@ -12,7 +12,7 @@
           "Asset Info"
         ],
         "summary": "Get Devices Battery",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet information about all NOX-connected batteries associated with your energy supplier account.\n\n\n * `allowed_modes` lists the battery modes the battery accepts in a schedule. They depend on the\nbattery model and on the other devices in its household.\n\n * `controlled_by` shows who steers the battery, as fixed by your contract: `supplier` batteries\naccept schedules, `nox` batteries are steered by NOX Energy.\n\n * `optimization_enabled` shows whether NOX Energy may act on the battery at all.\n\nIf you want to know the response structure or possible enum values, like steerable reasons,\nyou can check it in the response model `schema`.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet information about all NOX-connected batteries associated with your energy supplier account.\n\n\n * `allowed_modes` lists the battery modes the battery accepts in a schedule. They depend on the\nbattery model and on the other devices in its household.\n\n * The optimization settings of a battery are available with `GET /v1/devices/battery/settings`.\n\nIf you want to know the response structure or possible enum values, like steerable reasons,\nyou can check it in the response model `schema`.",
         "operationId": "get_devices_battery_v1_devices_battery_get",
         "parameters": [
           {
@@ -134,8 +134,6 @@
                         "force_charge",
                         "force_discharge"
                       ],
-                      "controlled_by": "supplier",
-                      "optimization_enabled": true,
                       "needs_reauthentication": false,
                       "first_connection_at": "2026-09-01T08:12:00Z"
                     }
@@ -626,7 +624,7 @@
           "Asset Info"
         ],
         "summary": "Get Devices Battery Forecast Historical",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the planned charge and discharge of your batteries in kWh for a specific timeframe with\n15 min granularity, to use in your nominations.\n\nThis forecast is only available for batteries steered by NOX Energy (`controlled_by` = `nox`).\nIt is made every day at a fixed time depending on supplier.\n\nThe timestamp refers to the 15 minutes after it. `soc_pct` is the planned state of charge at the\nend of that interval.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the planned charge and discharge of your batteries in kWh for a specific timeframe with\n15 min granularity, to use in your nominations.\n\nThis forecast is only available for batteries NOX Energy optimizes: batteries with\n`dynamic_tariff`, `pv_self_consumption` or `imbalance_optimization` enabled in their settings.\nIt is made every day at a fixed time depending on supplier.\n\nThe timestamp refers to the 15 minutes after it. `soc_pct` is the planned state of charge at the\nend of that interval.",
         "operationId": "get_devices_battery_forecast_historical_v1_devices_battery_forecast_historical_get",
         "parameters": [
           {
@@ -783,7 +781,7 @@
           "Battery Control"
         ],
         "summary": "Post Battery Control Schedule",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nSubmit battery schedules: per battery, a list of time windows with the battery mode to apply.\nSchedules are only accepted for batteries you steer under your contract (`controlled_by` =\n`supplier`) that have `optimization_enabled` = `true`.\n\n`mode` can be set to:\n\n * `self_consumption`: the default behaviour. Pv surplus charges the battery, the battery covers\nthe house load, the grid covers the rest.\n\n * `pause_charge`: the battery does not charge. Pv surplus is exported, the battery can still\ndischarge.\n\n * `pause_discharge`: the battery does not discharge. The grid covers the house load, pv surplus\ncan still charge the battery.\n\n * `force_charge`: the battery charges at its fixed charge power, from pv first and from the grid\nfor the rest.\n\n * `force_discharge`: the battery discharges at its fixed discharge power, to the house first and\nto the grid for the rest.\n\nOnly the modes in the battery's `allowed_modes` are accepted. Outside your time windows the battery\nfalls back to `self_consumption`. NOX Energy keeps the state of charge between 20 % and 80 % for\ncomfort, whatever the requested mode.\n\nWhen you send a new schedule for a battery, it replaces every schedule previously sent for that\nbattery. You can send schedules for many batteries in one request.\n\n\n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n**NOTE**: \n * The battery might need some time to react. `start_time` must be at least 1 minute in\nthe future.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nSubmit battery schedules: per battery, a list of time windows with the battery mode to apply.\nSchedules are only accepted for batteries with `flex_trading` enabled in their settings\n(see `PATCH /v1/devices/battery/settings`).\n\n`mode` can be set to:\n\n * `self_consumption`: the default behaviour. Pv surplus charges the battery, the battery covers\nthe house load, the grid covers the rest.\n\n * `pause_charge`: the battery does not charge. Pv surplus is exported, the battery can still\ndischarge.\n\n * `pause_discharge`: the battery does not discharge. The grid covers the house load, pv surplus\ncan still charge the battery.\n\n * `force_charge`: the battery charges at its fixed charge power, from pv first and from the grid\nfor the rest.\n\n * `force_discharge`: the battery discharges at its fixed discharge power, to the house first and\nto the grid for the rest.\n\nOnly the modes in the battery's `allowed_modes` are accepted. Outside your time windows the battery\nfalls back to `self_consumption`. NOX Energy keeps the state of charge between 20 % and 80 % for\ncomfort, whatever the requested mode.\n\nWhen you send a new schedule for a battery, it replaces every schedule previously sent for that\nbattery. You can send schedules for many batteries in one request.\n\n\n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n**NOTE**: \n * The battery might need some time to react. `start_time` must be at least 1 minute in\nthe future.",
         "operationId": "post_battery_control_schedule_v1_devices_battery_schedules_post",
         "parameters": [],
         "requestBody": {
@@ -916,12 +914,127 @@
       }
     },
     "/v1/devices/battery/settings": {
+      "get": {
+        "tags": [
+          "User Management"
+        ],
+        "summary": "Get Devices Battery Settings",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the settings of a specific battery or of all batteries of a user.",
+        "operationId": "get_devices_battery_settings_v1_devices_battery_settings_get",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n",
+              "title": "Device Id"
+            },
+            "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n"
+          },
+          {
+            "name": "supplier_user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nYour ID of the user to filter on. If not provided, all users are returned.\n",
+              "title": "Supplier User Id"
+            },
+            "description": "\nYour ID of the user to filter on. If not provided, all users are returned.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response for get battery settings endpoint.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DevicesBatteryGetSettingsResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "device_id": "e4da3b7f-bbce-4a45-9d2b-1c0e8f7a6b5c",
+                      "optimization_settings": {
+                        "pv_self_consumption": false,
+                        "dynamic_tariff": true,
+                        "flex_trading": false,
+                        "imbalance_optimization": true
+                      },
+                      "updated_at": "2026-10-17T09:27:09.224000+00:00"
+                    },
+                    {
+                      "device_id": "1679091c-5a88-4c2f-8e1d-3b2a0f9e8d7c",
+                      "optimization_settings": {
+                        "pv_self_consumption": false,
+                        "dynamic_tariff": false,
+                        "flex_trading": true,
+                        "imbalance_optimization": false
+                      },
+                      "updated_at": "2026-10-16T14:02:41.118000+00:00"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your API key has no access to the battery features",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Energy Supplier A is not authorized to access this feature."
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not implemented yet",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "This endpoint is not available yet."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
       "patch": {
         "tags": [
           "User Management"
         ],
         "summary": "Patch Devices Battery Settings",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nEnable or disable optimization for a single battery.\n\nIf `optimization_enabled` is `false`, NOX Energy leaves the battery untouched, while other devices\nin the same household can still be optimized. What the battery is optimized against is set per\nhousehold, see `PATCH /v1/households/settings`.\n\nWho steers the battery (NOX Energy or you) is fixed by your contract and cannot be changed here.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nUpdate the settings of a single battery, or of all batteries of a user. To update a single battery,\nonly the `device_id` needs to be provided. To update all batteries of a user, provide the\n`supplier_user_id` instead. Omitted settings are left unchanged.\n\n\n You can change the following settings:\n\n * Enable/Disable steering optimizations. `flex_trading` is mutually exclusive with the other\noptimizations. The other optimizations can be enabled together.\n If `flex_trading` is enabled, we disable all other optimizations.\n If any other optimization is enabled, we disable `flex_trading`.\n If all optimizations are disabled, NOX Energy leaves the battery untouched.\n `flex_trading` means that you steer the battery with the schedules you provide to NOX Energy\n (see `POST /v1/devices/battery/schedules`).\n If you are a supplier that has a nox control package integration with Nox Energy, you should not\n enable `flex_trading` but instead the other optimization options like:\n `imbalance_optimization` to optimize the battery to minimize imbalances based on the imbalance prices of the users country.\n `dynamic_tariff` means that we will optimize the battery based on the day-ahead market prices of the users country.\n `pv_self_consumption` to optimize the battery to maximize self-consumption of pv production.",
         "operationId": "patch_devices_battery_settings_v1_devices_battery_settings_patch",
         "parameters": [],
         "requestBody": {
@@ -932,12 +1045,40 @@
                 "$ref": "#/components/schemas/DevicesBatterySettingsRequest"
               },
               "examples": {
-                "disable_optimization": {
-                  "summary": "Leave a battery untouched",
-                  "description": "NOX Energy no longer acts on this battery. Other devices in the household are unaffected.",
+                "nox_optimization": {
+                  "summary": "Let NOX Energy optimize a battery",
+                  "description": "Example for a battery optimized on the day-ahead prices and imbalance prices",
                   "value": {
                     "device_id": "e4da3b7f-bbce-4a45-9d2b-1c0e8f7a6b5c",
-                    "optimization_enabled": false
+                    "optimization_settings": {
+                      "pv_self_consumption": false,
+                      "dynamic_tariff": true,
+                      "flex_trading": false,
+                      "imbalance_optimization": true
+                    }
+                  }
+                },
+                "flex_trading": {
+                  "summary": "Steer all batteries of a user yourself",
+                  "description": "Example for enabling flex trading for all batteries of a user with only a supplier_user_id",
+                  "value": {
+                    "supplier_user_id": "1234",
+                    "optimization_settings": {
+                      "flex_trading": true
+                    }
+                  }
+                },
+                "leave_untouched": {
+                  "summary": "Leave a battery untouched",
+                  "description": "With all optimizations disabled, NOX Energy does not act on the battery",
+                  "value": {
+                    "device_id": "e4da3b7f-bbce-4a45-9d2b-1c0e8f7a6b5c",
+                    "optimization_settings": {
+                      "pv_self_consumption": false,
+                      "dynamic_tariff": false,
+                      "flex_trading": false,
+                      "imbalance_optimization": false
+                    }
                   }
                 }
               }
@@ -1327,7 +1468,7 @@
           "Processing error, please contact support.",
           "Device disconnected, it might reconnect later or be permanently be disconnected.",
           "Device in error state. Might recover automatically later.",
-          "Optimization is disabled for this device.",
+          "User settings prevent steering.",
           "Device is unsupported brand/model, will be supported in future updates.",
           "Device is unsupported model, will not be supported in future updates.",
           "Important data missing, this might improve with future updates.",
@@ -1347,6 +1488,61 @@
           "force_discharge"
         ],
         "title": "BatteryMode"
+      },
+      "BatteryOptimizationSettings": {
+        "properties": {
+          "pv_self_consumption": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Self Consumption",
+            "description": "Enable/disable PV self-consumption optimization"
+          },
+          "dynamic_tariff": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dynamic Tariff",
+            "description": "Enable/disable dynamic tariff optimization"
+          },
+          "flex_trading": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flex Trading",
+            "description": "Enable/disable supplier flex trading. If `True`, the supplier steers the battery based on the schedules they provide to NOX Energy."
+          },
+          "imbalance_optimization": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imbalance Optimization",
+            "description": "Enable/disable imbalance optimization. If `True`, the battery will be optimized to minimize imbalances based on the imbalance prices of the users country."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "BatteryOptimizationSettings"
       },
       "BatteryScheduleEntry": {
         "properties": {
@@ -1377,8 +1573,7 @@
         "type": "string",
         "enum": [
           "No battery found for this device_id.",
-          "This battery is steered by NOX Energy under your contract and does not accept schedules.",
-          "Optimization is disabled for this battery.",
+          "flex_trading is not enabled in the optimization settings of this battery.",
           "The device is currently not steerable, please check its steerable status.",
           "The requested mode is not in the allowed_modes of this battery.",
           "start_time must be at least 1 minute in the future.",
@@ -1566,14 +1761,6 @@
         },
         "type": "object",
         "title": "BatteryTelemetryCurrentResponse"
-      },
-      "ControlledBy": {
-        "type": "string",
-        "enum": [
-          "nox",
-          "supplier"
-        ],
-        "title": "ControlledBy"
       },
       "CycleConfig": {
         "properties": {
@@ -2007,29 +2194,6 @@
             "title": "Allowed Modes",
             "description": "Battery modes this battery accepts in a schedule. Depends on the battery model and on the other devices in its household."
           },
-          "controlled_by": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ControlledBy"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Who steers this battery, as fixed by your contract with NOX Energy. `supplier` batteries accept schedules, `nox` batteries are steered by NOX Energy."
-          },
-          "optimization_enabled": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Optimization Enabled",
-            "description": "Whether NOX Energy may act on this battery. Set it with `PATCH /v1/devices/battery/settings`."
-          },
           "needs_reauthentication": {
             "anyOf": [
               {
@@ -2243,6 +2407,87 @@
         "type": "object",
         "title": "DevicePV"
       },
+      "DevicesBatteryGetSettings": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Battery device ID"
+          },
+          "optimization_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatteryOptimizationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optimization settings for flex trading, dynamic tariff, PV self-consumption and imbalance optimization"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "Timestamp of the last update of the settings in ISO format"
+          }
+        },
+        "type": "object",
+        "title": "DevicesBatteryGetSettings"
+      },
+      "DevicesBatteryGetSettingsMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          }
+        },
+        "type": "object",
+        "title": "DevicesBatteryGetSettingsMeta"
+      },
+      "DevicesBatteryGetSettingsResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/DevicesBatteryGetSettings"
+            },
+            "type": "array",
+            "title": "Data",
+            "description": "List of battery settings"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/DevicesBatteryGetSettingsMeta",
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "DevicesBatteryGetSettingsResponse"
+      },
       "DevicesBatteryMeta": {
         "properties": {
           "energy_supplier": {
@@ -2351,7 +2596,7 @@
               }
             ],
             "title": "Reason Code",
-            "description": "Reason code mapping to the reason. {'No battery found for this device_id.': 1, 'This battery is steered by NOX Energy under your contract and does not accept schedules.': 2, 'Optimization is disabled for this battery.': 3, 'The device is currently not steerable, please check its steerable status.': 4, 'The requested mode is not in the allowed_modes of this battery.': 5, 'start_time must be at least 1 minute in the future.': 6, 'start_time and end_time must be ISO 8601 UTC timestamps with start_time before end_time.': 7, 'Schedule entries for the same device overlap.': 8}."
+            "description": "Reason code mapping to the reason. {'No battery found for this device_id.': 1, 'flex_trading is not enabled in the optimization settings of this battery.': 2, 'The device is currently not steerable, please check its steerable status.': 3, 'The requested mode is not in the allowed_modes of this battery.': 4, 'start_time must be at least 1 minute in the future.': 5, 'start_time and end_time must be ISO 8601 UTC timestamps with start_time before end_time.': 6, 'Schedule entries for the same device overlap.': 7}."
           }
         },
         "type": "object",
@@ -2407,22 +2652,43 @@
       "DevicesBatterySettingsRequest": {
         "properties": {
           "device_id": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Device Id",
             "description": "Battery device ID to update settings for"
           },
-          "optimization_enabled": {
-            "type": "boolean",
-            "title": "Optimization Enabled",
-            "description": "Whether NOX Energy may act on this battery. If `false`, the battery is left untouched, while other devices in the same household can still be optimized."
+          "supplier_user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier User Id",
+            "description": "Your ID of the user to update the settings of all their batteries for"
+          },
+          "optimization_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatteryOptimizationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optimization settings for flex trading, dynamic tariff, PV self-consumption and imbalance optimization"
           }
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "device_id",
-          "optimization_enabled"
-        ],
         "title": "DevicesBatterySettingsRequest"
       },
       "DevicesGetSettingsMetadata": {
@@ -3484,17 +3750,6 @@
             ],
             "title": "Devices",
             "description": "NOX-connected devices in the household"
-          },
-          "optimization": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/HouseholdOptimization"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Current optimization settings of the household"
           }
         },
         "type": "object",
@@ -3569,56 +3824,6 @@
         },
         "type": "object",
         "title": "HouseholdInverter"
-      },
-      "HouseholdOptimization": {
-        "properties": {
-          "objective": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/OptimizationObjective"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Price signal NOX Energy optimizes the household against. `customer_tariff` optimizes on the customer's own tariff, `market` on market prices regardless of the customer's tariff, `none` disables optimization. Defaults to `none`."
-          },
-          "imbalance_reaction": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Imbalance Reaction",
-            "description": "Whether NOX Energy also reacts to imbalance prices on top of the objective. Defaults to `false`."
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "title": "HouseholdOptimization"
-      },
-      "HouseholdSettingsRequest": {
-        "properties": {
-          "household_id": {
-            "type": "string",
-            "title": "Household Id",
-            "description": "Household ID to update settings for"
-          },
-          "optimization": {
-            "$ref": "#/components/schemas/HouseholdOptimization",
-            "description": "Optimization settings shared by all devices of the household. Omitted fields are left unchanged."
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "household_id",
-          "optimization"
-        ],
-        "title": "HouseholdSettingsRequest"
       },
       "HouseholdTelemetryCurrent": {
         "properties": {
@@ -3897,15 +4102,6 @@
           "wtw"
         ],
         "title": "ModelType"
-      },
-      "OptimizationObjective": {
-        "type": "string",
-        "enum": [
-          "customer_tariff",
-          "market",
-          "none"
-        ],
-        "title": "OptimizationObjective"
       },
       "OptimizationSettings-Output": {
         "properties": {
