@@ -35,8 +35,7 @@
             "pages": [
               "guides/integration-overview",
               "guides/bring-your-own-connection",
-              "guides/new-asset-integration",
-              "guides/utility-connections"
+              "guides/new-asset-integration"
             ]
           },
           {
@@ -44,6 +43,7 @@
             "pages": [
               "guides/hp-api-guide",
               "guides/pv-api-guide",
+              "guides/battery-api-guide",
               "guides/partner-webhooks"
             ]
           }
@@ -57,20 +57,6 @@
             "pages": [
               "api-docs/authentication"
             ]
-          },
-          {
-            "group": "HP",
-            "openapi": {
-              "source": "api-docs/hp/openapi-hp.json",
-              "directory": "api-docs/hp"
-            }
-          },
-          {
-            "group": "Manufacturer Package",
-            "openapi": {
-              "source": "api-docs/manufacturer/openapi-manufacturer.json",
-              "directory": "api-docs/manufacturer"
-            }
           },
           {
             "group": "Connecting Users and Devices",
@@ -130,6 +116,20 @@
             ]
           },
           {
+            "group": "Manufacturer Package",
+            "openapi": {
+              "source": "api-docs/manufacturer/openapi-manufacturer.json",
+              "directory": "api-docs/manufacturer"
+            }
+          },
+          {
+            "group": "HP",
+            "openapi": {
+              "source": "api-docs/hp/openapi-hp.json",
+              "directory": "api-docs/hp"
+            }
+          },
+          {
             "group": "NOX Connections API",
             "openapi": {
               "source": "api-docs/connect/openapi-connect.json",
@@ -141,6 +141,20 @@
             "openapi": {
               "source": "api-docs/pv/openapi-pv.json",
               "directory": "api-docs/pv"
+            }
+          },
+          {
+            "group": "Battery (preview)",
+            "openapi": {
+              "source": "api-docs/battery/openapi-battery.json",
+              "directory": "api-docs/battery"
+            }
+          },
+          {
+            "group": "Households (preview)",
+            "openapi": {
+              "source": "api-docs/household/openapi-household.json",
+              "directory": "api-docs/household"
             }
           }
         ]
