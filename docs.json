@@ -59,20 +59,6 @@
             ]
           },
           {
-            "group": "HP",
-            "openapi": {
-              "source": "api-docs/hp/openapi-hp.json",
-              "directory": "api-docs/hp"
-            }
-          },
-          {
-            "group": "Manufacturer Package",
-            "openapi": {
-              "source": "api-docs/manufacturer/openapi-manufacturer.json",
-              "directory": "api-docs/manufacturer"
-            }
-          },
-          {
             "group": "Connecting Users and Devices",
             "pages": [
               {
@@ -130,6 +116,20 @@
             ]
           },
           {
+            "group": "Manufacturer Package",
+            "openapi": {
+              "source": "api-docs/manufacturer/openapi-manufacturer.json",
+              "directory": "api-docs/manufacturer"
+            }
+          },
+          {
+            "group": "HP",
+            "openapi": {
+              "source": "api-docs/hp/openapi-hp.json",
+              "directory": "api-docs/hp"
+            }
+          },
+          {
             "group": "PV",
             "openapi": {
               "source": "api-docs/pv/openapi-pv.json",
@@ -144,7 +144,7 @@
             }
           },
           {
-            "group": "Household (preview)",
+            "group": "Households (preview)",
             "openapi": {
               "source": "api-docs/household/openapi-household.json",
               "directory": "api-docs/household"

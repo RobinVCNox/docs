@@ -12,7 +12,7 @@
           "Asset Info"
         ],
         "summary": "Get Devices Battery",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet information about all NOX-connected batteries associated with your energy supplier account.\n\n\n * `allowed_modes` lists the battery modes the battery accepts in a schedule. They depend on the\nbattery model and on the other devices in its household.\n\n * The optimization settings of a battery are available with `GET /v1/devices/battery/settings`.\n\nIf you want to know the response structure or possible enum values, like steerable reasons,\nyou can check it in the response model `schema`.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet information about all NOX-connected batteries associated with your energy supplier account.\n\n\n * `allowed_modes` lists the battery modes the battery accepts in a schedule. They depend on the\nbattery model and on the other devices in its household.\n\n * `min_soc_pct` is the discharge limit: NOX Energy never discharges the battery below this state\nof charge, whatever the requested mode. It is fixed at 20 % for now.\n\n * The optimization settings of a battery are available with `GET /v1/devices/battery/settings`.\n\nIf you want to know the response structure or possible enum values, like steerable reasons,\nyou can check it in the response model `schema`.",
         "operationId": "get_devices_battery_v1_devices_battery_get",
         "parameters": [
           {
@@ -84,7 +84,7 @@
             "description": "\nThe ID of the household to filter on. If not provided, all households are returned.\n"
           },
           {
-            "name": "supplier_user_id",
+            "name": "user_id",
             "in": "query",
             "required": false,
             "schema": {
@@ -96,10 +96,10 @@
                   "type": "null"
                 }
               ],
-              "description": "\nYour ID of the user to filter on. If not provided, all users are returned.\n",
-              "title": "Supplier User Id"
+              "description": "\nYour own ID of the user to filter on: the ID you use internally for this user, whether you are an\nenergy supplier, an OEM or another partner. If not provided, all users are returned.\n",
+              "title": "User Id"
             },
-            "description": "\nYour ID of the user to filter on. If not provided, all users are returned.\n"
+            "description": "\nYour own ID of the user to filter on: the ID you use internally for this user, whether you are an\nenergy supplier, an OEM or another partner. If not provided, all users are returned.\n"
           }
         ],
         "responses": {
@@ -115,13 +115,14 @@
                     {
                       "device_id": "e4da3b7f-bbce-4a45-9d2b-1c0e8f7a6b5c",
                       "household_id": "8f14e45f-ceea-467a-9575-6c1b1f1e7c2a",
-                      "supplier_user_id": "1234",
+                      "user_id": "1234",
                       "brand": "Huawei",
                       "model": "LUNA2000-10-S0",
                       "country": "BE",
                       "capacity_kwh": 10.0,
                       "max_charge_power_kw": 5.0,
                       "max_discharge_power_kw": 5.0,
+                      "min_soc_pct": 20.0,
                       "steerable_status": {
                         "steering_enabled": true,
                         "steerable": true,
@@ -184,7 +185,7 @@
           "Asset Info"
         ],
         "summary": "Get Devices Battery Telemetry Current",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the latest telemetry of your batteries: state of charge, power and current battery mode.\n\n`power_kw` is positive when the battery charges and negative when it discharges.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the latest telemetry of your batteries: state of charge, power and current battery mode.\n\n`power_kw` follows the consumption sign convention used by all power fields of the API: positive\nwhen the battery charges (it consumes power), negative when it discharges.",
         "operationId": "get_devices_battery_telemetry_current_v1_devices_battery_telemetry_current_get",
         "parameters": [
           {
@@ -403,7 +404,7 @@
                     {
                       "measurement_time": "2026-10-16 12:00",
                       "device_id": "e4da3b7f-bbce-4a45-9d2b-1c0e8f7a6b5c",
-                      "supplier_user_id": "1234",
+                      "user_id": "1234",
                       "charge_kwh": 0.82,
                       "discharge_kwh": 0.0,
                       "soc_pct": 64.0
@@ -411,7 +412,7 @@
                     {
                       "measurement_time": "2026-10-16 12:15",
                       "device_id": "e4da3b7f-bbce-4a45-9d2b-1c0e8f7a6b5c",
-                      "supplier_user_id": "1234",
+                      "user_id": "1234",
                       "charge_kwh": 0.75,
                       "discharge_kwh": 0.0,
                       "soc_pct": 71.5
@@ -568,7 +569,7 @@
                     {
                       "measurement_time": "2026-10-16 12:00",
                       "device_id": "e4da3b7f-bbce-4a45-9d2b-1c0e8f7a6b5c",
-                      "supplier_user_id": "1234",
+                      "user_id": "1234",
                       "charge_kwh": 0.61,
                       "discharge_kwh": 0.0,
                       "soc_pct": 58.0
@@ -725,7 +726,7 @@
                     {
                       "forecast_time": "2026-10-17 18:00",
                       "device_id": "e4da3b7f-bbce-4a45-9d2b-1c0e8f7a6b5c",
-                      "supplier_user_id": "1234",
+                      "user_id": "1234",
                       "charge_kwh": 0.0,
                       "discharge_kwh": 1.25,
                       "soc_pct": 55.0
@@ -781,7 +782,7 @@
           "Battery Control"
         ],
         "summary": "Post Battery Control Schedule",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nSubmit battery schedules: per battery, a list of time windows with the battery mode to apply.\nSchedules are only accepted for batteries with `flex_trading` enabled in their settings\n(see `PATCH /v1/devices/battery/settings`).\n\n`mode` can be set to:\n\n * `self_consumption`: the default behaviour. Pv surplus charges the battery, the battery covers\nthe house load, the grid covers the rest.\n\n * `pause_charge`: the battery does not charge. Pv surplus is exported, the battery can still\ndischarge.\n\n * `pause_discharge`: the battery does not discharge. The grid covers the house load, pv surplus\ncan still charge the battery.\n\n * `force_charge`: the battery charges at its fixed charge power, from pv first and from the grid\nfor the rest.\n\n * `force_discharge`: the battery discharges at its fixed discharge power, to the house first and\nto the grid for the rest.\n\nOnly the modes in the battery's `allowed_modes` are accepted. Outside your time windows the battery\nfalls back to `self_consumption`. NOX Energy keeps the state of charge between 20 % and 80 % for\ncomfort, whatever the requested mode.\n\nWhen you send a new schedule for a battery, it replaces every schedule previously sent for that\nbattery. You can send schedules for many batteries in one request.\n\n\n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n**NOTE**: \n * The battery might need some time to react. `start_time` must be at least 1 minute in\nthe future.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nSubmit battery schedules: per battery, a list of time windows with the battery mode to apply.\nSchedules are only accepted for batteries with `flex_trading` enabled in their settings\n(see `PATCH /v1/devices/battery/settings`).\n\n`mode` can be set to:\n\n * `self_consumption`: the default behaviour. Pv surplus charges the battery, the battery covers\nthe house load, the grid covers the rest.\n\n * `pause_charge`: the battery does not charge. Pv surplus is exported, the battery can still\ndischarge.\n\n * `pause_discharge`: the battery does not discharge. The grid covers the house load, pv surplus\ncan still charge the battery.\n\n * `force_charge`: the battery charges at its fixed charge power, from pv first and from the grid\nfor the rest.\n\n * `force_discharge`: the battery discharges at its fixed discharge power, to the house first and\nto the grid for the rest.\n\nOnly the modes in the battery's `allowed_modes` are accepted. Outside your time windows the battery\nfalls back to `self_consumption`. Whatever the requested mode, NOX Energy never discharges the\nbattery below its `min_soc_pct` (fixed at 20 % for now).\n\nWhen you send a new schedule for a battery, it replaces every schedule previously sent for that\nbattery. You can send schedules for many batteries in one request.\n\n\n\n Timestamp fields in UTC. \n\n Time format examples: \n * 2023-10-01T00:00:00Z\n \n * 2023-10-01T00:00:00 \n\n\n**NOTE**: \n * The battery might need some time to react. `start_time` must be at least 1 minute in\nthe future.",
         "operationId": "post_battery_control_schedule_v1_devices_battery_schedules_post",
         "parameters": [],
         "requestBody": {
@@ -941,7 +942,7 @@
             "description": "\nThe ID of the device to filter on. If not provided, all devices are returned.\n"
           },
           {
-            "name": "supplier_user_id",
+            "name": "user_id",
             "in": "query",
             "required": false,
             "schema": {
@@ -953,10 +954,10 @@
                   "type": "null"
                 }
               ],
-              "description": "\nYour ID of the user to filter on. If not provided, all users are returned.\n",
-              "title": "Supplier User Id"
+              "description": "\nYour own ID of the user to filter on: the ID you use internally for this user, whether you are an\nenergy supplier, an OEM or another partner. If not provided, all users are returned.\n",
+              "title": "User Id"
             },
-            "description": "\nYour ID of the user to filter on. If not provided, all users are returned.\n"
+            "description": "\nYour own ID of the user to filter on: the ID you use internally for this user, whether you are an\nenergy supplier, an OEM or another partner. If not provided, all users are returned.\n"
           }
         ],
         "responses": {
@@ -1034,7 +1035,7 @@
           "User Management"
         ],
         "summary": "Patch Devices Battery Settings",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nUpdate the settings of a single battery, or of all batteries of a user. To update a single battery,\nonly the `device_id` needs to be provided. To update all batteries of a user, provide the\n`supplier_user_id` instead. Omitted settings are left unchanged.\n\n\n You can change the following settings:\n\n * Enable/Disable steering optimizations. `flex_trading` is mutually exclusive with the other\noptimizations. The other optimizations can be enabled together.\n If `flex_trading` is enabled, we disable all other optimizations.\n If any other optimization is enabled, we disable `flex_trading`.\n If all optimizations are disabled, NOX Energy leaves the battery untouched.\n `flex_trading` means that you steer the battery with the schedules you provide to NOX Energy\n (see `POST /v1/devices/battery/schedules`).\n If you are a supplier that has a nox control package integration with Nox Energy, you should not\n enable `flex_trading` but instead the other optimization options like:\n `imbalance_optimization` to optimize the battery to minimize imbalances based on the imbalance prices of the users country.\n `dynamic_tariff` means that we will optimize the battery based on the day-ahead market prices of the users country.\n `pv_self_consumption` to optimize the battery to maximize self-consumption of pv production.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nUpdate the settings of a single battery, or of all batteries of a user. To update a single battery,\nonly the `device_id` needs to be provided. To update all batteries of a user, provide the\n`user_id` instead. Omitted settings are left unchanged.\n\n\n You can change the following settings:\n\n * Enable/Disable steering optimizations. `flex_trading` is mutually exclusive with the other\noptimizations. The other optimizations can be enabled together.\n If `flex_trading` is enabled, we disable all other optimizations.\n If any other optimization is enabled, we disable `flex_trading`.\n If all optimizations are disabled, NOX Energy leaves the battery untouched.\n `flex_trading` means that you steer the battery with the schedules you provide to NOX Energy\n (see `POST /v1/devices/battery/schedules`).\n If you are a supplier that has a nox control package integration with Nox Energy, you should not\n enable `flex_trading` but instead the other optimization options like:\n `imbalance_optimization` to optimize the battery to minimize imbalances based on the imbalance prices of the users country.\n `dynamic_tariff` means that we will optimize the battery based on the day-ahead market prices of the users country.\n `pv_self_consumption` to optimize the battery to maximize self-consumption of pv production.",
         "operationId": "patch_devices_battery_settings_v1_devices_battery_settings_patch",
         "parameters": [],
         "requestBody": {
@@ -1060,9 +1061,9 @@
                 },
                 "flex_trading": {
                   "summary": "Steer all batteries of a user yourself",
-                  "description": "Example for enabling flex trading for all batteries of a user with only a supplier_user_id",
+                  "description": "Example for enabling flex trading for all batteries of a user with only a user_id",
                   "value": {
-                    "supplier_user_id": "1234",
+                    "user_id": "1234",
                     "optimization_settings": {
                       "flex_trading": true
                     }
@@ -1201,7 +1202,7 @@
             "title": "Device Id",
             "description": "Unique device identifier"
           },
-          "supplier_user_id": {
+          "user_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -1210,8 +1211,8 @@
                 "type": "null"
               }
             ],
-            "title": "Supplier User Id",
-            "description": "Your identifier of the user"
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
           },
           "charge_kwh": {
             "anyOf": [
@@ -1343,7 +1344,7 @@
             "title": "Device Id",
             "description": "Unique device identifier"
           },
-          "supplier_user_id": {
+          "user_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -1352,8 +1353,8 @@
                 "type": "null"
               }
             ],
-            "title": "Supplier User Id",
-            "description": "Your identifier of the user"
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
           },
           "charge_kwh": {
             "anyOf": [
@@ -1683,7 +1684,7 @@
               }
             ],
             "title": "Power Kw",
-            "description": "Battery power in kW. Positive when charging, negative when discharging."
+            "description": "Battery power in kW. Positive when charging (consuming), negative when discharging."
           },
           "mode": {
             "anyOf": [
@@ -2084,7 +2085,7 @@
             "title": "Household Id",
             "description": "Household the battery belongs to"
           },
-          "supplier_user_id": {
+          "user_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -2093,8 +2094,8 @@
                 "type": "null"
               }
             ],
-            "title": "Supplier User Id",
-            "description": "Your identifier of the user"
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
           },
           "brand": {
             "anyOf": [
@@ -2178,6 +2179,18 @@
               }
             ],
             "description": "Device steering status"
+          },
+          "min_soc_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Soc Pct",
+            "description": "Discharge limit: NOX Energy never discharges the battery below this state of charge in %, whatever the requested mode. Fixed at 20 % for now."
           },
           "allowed_modes": {
             "anyOf": [
@@ -2663,7 +2676,7 @@
             "title": "Device Id",
             "description": "Battery device ID to update settings for"
           },
-          "supplier_user_id": {
+          "user_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -2672,8 +2685,8 @@
                 "type": "null"
               }
             ],
-            "title": "Supplier User Id",
-            "description": "Your ID of the user to update the settings of all their batteries for"
+            "title": "User Id",
+            "description": "Your own ID of the user, to update the settings of all their batteries"
           },
           "optimization_settings": {
             "anyOf": [
@@ -3697,7 +3710,7 @@
             "title": "Household Id",
             "description": "Unique household identifier"
           },
-          "supplier_user_id": {
+          "user_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -3706,8 +3719,8 @@
                 "type": "null"
               }
             ],
-            "title": "Supplier User Id",
-            "description": "Your identifier of the user"
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
           },
           "grid_metering": {
             "anyOf": [
@@ -3720,21 +3733,6 @@
             ],
             "title": "Grid Metering",
             "description": "Whether NOX Energy measures the household's grid import and export"
-          },
-          "inverters": {
-            "anyOf": [
-              {
-                "items": {
-                  "$ref": "#/components/schemas/HouseholdInverter"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Inverters",
-            "description": "Inverters in the household"
           },
           "devices": {
             "anyOf": [
@@ -3779,51 +3777,10 @@
               }
             ],
             "description": "Asset type of the device"
-          },
-          "inverter_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Inverter Id",
-            "description": "Inverter the device is wired through. `null` for heat pumps."
           }
         },
         "type": "object",
         "title": "HouseholdDevice"
-      },
-      "HouseholdInverter": {
-        "properties": {
-          "inverter_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Inverter Id",
-            "description": "Unique inverter identifier"
-          },
-          "type": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/InverterType"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "`hybrid`: PV and battery share one inverter (DC-coupled). `string`: PV-only inverter. `battery`: battery-only inverter (AC-coupled)."
-          }
-        },
-        "type": "object",
-        "title": "HouseholdInverter"
       },
       "HouseholdTelemetryCurrent": {
         "properties": {
@@ -3863,7 +3820,7 @@
             "title": "House Load Kw",
             "description": "Current house load in kW: everything the household consumes except the battery"
           },
-          "grid_import_kw": {
+          "grid_power_kw": {
             "anyOf": [
               {
                 "type": "number"
@@ -3872,20 +3829,8 @@
                 "type": "null"
               }
             ],
-            "title": "Grid Import Kw",
-            "description": "Current grid import in kW. `null` if the household has no grid metering."
-          },
-          "grid_export_kw": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Grid Export Kw",
-            "description": "Current grid export in kW. `null` if the household has no grid metering."
+            "title": "Grid Power Kw",
+            "description": "Current grid power in kW. Positive when the household imports from the grid, negative when it exports. `null` if the household has no grid metering."
           }
         },
         "type": "object",
@@ -4014,15 +3959,6 @@
         },
         "type": "object",
         "title": "HouseholdsResponse"
-      },
-      "InverterType": {
-        "type": "string",
-        "enum": [
-          "hybrid",
-          "string",
-          "battery"
-        ],
-        "title": "InverterType"
       },
       "LegionellaConfig": {
         "properties": {

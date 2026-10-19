@@ -12,7 +12,7 @@
           "Asset Info"
         ],
         "summary": "Get Households",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the households of your users and the NOX-connected devices in them.\n\nA household is a house and all the devices connected in it, behind its grid connection. It adds no\nidentity to its devices: the `device_id`s are the same ones the heat pump, pv and battery device\nendpoints return. The inverters describe how pv and batteries are wired, which determines which\nbattery modes a battery allows.",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the households of your users and the NOX-connected devices in them.\n\nA household is a house and all the devices connected in it, behind its grid connection. It adds no\nidentity to its devices: the `device_id`s are the same ones the heat pump, pv and battery device\nendpoints return.",
         "operationId": "get_households_v1_households_get",
         "parameters": [
           {
@@ -66,7 +66,7 @@
             "description": "\nThe ID of the household to filter on. If not provided, all households are returned.\n"
           },
           {
-            "name": "supplier_user_id",
+            "name": "user_id",
             "in": "query",
             "required": false,
             "schema": {
@@ -78,10 +78,10 @@
                   "type": "null"
                 }
               ],
-              "description": "\nYour ID of the user to filter on. If not provided, all users are returned.\n",
-              "title": "Supplier User Id"
+              "description": "\nYour own ID of the user to filter on: the ID you use internally for this user, whether you are an\nenergy supplier, an OEM or another partner. If not provided, all users are returned.\n",
+              "title": "User Id"
             },
-            "description": "\nYour ID of the user to filter on. If not provided, all users are returned.\n"
+            "description": "\nYour own ID of the user to filter on: the ID you use internally for this user, whether you are an\nenergy supplier, an OEM or another partner. If not provided, all users are returned.\n"
           }
         ],
         "responses": {
@@ -96,33 +96,20 @@
                   "data": [
                     {
                       "household_id": "8f14e45f-ceea-467a-9575-6c1b1f1e7c2a",
-                      "supplier_user_id": "1234",
+                      "user_id": "1234",
                       "grid_metering": true,
-                      "inverters": [
-                        {
-                          "inverter_id": "3c59dc04-8f5e-4c3b-b2a1-0a1e2f3d4c5b",
-                          "type": "hybrid"
-                        },
-                        {
-                          "inverter_id": "b6d767d2-f8e2-4b4c-9f0d-6c2a1b3e4f5a",
-                          "type": "battery"
-                        }
-                      ],
                       "devices": [
                         {
                           "device_id": "a87ff679-a2f3-4e1d-8c6b-2b1e0f9d8c7a",
-                          "asset_type": "pv",
-                          "inverter_id": "3c59dc04-8f5e-4c3b-b2a1-0a1e2f3d4c5b"
+                          "asset_type": "pv"
                         },
                         {
                           "device_id": "e4da3b7f-bbce-4a45-9d2b-1c0e8f7a6b5c",
-                          "asset_type": "battery",
-                          "inverter_id": "3c59dc04-8f5e-4c3b-b2a1-0a1e2f3d4c5b"
+                          "asset_type": "battery"
                         },
                         {
                           "device_id": "1679091c-5a88-4c2f-8e1d-3b2a0f9e8d7c",
-                          "asset_type": "battery",
-                          "inverter_id": "b6d767d2-f8e2-4b4c-9f0d-6c2a1b3e4f5a"
+                          "asset_type": "battery"
                         },
                         {
                           "device_id": "0910947a-fab9-450e-b5ac-48e9c4f3e725",
@@ -177,7 +164,7 @@
           "Asset Info"
         ],
         "summary": "Get Households Telemetry Current",
-        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the latest telemetry of your households, in kW.\n\n\n * `house_load_kw` is everything the household consumes except the battery.\n\n * `grid_import_kw` and `grid_export_kw` are `null` when the household has no grid metering\n(see `grid_metering` in `GET /v1/households`).",
+        "description": "**Preview: not available yet.** This endpoint is documented ahead of its release and currently\nanswers `501 Not Implemented`. Its contract may still change before release.\n\nGet the latest telemetry of your households, in kW.\n\n\n * `house_load_kw` is everything the household consumes except the battery.\n\n * `grid_power_kw` follows the consumption sign convention used by all power fields of the API:\npositive when the household imports from the grid, negative when it exports. It is `null` when the\nhousehold has no grid metering (see `grid_metering` in `GET /v1/households`).",
         "operationId": "get_households_telemetry_current_v1_households_telemetry_current_get",
         "parameters": [
           {
@@ -231,7 +218,7 @@
             "description": "\nThe ID of the household to filter on. If not provided, all households are returned.\n"
           },
           {
-            "name": "supplier_user_id",
+            "name": "user_id",
             "in": "query",
             "required": false,
             "schema": {
@@ -243,10 +230,10 @@
                   "type": "null"
                 }
               ],
-              "description": "\nYour ID of the user to filter on. If not provided, all users are returned.\n",
-              "title": "Supplier User Id"
+              "description": "\nYour own ID of the user to filter on: the ID you use internally for this user, whether you are an\nenergy supplier, an OEM or another partner. If not provided, all users are returned.\n",
+              "title": "User Id"
             },
-            "description": "\nYour ID of the user to filter on. If not provided, all users are returned.\n"
+            "description": "\nYour own ID of the user to filter on: the ID you use internally for this user, whether you are an\nenergy supplier, an OEM or another partner. If not provided, all users are returned.\n"
           }
         ],
         "responses": {
@@ -263,8 +250,7 @@
                       "household_id": "8f14e45f-ceea-467a-9575-6c1b1f1e7c2a",
                       "measured_at": "2026-10-17T12:03:00Z",
                       "house_load_kw": 2.8,
-                      "grid_import_kw": 2.8,
-                      "grid_export_kw": 0.0
+                      "grid_power_kw": 2.8
                     }
                   ],
                   "meta": {
@@ -528,7 +514,7 @@
             "title": "Device Id",
             "description": "Unique device identifier"
           },
-          "supplier_user_id": {
+          "user_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -537,8 +523,8 @@
                 "type": "null"
               }
             ],
-            "title": "Supplier User Id",
-            "description": "Your identifier of the user"
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
           },
           "charge_kwh": {
             "anyOf": [
@@ -670,7 +656,7 @@
             "title": "Device Id",
             "description": "Unique device identifier"
           },
-          "supplier_user_id": {
+          "user_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -679,8 +665,8 @@
                 "type": "null"
               }
             ],
-            "title": "Supplier User Id",
-            "description": "Your identifier of the user"
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
           },
           "charge_kwh": {
             "anyOf": [
@@ -1010,7 +996,7 @@
               }
             ],
             "title": "Power Kw",
-            "description": "Battery power in kW. Positive when charging, negative when discharging."
+            "description": "Battery power in kW. Positive when charging (consuming), negative when discharging."
           },
           "mode": {
             "anyOf": [
@@ -1411,7 +1397,7 @@
             "title": "Household Id",
             "description": "Household the battery belongs to"
           },
-          "supplier_user_id": {
+          "user_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -1420,8 +1406,8 @@
                 "type": "null"
               }
             ],
-            "title": "Supplier User Id",
-            "description": "Your identifier of the user"
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
           },
           "brand": {
             "anyOf": [
@@ -1505,6 +1491,18 @@
               }
             ],
             "description": "Device steering status"
+          },
+          "min_soc_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Soc Pct",
+            "description": "Discharge limit: NOX Energy never discharges the battery below this state of charge in %, whatever the requested mode. Fixed at 20 % for now."
           },
           "allowed_modes": {
             "anyOf": [
@@ -1990,7 +1988,7 @@
             "title": "Device Id",
             "description": "Battery device ID to update settings for"
           },
-          "supplier_user_id": {
+          "user_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -1999,8 +1997,8 @@
                 "type": "null"
               }
             ],
-            "title": "Supplier User Id",
-            "description": "Your ID of the user to update the settings of all their batteries for"
+            "title": "User Id",
+            "description": "Your own ID of the user, to update the settings of all their batteries"
           },
           "optimization_settings": {
             "anyOf": [
@@ -3024,7 +3022,7 @@
             "title": "Household Id",
             "description": "Unique household identifier"
           },
-          "supplier_user_id": {
+          "user_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -3033,8 +3031,8 @@
                 "type": "null"
               }
             ],
-            "title": "Supplier User Id",
-            "description": "Your identifier of the user"
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
           },
           "grid_metering": {
             "anyOf": [
@@ -3047,21 +3045,6 @@
             ],
             "title": "Grid Metering",
             "description": "Whether NOX Energy measures the household's grid import and export"
-          },
-          "inverters": {
-            "anyOf": [
-              {
-                "items": {
-                  "$ref": "#/components/schemas/HouseholdInverter"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Inverters",
-            "description": "Inverters in the household"
           },
           "devices": {
             "anyOf": [
@@ -3106,51 +3089,10 @@
               }
             ],
             "description": "Asset type of the device"
-          },
-          "inverter_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Inverter Id",
-            "description": "Inverter the device is wired through. `null` for heat pumps."
           }
         },
         "type": "object",
         "title": "HouseholdDevice"
-      },
-      "HouseholdInverter": {
-        "properties": {
-          "inverter_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Inverter Id",
-            "description": "Unique inverter identifier"
-          },
-          "type": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/InverterType"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "`hybrid`: PV and battery share one inverter (DC-coupled). `string`: PV-only inverter. `battery`: battery-only inverter (AC-coupled)."
-          }
-        },
-        "type": "object",
-        "title": "HouseholdInverter"
       },
       "HouseholdTelemetryCurrent": {
         "properties": {
@@ -3190,7 +3132,7 @@
             "title": "House Load Kw",
             "description": "Current house load in kW: everything the household consumes except the battery"
           },
-          "grid_import_kw": {
+          "grid_power_kw": {
             "anyOf": [
               {
                 "type": "number"
@@ -3199,20 +3141,8 @@
                 "type": "null"
               }
             ],
-            "title": "Grid Import Kw",
-            "description": "Current grid import in kW. `null` if the household has no grid metering."
-          },
-          "grid_export_kw": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Grid Export Kw",
-            "description": "Current grid export in kW. `null` if the household has no grid metering."
+            "title": "Grid Power Kw",
+            "description": "Current grid power in kW. Positive when the household imports from the grid, negative when it exports. `null` if the household has no grid metering."
           }
         },
         "type": "object",
@@ -3341,15 +3271,6 @@
         },
         "type": "object",
         "title": "HouseholdsResponse"
-      },
-      "InverterType": {
-        "type": "string",
-        "enum": [
-          "hybrid",
-          "string",
-          "battery"
-        ],
-        "title": "InverterType"
       },
       "LegionellaConfig": {
         "properties": {

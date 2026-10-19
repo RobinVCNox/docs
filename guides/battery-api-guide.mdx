@@ -10,11 +10,11 @@ description: 'Guide on how to use the NOX API for home batteries and the househo
 
 ## Overview
 
-A home battery is rarely alone: it shares a grid connection with pv panels, sometimes a heat pump, and is
-often wired through the same inverter as the pv. That is why the battery API has two levels:
+A home battery is rarely alone: it shares a grid connection with pv panels and sometimes a heat pump.
+That is why the battery API has two levels:
 
 * **Households**: a house and all the NOX-connected devices in it, behind its grid connection. A household
-  shows how its devices are wired. It is read-only.
+  shows which devices sit behind the same grid connection. It is read-only.
 * **Batteries**: the individual devices. Steering capabilities (`allowed_modes`), schedules and settings
   live here.
 
@@ -58,7 +58,7 @@ Fetch the households of a user, then the batteries in them:
 
 ```bash cURL
 curl --request GET \
-  --url 'https://api.nox.energy/v1/households?supplier_user_id=1234' \
+  --url 'https://api.nox.energy/v1/households?user_id=1234' \
   --header 'x-api-key: <api-key>'
 
 curl --request GET \
@@ -72,7 +72,7 @@ import requests
 headers = {"x-api-key": "<api-key>"}
 
 households = requests.get("https://api.nox.energy/v1/households",
-                          params={"supplier_user_id": "1234"}, headers=headers).json()
+                          params={"user_id": "1234"}, headers=headers).json()
 
 household_id = households["data"][0]["household_id"]
 batteries = requests.get("https://api.nox.energy/v1/devices/battery",
@@ -81,13 +81,18 @@ batteries = requests.get("https://api.nox.energy/v1/devices/battery",
 
 </CodeGroup>
 
-A household's `inverters` tell you how pv and batteries are wired:
+How the devices are wired (for example whether a pv installation and a battery share one inverter) is handled
+by NOX Energy and is not exposed. It is reflected in each battery's `allowed_modes`, together with the battery model.
 
-* `hybrid`: pv and battery share one inverter (DC-coupled).
-* `string`: a pv-only inverter.
-* `battery`: a battery-only inverter (AC-coupled).
+### Power sign convention
 
-The wiring, together with the battery model, determines each battery's `allowed_modes`.
+All power values follow one rule: **positive means power consumed, negative means power delivered**.
+
+| Field | Positive | Negative |
+|---|---|---|
+| Battery `power_kw` | Charging | Discharging |
+| Household `grid_power_kw` | Importing from the grid | Exporting to the grid |
+| Household `house_load_kw` | Consumption (always positive) | |
 
 ### 2. Battery modes
 
@@ -101,8 +106,8 @@ You steer a battery by asking it to follow a **battery mode** during a time wind
 | `force_charge` | Charge at the battery's fixed charge power, from pv first and the grid for the rest. | Negative or very low prices. |
 | `force_discharge` | Discharge at the battery's fixed discharge power, to the house first and the grid for the rest. | Price spikes. |
 
-Only modes listed in the battery's `allowed_modes` are accepted. NOX Energy always keeps the state of charge
-between 20 % and 80 %.
+Only modes listed in the battery's `allowed_modes` are accepted. Whatever the mode, NOX Energy never discharges
+a battery below its `min_soc_pct` (the discharge limit, fixed at 20 % for now).
 
 ### 3. Submitting schedules (`flex_trading` on)
 
@@ -154,7 +159,7 @@ to calculate what steering earned.
 Battery settings work like the heat pump settings: per device, updated with
 [PATCH /devices/battery/settings](/api-docs/battery/user-management/patch-devices-battery-settings) and read with
 [GET /devices/battery/settings](/api-docs/battery/user-management/get-devices-battery-settings).
-Provide a `device_id` to update one battery, or a `supplier_user_id` to update all batteries of a user.
+Provide a `device_id` to update one battery, or a `user_id` to update all batteries of a user.
 
 `optimization_settings` decides who steers the battery:
 
