@@ -30,7 +30,7 @@
     "/v1/link": {
       "post": {
         "summary": "Create a link session",
-        "description": "Creates a single-use link to send your user to. Pass a `provider` to connect that provider directly, or a `connection_type` (for example `utility`) to let the user choose one. The link expires after 60 minutes.",
+        "description": "Creates a single-use link to send your user to. Pass a `provider` to connect that provider directly, a `connection_type` (for example `oem.pv`) to let the user choose one, or both to connect that provider for only that type. The connect fails when the account holds no devices of the type asked for. The link expires after 60 minutes.",
         "tags": [
           "Connections"
         ],
@@ -523,6 +523,7 @@
           "oem",
           "oem.hp",
           "oem.pv",
+          "oem.battery",
           "utility"
         ],
         "title": "ConnectionType",
@@ -532,10 +533,10 @@
         "additionalProperties": false,
         "properties": {
           "user_id": {
+            "description": "Your internal user ID.",
             "minLength": 1,
             "title": "User Id",
-            "type": "string",
-            "description": "Your internal user ID."
+            "type": "string"
           },
           "redirect_url": {
             "format": "uri",
@@ -610,15 +611,16 @@
         "description": "A consumer that is itself a provider, connecting one of its own users.",
         "properties": {
           "user_id": {
+            "description": "Your internal user ID.",
             "minLength": 1,
             "title": "User Id",
-            "type": "string",
-            "description": "Your internal user ID."
+            "type": "string"
           },
           "identifier": {
-            "type": "string",
+            "default": null,
+            "description": "The identifier NOX Energy uses to find this user's devices at your brand. Optional: when omitted, the `user_id` is used as the identifier.",
             "title": "Identifier",
-            "description": "The identifier NOX Energy uses to find this user's devices at your brand. Optional: when omitted, the `user_id` is used as the identifier."
+            "type": "string"
           }
         },
         "required": [
@@ -655,11 +657,11 @@
           "credential_type": {
             "$ref": "#/components/schemas/CredentialType"
           },
-          "device_ids": {
+          "assets": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/Asset"
             },
-            "title": "Device Ids",
+            "title": "Assets",
             "type": "array"
           },
           "needs_reauth": {
@@ -684,7 +686,7 @@
           "consumer_user_id",
           "provider",
           "credential_type",
-          "device_ids",
+          "assets",
           "needs_reauth",
           "connected_at"
         ],
@@ -769,30 +771,6 @@
             ],
             "default": null,
             "title": "Postal Code"
-          },
-          "street": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Street"
-          },
-          "number": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Number"
           },
           "coordinates": {
             "anyOf": [
@@ -902,7 +880,7 @@
           "onboarding_failed",
           "registration_failed",
           "missing_permissions",
-          "hybrid_inverter_not_allowed",
+          "declined_by_policy",
           "session_not_found",
           "session_expired",
           "authorization_spent",
@@ -913,6 +891,32 @@
         ],
         "title": "ConnectFailureCode",
         "type": "string"
+      },
+      "Asset": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_id": {
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "asset_type": {
+            "description": "pv, bat or hp.",
+            "title": "Asset Type",
+            "type": "string"
+          },
+          "external_id": {
+            "description": "The device's id at the provider.",
+            "title": "External Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "asset_id",
+          "asset_type",
+          "external_id"
+        ],
+        "title": "Asset",
+        "type": "object"
       }
     }
   }
