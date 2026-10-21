@@ -22,7 +22,7 @@
       "description": "Creating, listing and revoking connections."
     },
     {
-      "name": "Households",
+      "name": "Households (Preview)",
       "description": "The dwelling a person's connections belong to."
     }
   ],
@@ -334,7 +334,7 @@
         "summary": "Read a user's household",
         "description": "The dwelling this user's connections belong to. It exists only once they have connected something, so this answers 404 before the first connection.",
         "tags": [
-          "Households"
+          "Households (Preview)"
         ],
         "security": [
           {
@@ -409,7 +409,7 @@
         "summary": "Describe a user's household",
         "description": "Fills in the address and owner of the dwelling. Only the fields you send change; a field sent as `null` is cleared.\n\n`country` accepts a country code (`BE`) or name in any language (`Belgium`, `Belgi\u00eb`). An unknown country returns a 400.\n\nA household is shared between consumers: what one consumer sets, others see too. The latest update wins.",
         "tags": [
-          "Households"
+          "Households (Preview)"
         ],
         "security": [
           {
