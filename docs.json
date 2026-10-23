@@ -59,10 +59,10 @@
             ]
           },
           {
-            "group": "Connecting Users and Devices (sunsetting)",
+            "group": "Connecting Users and Devices",
             "pages": [
               {
-                "group": "By supplier",
+                "group": "By supplier (sunsetting)",
                 "openapi": {
                   "source": "api-docs/supplier-integration/openapi-supplier-auth-v2.json",
                   "directory": "api-docs/supplier-integration"
@@ -82,7 +82,7 @@
                 ]
               },
               {
-                "group": "By manufacturer",
+                "group": "By manufacturer (sunsetting)",
                 "openapi": {
                   "source": "api-docs/manufacturer-integration/openapi-manufacturer-auth-v2.json",
                   "directory": "api-docs/manufacturer-integration"
@@ -104,7 +104,7 @@
                 ]
               },
               {
-                "group": "By partner",
+                "group": "By partner (sunsetting)",
                 "openapi": {
                   "source": "api-docs/partner-integration/openapi-partner-auth.json",
                   "directory": "api-docs/partner-integration"
@@ -112,23 +112,23 @@
                 "pages": [
                   "POST /partner/link-sessions"
                 ]
+              },
+              {
+                "group": "Connections (preview)",
+                "openapi": {
+                  "source": "api-docs/connections/openapi-connections.json",
+                  "directory": "api-docs/connections"
+                },
+                "pages": [
+                  "POST /v2/connections/link",
+                  "POST /v2/connections",
+                  "GET /v2/connections",
+                  "DELETE /v2/connections/{provider}",
+                  "DELETE /v2/connections",
+                  "GET /v2/connections/household",
+                  "PATCH /v2/connections/household"
+                ]
               }
-            ]
-          },
-          {
-            "group": "Connections (preview)",
-            "openapi": {
-              "source": "api-docs/connections/openapi-connections.json",
-              "directory": "api-docs/connections"
-            },
-            "pages": [
-              "POST /v2/connections/link",
-              "POST /v2/connections",
-              "GET /v2/connections",
-              "DELETE /v2/connections/{provider}",
-              "DELETE /v2/connections",
-              "GET /v2/connections/household",
-              "PATCH /v2/connections/household"
             ]
           },
           {
