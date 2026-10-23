@@ -8,7 +8,7 @@ A utility is the company that holds a person's energy contract: what they pay pe
 Users who are not yet customers of the utility can sign up with it from the same flow. NOX Energy records this as a **lead**.
 
 <Note>
-Utility connections use the [NOX Connections API](/api-docs/connect/connections/create-a-link-session) at `https://api.connect.nox.energy`. Requests are authenticated with an API key in the `x-api-key` header. Contact NOX Energy to receive one.
+Utility connections use the [Connections API (preview)](/api-docs/connections/connections/create-a-link-session) at `https://api.nox.energy/v2/connections`. Requests are authenticated with an API key in the `x-api-key` header. Contact NOX Energy to receive one.
 </Note>
 
 ## Supported utilities
@@ -34,7 +34,7 @@ With `connection_type: "utility"`, the user first picks the utility they have a 
 
 ```bash
 curl --request POST \
-  --url https://api.connect.nox.energy/v1/link \
+  --url https://api.nox.energy/v2/connections/link \
   --header 'Content-Type: application/json' \
   --header 'x-api-key: api_key_123' \
   --data '{
@@ -85,9 +85,9 @@ The user is sent back to your `redirect_url` with a `success` query parameter. A
 }
 ```
 
-A lead is not a connection yet, so it does not appear in [`GET /connections`](/api-docs/connect/connections/list-a-users-connections). Once the user's signup with the utility is complete, NOX Energy converts the lead into a utility connection for that user.
+A lead is not a connection yet, so it does not appear in [`GET /v2/connections`](/api-docs/connections/connections/list-a-users-connections). Once the user's signup with the utility is complete, NOX Energy converts the lead into a utility connection for that user.
 
 ## Good to know
 
 - **One utility per EAN.** An EAN identifies a grid connection point, and one meter has one contract. Connecting a new utility on the same EAN replaces the previous utility connection.
-- **Managing connections.** Use [`GET /connections`](/api-docs/connect/connections/list-a-users-connections) to list a user's connections, and [`DELETE /connections`](/api-docs/connect/connections/disconnect-a-user) to revoke your access.
+- **Managing connections.** Use [`GET /v2/connections`](/api-docs/connections/connections/list-a-users-connections) to list a user's connections, and [`DELETE /v2/connections/{provider}`](/api-docs/connections/connections/disconnect-a-user-from-a-provider) to revoke your access.

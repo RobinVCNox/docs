@@ -59,7 +59,7 @@
             ]
           },
           {
-            "group": "Connecting Users and Devices",
+            "group": "Connecting Users and Devices (sunsetting)",
             "pages": [
               {
                 "group": "By supplier",
@@ -116,6 +116,22 @@
             ]
           },
           {
+            "group": "Connections (preview)",
+            "openapi": {
+              "source": "api-docs/connections/openapi-connections.json",
+              "directory": "api-docs/connections"
+            },
+            "pages": [
+              "POST /v2/connections/link",
+              "POST /v2/connections",
+              "GET /v2/connections",
+              "DELETE /v2/connections/{provider}",
+              "DELETE /v2/connections",
+              "GET /v2/connections/household",
+              "PATCH /v2/connections/household"
+            ]
+          },
+          {
             "group": "Manufacturer Package",
             "openapi": {
               "source": "api-docs/manufacturer/openapi-manufacturer.json",
@@ -127,13 +143,6 @@
             "openapi": {
               "source": "api-docs/hp/openapi-hp.json",
               "directory": "api-docs/hp"
-            }
-          },
-          {
-            "group": "NOX Connections API",
-            "openapi": {
-              "source": "api-docs/connect/openapi-connect.json",
-              "directory": "api-docs/connect"
             }
           },
           {
