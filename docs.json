@@ -62,7 +62,7 @@
             "group": "Connecting Users and Devices",
             "pages": [
               {
-                "group": "By supplier (sunsetting)",
+                "group": "By supplier (deprecating)",
                 "openapi": {
                   "source": "api-docs/supplier-integration/openapi-supplier-auth-v2.json",
                   "directory": "api-docs/supplier-integration"
@@ -82,7 +82,7 @@
                 ]
               },
               {
-                "group": "By manufacturer (sunsetting)",
+                "group": "By manufacturer (deprecating)",
                 "openapi": {
                   "source": "api-docs/manufacturer-integration/openapi-manufacturer-auth-v2.json",
                   "directory": "api-docs/manufacturer-integration"
@@ -104,7 +104,7 @@
                 ]
               },
               {
-                "group": "By partner (sunsetting)",
+                "group": "By partner (deprecating)",
                 "openapi": {
                   "source": "api-docs/partner-integration/openapi-partner-auth.json",
                   "directory": "api-docs/partner-integration"
