@@ -78,10 +78,10 @@
                   "type": "null"
                 }
               ],
-              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n",
               "title": "Next Token"
             },
-            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n"
           },
           {
             "name": "device_id",
@@ -375,6 +375,16 @@
               }
             }
           },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Invalid pagination token"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -446,10 +456,10 @@
                   "type": "null"
                 }
               ],
-              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n",
               "title": "Next Token"
             },
-            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n"
           },
           {
             "name": "aggregated",
@@ -507,6 +517,16 @@
                     "granularity": "15min",
                     "output_timezone": "UTC"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Invalid pagination token"
                 }
               }
             }
@@ -582,10 +602,10 @@
                   "type": "null"
                 }
               ],
-              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n",
               "title": "Next Token"
             },
-            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n"
           },
           {
             "name": "aggregated",
@@ -643,6 +663,16 @@
                     "granularity": "15min",
                     "output_timezone": "UTC"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Invalid pagination token"
                 }
               }
             }
@@ -1988,10 +2018,10 @@
                   "type": "null"
                 }
               ],
-              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n",
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n",
               "title": "Next Token"
             },
-            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n"
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n"
           },
           {
             "name": "aggregated",
@@ -2049,6 +2079,16 @@
                     "granularity": "15min",
                     "output_timezone": "UTC"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Invalid pagination token"
                 }
               }
             }
