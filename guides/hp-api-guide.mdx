@@ -35,6 +35,7 @@ All endpoints use the base URL:
     To paginate through a response, you can use the `next_token` received in the response as a query parameter and call the same endpoint with
     the same parameters again. You can repeat this process until you have received the last page of the response, which is signified
     by the `next_token` field becoming `null`.
+    Pass the `next_token` back exactly as you received it. A token that was altered or not issued by the API returns a `400`.
 </Note>
 
 ### 1. Getting Device Information

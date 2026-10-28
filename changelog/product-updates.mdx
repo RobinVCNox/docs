@@ -4,6 +4,10 @@ description: 'Updates and Changes'
 ---
 
 <Update label="October 2026">
+  ## Invalid pagination tokens
+
+  * Paginated endpoints now return `400` with `Invalid pagination token` when the `next_token` was altered or not issued by the API. Previously, most of them silently returned the first page again. Pass the `next_token` back exactly as you received it.
+
   ## Utility connections
 
   * Users can now connect their energy contract with a utility. Users who are not yet customers can sign up with the utility from the same flow. See [Utility Connections](/guides/utility-connections).
