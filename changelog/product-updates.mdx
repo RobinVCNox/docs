@@ -4,6 +4,12 @@ description: 'Updates and Changes'
 ---
 
 <Update label="October 2026">
+  ## Offset pagination
+
+  * The heat pump consumption endpoints and the paginated pv endpoints now accept an `offset` query parameter next to `limit`, so you can fetch a specific page without following the `next_token` chain. `next_token` works as before.
+  * Use either `offset` or `next_token` in a request, not both. Sending both returns `400`.
+  * `/v1/devices` and `/v1/manufacturer/devices` page by `next_token` only.
+
   ## Invalid pagination tokens
 
   * Paginated endpoints now return `400` with `Invalid pagination token` when the `next_token` was altered or not issued by the API. Previously, most of them silently returned the first page again. Pass the `next_token` back exactly as you received it.
