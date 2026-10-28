@@ -105,14 +105,18 @@ You steer a battery by asking it to follow a **battery mode** during a time wind
 | `auto` (default) | The battery follows its own logic: pv surplus charges it, it covers the house load, the grid covers the rest. | Most hours; the battery returns to it outside your schedules and whenever NOX takes over. |
 | `pause_charge` | The battery does not charge; pv surplus is exported. It can still discharge. | Keep headroom for negative-price hours later; export while injection prices are high. |
 | `pause_discharge` | The battery does not discharge; the grid covers the house load. Pv can still charge it. | Cheap import now, keep the stored energy for the evening peak. |
-| `force_charge` | Charge at the battery's fixed charge power, from pv first and the grid for the rest. | Negative or very low prices. |
+| `force_charge` | Charge at the battery's fixed charge power, from pv first and the grid for the rest, while the state of charge is below `max_soc_pct`. | Negative or very low prices. |
 | `force_discharge` | Discharge at the battery's fixed discharge power, to the house first and the grid for the rest, while the state of charge is above `min_soc_pct`. | Price spikes. |
 
 Only modes listed in the battery's `allowed_modes` are accepted.
 
-`min_soc_pct` (fixed at 20 % for now) is the lower limit for `force_discharge`. When the state of charge reaches it,
-NOX Energy takes control and puts the battery in `auto` for the rest of the schedule entry. It does not limit `auto`
-itself, where the battery may keep covering the house load.
+The forced modes have state of charge limits. When a limit is reached, NOX Energy takes control and puts the battery
+in `auto` for the rest of the schedule entry. The limits do not apply to `auto` itself.
+
+| Limit | Value (fixed for now) | Applies to |
+|---|---|---|
+| `min_soc_pct` | 20 % | `force_discharge` stops when the state of charge goes down to it. In `auto`, the battery may keep covering the house load below it. |
+| `max_soc_pct` | 80 % | `force_charge` stops when the state of charge goes up to it. In `auto`, pv surplus may keep charging the battery above it. |
 
 ### 3. Planning your own battery schedule (Partner Control Package)
 
@@ -137,7 +141,7 @@ Combine the net load with your price signals (day-ahead prices, your tariffs, im
 limits to run your own optimization:
 
 * the current state of charge from [GET /devices/battery/telemetry/current](/api-docs/battery/asset-info/get-devices-battery-telemetry-current),
-* `capacity_kwh`, `max_charge_power_kw`, `max_discharge_power_kw`, `min_soc_pct` and `allowed_modes` from
+* `capacity_kwh`, `max_charge_power_kw`, `max_discharge_power_kw`, `min_soc_pct`, `max_soc_pct` and `allowed_modes` from
   [GET /devices/battery](/api-docs/battery/asset-info/get-devices-battery).
 
 The result is a list of time windows with the best mode for each, which you send in the next step.
