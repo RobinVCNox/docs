@@ -23,11 +23,11 @@
               "type": "integer",
               "maximum": 1000,
               "minimum": 1,
-              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter, or the `offset` parameter where the\nendpoint offers it, to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
               "default": 1000,
               "title": "Limit"
             },
-            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter, or the `offset` parameter where the\nendpoint offers it, to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
           },
           {
             "name": "next_token",
@@ -46,6 +46,25 @@
               "title": "Next Token"
             },
             "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe number of items to skip before the first item of the page. Defaults to `0`.\n\nUse it together with the `limit` parameter to fetch a specific page, for example `limit=100&offset=200`\nreturns items 201 to 300.\n\nUse either `offset` or `next_token`, not both. Sending both returns `400`.\n",
+              "title": "Offset"
+            },
+            "description": "\nThe number of items to skip before the first item of the page. Defaults to `0`.\n\nUse it together with the `limit` parameter to fetch a specific page, for example `limit=100&offset=200`\nreturns items 201 to 300.\n\nUse either `offset` or `next_token`, not both. Sending both returns `400`.\n"
           },
           {
             "name": "household_id",
@@ -175,11 +194,11 @@
               "type": "integer",
               "maximum": 1000,
               "minimum": 1,
-              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter, or the `offset` parameter where the\nendpoint offers it, to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
               "default": 1000,
               "title": "Limit"
             },
-            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter, or the `offset` parameter where the\nendpoint offers it, to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
           },
           {
             "name": "next_token",
@@ -198,6 +217,25 @@
               "title": "Next Token"
             },
             "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe number of items to skip before the first item of the page. Defaults to `0`.\n\nUse it together with the `limit` parameter to fetch a specific page, for example `limit=100&offset=200`\nreturns items 201 to 300.\n\nUse either `offset` or `next_token`, not both. Sending both returns `400`.\n",
+              "title": "Offset"
+            },
+            "description": "\nThe number of items to skip before the first item of the page. Defaults to `0`.\n\nUse it together with the `limit` parameter to fetch a specific page, for example `limit=100&offset=200`\nreturns items 201 to 300.\n\nUse either `offset` or `next_token`, not both. Sending both returns `400`.\n"
           },
           {
             "name": "household_id",
@@ -332,11 +370,11 @@
               "type": "integer",
               "maximum": 1000,
               "minimum": 1,
-              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter, or the `offset` parameter where the\nendpoint offers it, to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
               "default": 1000,
               "title": "Limit"
             },
-            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter, or the `offset` parameter where the\nendpoint offers it, to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
           },
           {
             "name": "next_token",
@@ -355,6 +393,25 @@
               "title": "Next Token"
             },
             "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe number of items to skip before the first item of the page. Defaults to `0`.\n\nUse it together with the `limit` parameter to fetch a specific page, for example `limit=100&offset=200`\nreturns items 201 to 300.\n\nUse either `offset` or `next_token`, not both. Sending both returns `400`.\n",
+              "title": "Offset"
+            },
+            "description": "\nThe number of items to skip before the first item of the page. Defaults to `0`.\n\nUse it together with the `limit` parameter to fetch a specific page, for example `limit=100&offset=200`\nreturns items 201 to 300.\n\nUse either `offset` or `next_token`, not both. Sending both returns `400`.\n"
           },
           {
             "name": "household_id",

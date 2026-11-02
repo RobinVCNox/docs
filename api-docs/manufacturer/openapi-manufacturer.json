@@ -98,11 +98,11 @@
               "type": "integer",
               "maximum": 4000,
               "minimum": 1,
-              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter, or the `offset` parameter where the\nendpoint offers it, to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
               "default": 1000,
               "title": "Limit"
             },
-            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter, or the `offset` parameter where the\nendpoint offers it, to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
           },
           {
             "name": "next_token",

@@ -36,6 +36,9 @@ All endpoints use the base URL:
     the same parameters again. You can repeat this process until you have received the last page of the response, which is signified
     by the `next_token` field becoming `null`.
     Pass the `next_token` back exactly as you received it. A token that was altered or not issued by the API returns a `400`.
+    The consumption endpoints also accept an `offset` query parameter to fetch a page directly: `limit=100&offset=200`
+    returns items 201 to 300. Use either `offset` or `next_token` in a request, not both. Sending both returns a `400`.
+    The device list (`/v1/devices`) pages by `next_token` only.
 </Note>
 
 ### 1. Getting Device Information
