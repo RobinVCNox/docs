@@ -35,6 +35,7 @@
             "pages": [
               "guides/integration-overview",
               "guides/bring-your-own-connection",
+              "guides/utility-connections",
               "guides/new-asset-integration"
             ]
           },
