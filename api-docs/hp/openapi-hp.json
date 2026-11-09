@@ -284,6 +284,7 @@
                       "device_name": "Kelder",
                       "user_id": "user_4",
                       "device_type": "heat_pump",
+                      "is_hybrid": false,
                       "has_delayed_power_data_1d": true,
                       "legionella_config": {
                         "frequency_per_weeks": 1,
@@ -328,6 +329,7 @@
                       "device_name": "Warmtepomp 1",
                       "user_id": "user_5",
                       "device_type": "heat_pump",
+                      "is_hybrid": true,
                       "has_delayed_power_data_1d": false,
                       "legionella_config": {
                         "frequency_per_weeks": 2,
@@ -2589,6 +2591,18 @@
             ],
             "title": "Device Type",
             "description": "Type of device"
+          },
+          "is_hybrid": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Hybrid",
+            "description": "Whether the device is a hybrid heat pump, combined with a gas boiler. `False` when NOX has no hybrid information for the device."
           },
           "has_delayed_power_data_1d": {
             "anyOf": [
