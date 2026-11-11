@@ -284,7 +284,6 @@
                       "device_name": "Kelder",
                       "user_id": "user_4",
                       "device_type": "heat_pump",
-                      "is_hybrid": false,
                       "has_delayed_power_data_1d": true,
                       "legionella_config": {
                         "frequency_per_weeks": 1,
@@ -314,12 +313,30 @@
                         },
                         "has_cooling": true,
                         "being_steered": true,
-                        "being_steered_start_date": "2025-09-30"
+                        "being_steered_start_date": "2025-09-30",
+                        "steering_method": {
+                          "description": "For space heating, NOX changes the heating mode, target room temperature and water temperature in your heating system. For hot water, NOX changes the hot water mode.",
+                          "space_heating": {
+                            "changed_settings": [
+                              "operation_mode",
+                              "room_setpoint",
+                              "flow_temperature_setpoint"
+                            ],
+                            "schedule_paused": false
+                          },
+                          "domestic_hot_water": {
+                            "changed_settings": [
+                              "operation_mode"
+                            ],
+                            "schedule_paused": false
+                          }
+                        }
                       },
                       "needs_reauthentication": false,
                       "has_room_schedule": false,
                       "first_connection_at": "2025-09-30T12:00:00+00:00",
-                      "capacity_kw": 6.0
+                      "capacity_kw": 6.0,
+                      "is_hybrid": false
                     },
                     {
                       "model": "model_b",
@@ -329,7 +346,6 @@
                       "device_name": "Warmtepomp 1",
                       "user_id": "user_5",
                       "device_type": "heat_pump",
-                      "is_hybrid": true,
                       "has_delayed_power_data_1d": false,
                       "legionella_config": {
                         "frequency_per_weeks": 2,
@@ -358,12 +374,30 @@
                           "reason": "Device is ready to receive an action."
                         },
                         "has_cooling": false,
-                        "being_steered": false
+                        "being_steered": false,
+                        "steering_method": {
+                          "description": "For space heating, NOX changes the heating mode, target room temperature and water temperature in your heating system. For hot water, NOX changes the hot water mode.",
+                          "space_heating": {
+                            "changed_settings": [
+                              "operation_mode",
+                              "room_setpoint",
+                              "flow_temperature_setpoint"
+                            ],
+                            "schedule_paused": false
+                          },
+                          "domestic_hot_water": {
+                            "changed_settings": [
+                              "operation_mode"
+                            ],
+                            "schedule_paused": false
+                          }
+                        }
                       },
                       "needs_reauthentication": false,
                       "has_room_schedule": false,
                       "first_connection_at": "2025-09-30T12:00:00+00:00",
-                      "capacity_kw": 8.0
+                      "capacity_kw": 8.0,
+                      "is_hybrid": true
                     }
                   ],
                   "meta": {
@@ -2393,6 +2427,753 @@
         "type": "object",
         "title": "ActionStatus"
       },
+      "AssetType": {
+        "type": "string",
+        "enum": [
+          "pv",
+          "battery",
+          "heat_pump"
+        ],
+        "title": "AssetType"
+      },
+      "BatteryEnergyForecast": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Start of the 15 minute interval the values refer to"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique device identifier"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
+          },
+          "charge_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Charge Kwh",
+            "description": "Planned energy charged during the interval in kWh"
+          },
+          "discharge_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discharge Kwh",
+            "description": "Planned energy discharged during the interval in kWh"
+          },
+          "soc_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soc Pct",
+            "description": "Planned state of charge in % at the end of the interval"
+          }
+        },
+        "type": "object",
+        "title": "BatteryEnergyForecast"
+      },
+      "BatteryEnergyForecastResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/BatteryEnergyForecast"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of 15 minute values"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatteryEnergyMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "BatteryEnergyForecastResponse"
+      },
+      "BatteryEnergyHistoricalResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/BatteryEnergyMeasurement"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of 15 minute values"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatteryEnergyMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "BatteryEnergyHistoricalResponse"
+      },
+      "BatteryEnergyMeasurement": {
+        "properties": {
+          "measurement_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measurement Time",
+            "description": "Start of the 15 minute interval the values refer to"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique device identifier"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
+          },
+          "charge_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Charge Kwh",
+            "description": "Energy charged during the interval in kWh"
+          },
+          "discharge_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discharge Kwh",
+            "description": "Energy discharged during the interval in kWh"
+          },
+          "soc_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soc Pct",
+            "description": "State of charge in % at the end of the interval"
+          }
+        },
+        "type": "object",
+        "title": "BatteryEnergyMeasurement"
+      },
+      "BatteryEnergyMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          },
+          "energy_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Unit",
+            "description": "Unit of the energy values, e.g. kWh"
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data, e.g. 15min"
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "BatteryEnergyMeta"
+      },
+      "BatteryGeneralReason": {
+        "type": "string",
+        "enum": [
+          "Battery connected recently, still collecting data to improve models.",
+          "Processing error, please contact support.",
+          "Device disconnected, it might reconnect later or be permanently be disconnected.",
+          "Device in error state. Might recover automatically later.",
+          "User settings prevent steering.",
+          "Device is unsupported brand/model, will be supported in future updates.",
+          "Device is unsupported model, will not be supported in future updates.",
+          "Important data missing, this might improve with future updates.",
+          "Unauthorized country, steering not allowed in this country.",
+          "Reauthentication required.",
+          "Unknown reason, please contact support."
+        ],
+        "title": "BatteryGeneralReason"
+      },
+      "BatteryMode": {
+        "type": "string",
+        "enum": [
+          "auto",
+          "pause_charge",
+          "pause_discharge",
+          "force_charge",
+          "force_discharge"
+        ],
+        "title": "BatteryMode"
+      },
+      "BatteryOptimizationSettings": {
+        "properties": {
+          "pv_self_consumption": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pv Self Consumption",
+            "description": "Enable/disable PV self-consumption optimization"
+          },
+          "dynamic_tariff": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dynamic Tariff",
+            "description": "Enable/disable dynamic tariff optimization"
+          },
+          "flex_trading": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flex Trading",
+            "description": "Enable/disable supplier flex trading. If `True`, the supplier steers the battery based on the schedules they provide to NOX Energy."
+          },
+          "imbalance_optimization": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imbalance Optimization",
+            "description": "Enable/disable imbalance optimization. If `True`, the battery will be optimized to minimize imbalances based on the imbalance prices of the users country."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "BatteryOptimizationSettings"
+      },
+      "BatteryScheduleEntry": {
+        "properties": {
+          "start_time": {
+            "type": "string",
+            "title": "Start Time",
+            "description": "Start of the entry in ISO 8601 UTC format. At least 1 minute in the future."
+          },
+          "end_time": {
+            "type": "string",
+            "title": "End Time",
+            "description": "End of the entry in ISO 8601 UTC format. After the end, the battery falls back to `auto` unless another entry starts."
+          },
+          "mode": {
+            "$ref": "#/components/schemas/BatteryMode",
+            "description": "Battery mode to apply during the entry. Must be one of the battery's `allowed_modes`."
+          }
+        },
+        "type": "object",
+        "required": [
+          "start_time",
+          "end_time",
+          "mode"
+        ],
+        "title": "BatteryScheduleEntry"
+      },
+      "BatteryScheduleRejectedReasons": {
+        "type": "string",
+        "enum": [
+          "No battery found for this device_id.",
+          "flex_trading is not enabled in the optimization settings of this battery.",
+          "The device is currently not steerable, please check its steerable status.",
+          "The requested mode is not in the allowed_modes of this battery.",
+          "start_time must be at least 1 minute in the future.",
+          "start_time and end_time must be ISO 8601 UTC timestamps with start_time before end_time.",
+          "Schedule entries for the same device overlap."
+        ],
+        "title": "BatteryScheduleRejectedReasons"
+      },
+      "BatterySteerableStatus": {
+        "properties": {
+          "steering_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steering Enabled",
+            "description": "Whether steering is enabled"
+          },
+          "steerable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steerable",
+            "description": "Whether device is steerable"
+          },
+          "learning_period_ended": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Period Ended",
+            "description": "Whether the learning period has ended"
+          },
+          "general_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatteryGeneralReason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "General reason for steerable status"
+          }
+        },
+        "type": "object",
+        "title": "BatterySteerableStatus"
+      },
+      "BatteryTelemetryCurrent": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique device identifier"
+          },
+          "measured_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measured At",
+            "description": "ISO 8601 UTC timestamp of the measurement"
+          },
+          "soc_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soc Pct",
+            "description": "State of charge in %"
+          },
+          "power_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Power Kw",
+            "description": "Battery power in kW. Positive when charging (consuming), negative when discharging."
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatteryMode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Battery mode the battery is currently in"
+          }
+        },
+        "type": "object",
+        "title": "BatteryTelemetryCurrent"
+      },
+      "BatteryTelemetryCurrentMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          }
+        },
+        "type": "object",
+        "title": "BatteryTelemetryCurrentMeta"
+      },
+      "BatteryTelemetryCurrentResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/BatteryTelemetryCurrent"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of battery telemetry"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatteryTelemetryCurrentMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "BatteryTelemetryCurrentResponse"
+      },
+      "Connection": {
+        "properties": {
+          "connection_id": {
+            "type": "string",
+            "title": "Connection Id",
+            "description": "The ID of the connection."
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "Your own ID of the user the connection belongs to."
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider",
+            "description": "The provider the assets are connected through, e.g. `daikin`."
+          },
+          "credential_type": {
+            "type": "string",
+            "title": "Credential Type",
+            "description": "How the connection authenticates: `oauth`, `app_credentials`, `manufacturer_identifier` or `ean`."
+          },
+          "assets": {
+            "items": {
+              "$ref": "#/components/schemas/ConnectionAsset"
+            },
+            "type": "array",
+            "title": "Assets",
+            "description": "The assets reachable through this connection."
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "`pending`: the provider is still activating the account, which can take up to a day; no assets yet. `connected`: in use. `failed`: activation never completed, see `status_reason`; have the user connect again. `needs_reauth`: the credentials stopped working; have the user connect again."
+          },
+          "status_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status Reason",
+            "description": "Why a connection is `failed` or `needs_reauth`, as a code. `null` otherwise."
+          },
+          "connected_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connected At",
+            "description": "When the connection was made."
+          }
+        },
+        "type": "object",
+        "required": [
+          "connection_id",
+          "user_id",
+          "provider",
+          "credential_type",
+          "assets",
+          "status"
+        ],
+        "title": "Connection"
+      },
+      "ConnectionAsset": {
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "title": "Asset Id",
+            "description": "The NOX ID of the asset."
+          },
+          "asset_type": {
+            "type": "string",
+            "title": "Asset Type",
+            "description": "The type of the asset: `pv`, `bat` or `hp`."
+          },
+          "external_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Id",
+            "description": "The ID of the asset at the provider."
+          }
+        },
+        "type": "object",
+        "required": [
+          "asset_id",
+          "asset_type"
+        ],
+        "title": "ConnectionAsset"
+      },
+      "ConnectionsResponse": {
+        "properties": {
+          "connections": {
+            "items": {
+              "$ref": "#/components/schemas/Connection"
+            },
+            "type": "array",
+            "title": "Connections",
+            "description": "The user's connections, empty when there are none."
+          }
+        },
+        "type": "object",
+        "required": [
+          "connections"
+        ],
+        "title": "ConnectionsResponse"
+      },
+      "Coordinates": {
+        "properties": {
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude",
+            "description": "Latitude, between -90 and 90."
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude",
+            "description": "Longitude, between -180 and 180."
+          }
+        },
+        "type": "object",
+        "title": "Coordinates"
+      },
       "CycleConfig": {
         "properties": {
           "max_cycles_per_day": {
@@ -2592,18 +3373,6 @@
             "title": "Device Type",
             "description": "Type of device"
           },
-          "is_hybrid": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Hybrid",
-            "description": "Whether the device is a hybrid heat pump, combined with a gas boiler. `False` when NOX has no hybrid information for the device."
-          },
           "has_delayed_power_data_1d": {
             "anyOf": [
               {
@@ -2696,10 +3465,186 @@
             ],
             "title": "Capacity Kw",
             "description": "Maximum measured power of the heat pump in kW"
+          },
+          "is_hybrid": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Hybrid",
+            "description": "Whether the device is a hybrid heat pump, combined with a gas boiler. `False` when NOX has no hybrid information for the device."
           }
         },
         "type": "object",
         "title": "Device"
+      },
+      "DeviceBattery": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Unique device identifier"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand",
+            "description": "Device brand"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model",
+            "description": "Device model"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country",
+            "description": "Country code"
+          },
+          "capacity_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Kwh",
+            "description": "Usable battery capacity in kWh"
+          },
+          "max_charge_power_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Charge Power Kw",
+            "description": "Maximum charge power in kW"
+          },
+          "max_discharge_power_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Discharge Power Kw",
+            "description": "Maximum discharge power in kW"
+          },
+          "steerable_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatterySteerableStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Device steering status"
+          },
+          "min_soc_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Soc Pct",
+            "description": "Lower limit for `force_discharge`, as a state of charge in %. Below it, NOX Energy takes control and puts the battery in the default mode `auto`. Fixed at 20 % for now."
+          },
+          "allowed_modes": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/BatteryMode"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allowed Modes",
+            "description": "Battery modes this battery accepts in a schedule. Depends on the battery model and on the other devices in its household."
+          },
+          "needs_reauthentication": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Needs Reauthentication",
+            "description": "Whether the device needs reauthentication"
+          },
+          "first_connection_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Connection At",
+            "description": "The date when the device was first connected to Nox, in UTC time format."
+          }
+        },
+        "type": "object",
+        "title": "DeviceBattery"
       },
       "DevicePV": {
         "properties": {
@@ -2885,6 +3830,290 @@
         },
         "type": "object",
         "title": "DevicePV"
+      },
+      "DevicesBatteryGetSettings": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Battery device ID"
+          },
+          "optimization_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatteryOptimizationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optimization settings for flex trading, dynamic tariff, PV self-consumption and imbalance optimization"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "Timestamp of the last update of the settings in ISO format"
+          }
+        },
+        "type": "object",
+        "title": "DevicesBatteryGetSettings"
+      },
+      "DevicesBatteryGetSettingsMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          }
+        },
+        "type": "object",
+        "title": "DevicesBatteryGetSettingsMeta"
+      },
+      "DevicesBatteryGetSettingsResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/DevicesBatteryGetSettings"
+            },
+            "type": "array",
+            "title": "Data",
+            "description": "List of battery settings"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/DevicesBatteryGetSettingsMeta",
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "DevicesBatteryGetSettingsResponse"
+      },
+      "DevicesBatteryMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          }
+        },
+        "type": "object",
+        "title": "DevicesBatteryMeta"
+      },
+      "DevicesBatteryResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DeviceBattery"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of batteries"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DevicesBatteryMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "DevicesBatteryResponse"
+      },
+      "DevicesBatteryScheduleMeta": {
+        "properties": {
+          "energy_supplier": {
+            "type": "string",
+            "title": "Energy Supplier"
+          },
+          "accepted_count": {
+            "type": "integer",
+            "title": "Accepted Count",
+            "description": "Number of devices that had schedules successfully applied."
+          },
+          "rejected_count": {
+            "type": "integer",
+            "title": "Rejected Count",
+            "description": "Number of device schedules that were rejected."
+          }
+        },
+        "type": "object",
+        "required": [
+          "energy_supplier",
+          "accepted_count",
+          "rejected_count"
+        ],
+        "title": "DevicesBatteryScheduleMeta"
+      },
+      "DevicesBatteryScheduleRejected": {
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "title": "Device Id",
+            "description": "Device ID for which the schedule could not be applied."
+          },
+          "reason": {
+            "$ref": "#/components/schemas/BatteryScheduleRejectedReasons",
+            "description": "Reason why the schedule for the device was rejected."
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code",
+            "description": "Reason code mapping to the reason. {'No battery found for this device_id.': 1, 'flex_trading is not enabled in the optimization settings of this battery.': 2, 'The device is currently not steerable, please check its steerable status.': 3, 'The requested mode is not in the allowed_modes of this battery.': 4, 'start_time must be at least 1 minute in the future.': 5, 'start_time and end_time must be ISO 8601 UTC timestamps with start_time before end_time.': 6, 'Schedule entries for the same device overlap.': 7}."
+          }
+        },
+        "type": "object",
+        "required": [
+          "device_id",
+          "reason"
+        ],
+        "title": "DevicesBatteryScheduleRejected"
+      },
+      "DevicesBatteryScheduleRequest": {
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "title": "Device Id",
+            "description": "Battery device ID the schedule applies to."
+          },
+          "schedules": {
+            "items": {
+              "$ref": "#/components/schemas/BatteryScheduleEntry"
+            },
+            "type": "array",
+            "title": "Schedules",
+            "description": "Schedule entries for the battery. Replaces any schedule previously sent for it."
+          }
+        },
+        "type": "object",
+        "required": [
+          "device_id",
+          "schedules"
+        ],
+        "title": "DevicesBatteryScheduleRequest"
+      },
+      "DevicesBatteryScheduleResponse": {
+        "properties": {
+          "rejected": {
+            "items": {
+              "$ref": "#/components/schemas/DevicesBatteryScheduleRejected"
+            },
+            "type": "array",
+            "title": "Rejected",
+            "description": "Devices for which the schedule could not be applied."
+          },
+          "meta": {
+            "$ref": "#/components/schemas/DevicesBatteryScheduleMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "DevicesBatteryScheduleResponse"
+      },
+      "DevicesBatterySettingsRequest": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Battery device ID to update settings for"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "Your own ID of the user, to update the settings of all their batteries"
+          },
+          "optimization_settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatteryOptimizationSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optimization settings for flex trading, dynamic tariff, PV self-consumption and imbalance optimization"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "DevicesBatterySettingsRequest"
       },
       "DevicesGetSettingsMetadata": {
         "properties": {
@@ -3596,6 +4825,56 @@
         "type": "object",
         "title": "DevicesSettingsRequest"
       },
+      "DirectConnectRequest": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "Your own ID of the user to connect."
+          },
+          "identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identifier",
+            "description": "The identifier of the user's assets at your platform, e.g. a serial number. Defaults to `user_id`."
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "title": "DirectConnectRequest"
+      },
+      "FunctionSteering": {
+        "properties": {
+          "changed_settings": {
+            "items": {
+              "$ref": "#/components/schemas/SteeringSetting"
+            },
+            "type": "array",
+            "title": "Changed Settings",
+            "description": "Settings NOX may change on the heat pump to steer this function. Some, typically `operation_mode`, are only changed when the device is not already in a state NOX can steer reliably. Possible values: `operation_mode` (e.g. manual, off, heating or cooling mode), `room_setpoint` (target room temperature), `flow_temperature_setpoint` (target water temperature sent to the radiators or floor heating), `dhw_setpoint` (target hot water tank temperature), `dhw_boost` (hot water boost or one-time charge)."
+          },
+          "schedule_paused": {
+            "type": "boolean",
+            "title": "Schedule Paused",
+            "description": "Whether the user's own schedule for this function is paused while NOX steers."
+          }
+        },
+        "type": "object",
+        "required": [
+          "changed_settings",
+          "schedule_paused"
+        ],
+        "title": "FunctionSteering"
+      },
       "HPTelemetryCurrentResponse": {
         "properties": {
           "data": {
@@ -3738,6 +5017,466 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "HouseLoadForecast": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Start of the 15 minute interval the value refers to"
+          },
+          "household_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Household Id",
+            "description": "Unique household identifier"
+          },
+          "house_load_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "House Load Kwh",
+            "description": "Expected house load during the interval in kWh: everything the household consumes except the battery, before PV production is subtracted. Heat pump consumption is included."
+          }
+        },
+        "type": "object",
+        "title": "HouseLoadForecast"
+      },
+      "HouseLoadForecastMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          },
+          "energy_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Unit",
+            "description": "Unit of the energy values, e.g. kWh"
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data, e.g. 15min"
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "HouseLoadForecastMeta"
+      },
+      "HouseLoadForecastResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/HouseLoadForecast"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of 15 minute values"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseLoadForecastMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "HouseLoadForecastResponse"
+      },
+      "HouseholdDevice": {
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id",
+            "description": "Device ID, the same ID returned by the device endpoints of its asset type"
+          },
+          "asset_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssetType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Asset type of the device"
+          }
+        },
+        "type": "object",
+        "title": "HouseholdDevice"
+      },
+      "HouseholdLocation": {
+        "properties": {
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country",
+            "description": "The country. Accepts a name in any language, answered as an ISO code."
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City",
+            "description": "The city."
+          },
+          "postal_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postal Code",
+            "description": "The postal code."
+          },
+          "coordinates": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Coordinates"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The coordinates of the household."
+          }
+        },
+        "type": "object",
+        "title": "HouseholdLocation"
+      },
+      "HouseholdOwner": {
+        "properties": {
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name",
+            "description": "The owner's first name."
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name",
+            "description": "The owner's last name."
+          }
+        },
+        "type": "object",
+        "title": "HouseholdOwner"
+      },
+      "HouseholdTelemetryCurrent": {
+        "properties": {
+          "household_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Household Id",
+            "description": "Unique household identifier"
+          },
+          "measured_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measured At",
+            "description": "ISO 8601 UTC timestamp of the measurement"
+          },
+          "house_load_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "House Load Kw",
+            "description": "Current house load in kW: everything the household consumes except the battery"
+          },
+          "grid_power_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grid Power Kw",
+            "description": "Current grid power in kW. Positive when the household imports from the grid, negative when it exports. `null` if the household has no grid metering."
+          }
+        },
+        "type": "object",
+        "title": "HouseholdTelemetryCurrent"
+      },
+      "HouseholdTelemetryCurrentMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          }
+        },
+        "type": "object",
+        "title": "HouseholdTelemetryCurrentMeta"
+      },
+      "HouseholdTelemetryCurrentResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/HouseholdTelemetryCurrent"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of household telemetry"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseholdTelemetryCurrentMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "HouseholdTelemetryCurrentResponse"
+      },
+      "HouseholdUpdateRequest": {
+        "properties": {
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseholdLocation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Where the household is."
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseholdOwner"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Who owns the household."
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "HouseholdUpdateRequest",
+        "description": "Only the fields sent change; a field sent as `null` is cleared."
+      },
+      "HouseholdsMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for pagination"
+          }
+        },
+        "type": "object",
+        "title": "HouseholdsMeta"
+      },
+      "HouseholdsResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/app__models__household__household_model__Household"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of households"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseholdsMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "HouseholdsResponse"
+      },
       "LegionellaConfig": {
         "properties": {
           "frequency_per_weeks": {
@@ -3779,6 +5518,83 @@
         },
         "type": "object",
         "title": "LegionellaConfig"
+      },
+      "LinkRequest": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "Your own ID of the user to connect."
+          },
+          "redirect_url": {
+            "type": "string",
+            "title": "Redirect Url",
+            "description": "The `https` URL the user returns to when the flow ends."
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider",
+            "description": "The provider to connect, e.g. `daikin`. Send this, `connection_type`, or both."
+          },
+          "connection_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connection Type",
+            "description": "The kind of provider the user picks from: `oem`, `oem.hp`, `oem.pv`, `oem.bat` or `utility`."
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "description": "The language of the connect flow: `nl`, `en`, `fr` or `es`. Defaults to `nl`."
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "user_id",
+          "redirect_url"
+        ],
+        "title": "LinkRequest"
+      },
+      "LinkResponse": {
+        "properties": {
+          "link_token": {
+            "type": "string",
+            "title": "Link Token",
+            "description": "The token of the connect session."
+          },
+          "link_url": {
+            "type": "string",
+            "title": "Link Url",
+            "description": "The URL to send the user to. It expires after an hour."
+          }
+        },
+        "type": "object",
+        "required": [
+          "link_token",
+          "link_url"
+        ],
+        "title": "LinkResponse"
       },
       "LocationSettings": {
         "properties": {
@@ -4701,6 +6517,64 @@
         "type": "object",
         "title": "RoomSettings"
       },
+      "SteeringMethod": {
+        "properties": {
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Short English explanation, for end users, of what NOX changes on the heat pump to steer it. Devices steered the same way always get the same text."
+          },
+          "space_heating": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FunctionSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How space heating is steered. `null` when NOX does not steer space heating on this device, including when the room `reason` is `No room control available on this device.`"
+          },
+          "cooling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FunctionSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How cooling is steered. `null` when the device cannot cool or NOX does not steer its cooling, including when the room `reason` is `No room control available on this device.`"
+          },
+          "domestic_hot_water": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FunctionSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How hot water is steered. `null` when the device has no hot water tank or NOX does not steer its hot water, including when the DHW `reason` is `No DHW control available on this device.`"
+          }
+        },
+        "type": "object",
+        "required": [
+          "description"
+        ],
+        "title": "SteeringMethod"
+      },
+      "SteeringSetting": {
+        "type": "string",
+        "enum": [
+          "operation_mode",
+          "room_setpoint",
+          "flow_temperature_setpoint",
+          "dhw_setpoint",
+          "dhw_boost"
+        ],
+        "title": "SteeringSetting"
+      },
       "TemperatureControlMode": {
         "type": "string",
         "enum": [
@@ -4742,6 +6616,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",
@@ -4751,6 +6632,91 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "app__models__connections__connections_model__Household": {
+        "properties": {
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseholdLocation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Where the household is."
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseholdOwner"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Who owns the household."
+          }
+        },
+        "type": "object",
+        "title": "Household"
+      },
+      "app__models__household__household_model__Household": {
+        "properties": {
+          "household_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Household Id",
+            "description": "Unique household identifier"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
+          },
+          "grid_metering": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grid Metering",
+            "description": "Whether NOX Energy measures the household's grid import and export"
+          },
+          "devices": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/HouseholdDevice"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Devices",
+            "description": "NOX-connected devices in the household"
+          }
+        },
+        "type": "object",
+        "title": "Household"
       },
       "app__models__hp__device_models__GeneralReason": {
         "type": "string",
@@ -4884,6 +6850,17 @@
             ],
             "title": "Being Steered Start Date",
             "description": "Start date of when we first started steering this device."
+          },
+          "steering_method": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SteeringMethod"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What NOX changes on the heat pump when it steers it, to show end users. Set only when `steerable` is `true`; `null` otherwise, for air-to-air heat pumps, and when NOX controls none of the device's functions."
           }
         },
         "type": "object",
