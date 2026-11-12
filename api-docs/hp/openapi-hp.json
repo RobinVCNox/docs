@@ -313,30 +313,14 @@
                         },
                         "has_cooling": true,
                         "being_steered": true,
-                        "being_steered_start_date": "2025-09-30",
-                        "steering_method": {
-                          "description": "For space heating, NOX changes the heating mode, target room temperature and water temperature in your heating system. For hot water, NOX changes the hot water mode.",
-                          "space_heating": {
-                            "changed_settings": [
-                              "operation_mode",
-                              "room_setpoint",
-                              "flow_temperature_setpoint"
-                            ],
-                            "schedule_paused": false
-                          },
-                          "domestic_hot_water": {
-                            "changed_settings": [
-                              "operation_mode"
-                            ],
-                            "schedule_paused": false
-                          }
-                        }
+                        "being_steered_start_date": "2025-09-30"
                       },
                       "needs_reauthentication": false,
                       "has_room_schedule": false,
                       "first_connection_at": "2025-09-30T12:00:00+00:00",
                       "capacity_kw": 6.0,
-                      "is_hybrid": false
+                      "is_hybrid": false,
+                      "last_updated_at": "2025-10-01T08:30:00+00:00"
                     },
                     {
                       "model": "model_b",
@@ -374,30 +358,14 @@
                           "reason": "Device is ready to receive an action."
                         },
                         "has_cooling": false,
-                        "being_steered": false,
-                        "steering_method": {
-                          "description": "For space heating, NOX changes the heating mode, target room temperature and water temperature in your heating system. For hot water, NOX changes the hot water mode.",
-                          "space_heating": {
-                            "changed_settings": [
-                              "operation_mode",
-                              "room_setpoint",
-                              "flow_temperature_setpoint"
-                            ],
-                            "schedule_paused": false
-                          },
-                          "domestic_hot_water": {
-                            "changed_settings": [
-                              "operation_mode"
-                            ],
-                            "schedule_paused": false
-                          }
-                        }
+                        "being_steered": false
                       },
                       "needs_reauthentication": false,
                       "has_room_schedule": false,
                       "first_connection_at": "2025-09-30T12:00:00+00:00",
                       "capacity_kw": 8.0,
-                      "is_hybrid": true
+                      "is_hybrid": true,
+                      "last_updated_at": "2025-10-01T08:30:00+00:00"
                     }
                   ],
                   "meta": {
@@ -1944,7 +1912,7 @@
           "User Management"
         ],
         "summary": "Get Devices Settings",
-        "description": "Get the settings of a specific device or group of devices of a user.",
+        "description": "Get the settings of a specific device or group of devices of a user.\n\nIf `updated_at` is `null`, the user has not yet updated their settings for that device\nand the values returned are our default values.",
         "operationId": "get_devices_settings_v1_devices_settings_get",
         "parameters": [
           {
@@ -3477,6 +3445,18 @@
             ],
             "title": "Is Hybrid",
             "description": "Whether the device is a hybrid heat pump, combined with a gas boiler. `False` when NOX has no hybrid information for the device."
+          },
+          "last_updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated At",
+            "description": "When NOX last received an update for this device, in UTC time format. `None` when unknown."
           }
         },
         "type": "object",
@@ -3831,6 +3811,37 @@
         "type": "object",
         "title": "DevicePV"
       },
+      "DevicePVSettings": {
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "title": "Device Id",
+            "description": "Device ID the settings belong to"
+          },
+          "optimization_settings": {
+            "$ref": "#/components/schemas/PVOptimizationSettingsResponse",
+            "description": "Optimization settings for the device"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "Timestamp of the last update of the settings in ISO format. `null` means we provide default values because the user has not yet updated their device settings."
+          }
+        },
+        "type": "object",
+        "required": [
+          "device_id",
+          "optimization_settings"
+        ],
+        "title": "DevicePVSettings"
+      },
       "DevicesBatteryGetSettings": {
         "properties": {
           "device_id": {
@@ -4115,6 +4126,46 @@
         "type": "object",
         "title": "DevicesBatterySettingsRequest"
       },
+      "DevicesGetPVSettingsMetadata": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          }
+        },
+        "type": "object",
+        "title": "DevicesGetPVSettingsMetadata"
+      },
+      "DevicesGetPVSettingsResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/DevicePVSettings"
+            },
+            "type": "array",
+            "title": "Data",
+            "description": "List of pv device settings"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/DevicesGetPVSettingsMetadata",
+            "description": "Metadata related to the pv device settings response"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "DevicesGetPVSettingsResponse"
+      },
       "DevicesGetSettingsMetadata": {
         "properties": {
           "energy_supplier": {
@@ -4202,7 +4253,7 @@
               }
             ],
             "title": "Updated At",
-            "description": "Timestamp of the last update of the settings in ISO format"
+            "description": "Timestamp of the last update of the settings in ISO format. If `null`, the user has not yet updated their settings and the default values are returned."
           }
         },
         "additionalProperties": false,
@@ -4851,29 +4902,6 @@
           "user_id"
         ],
         "title": "DirectConnectRequest"
-      },
-      "FunctionSteering": {
-        "properties": {
-          "changed_settings": {
-            "items": {
-              "$ref": "#/components/schemas/SteeringSetting"
-            },
-            "type": "array",
-            "title": "Changed Settings",
-            "description": "Settings NOX may change on the heat pump to steer this function. Some, typically `operation_mode`, are only changed when the device is not already in a state NOX can steer reliably. Possible values: `operation_mode` (e.g. manual, off, heating or cooling mode), `room_setpoint` (target room temperature), `flow_temperature_setpoint` (target water temperature sent to the radiators or floor heating), `dhw_setpoint` (target hot water tank temperature), `dhw_boost` (hot water boost or one-time charge)."
-          },
-          "schedule_paused": {
-            "type": "boolean",
-            "title": "Schedule Paused",
-            "description": "Whether the user's own schedule for this function is paused while NOX steers."
-          }
-        },
-        "type": "object",
-        "required": [
-          "changed_settings",
-          "schedule_paused"
-        ],
-        "title": "FunctionSteering"
       },
       "HPTelemetryCurrentResponse": {
         "properties": {
@@ -5833,6 +5861,19 @@
         "type": "object",
         "title": "PVFleetTypicalProductionResponse"
       },
+      "PVOptimizationSettingsResponse": {
+        "properties": {
+          "pv_curtailment_mode": {
+            "$ref": "#/components/schemas/PVCurtailmentMode",
+            "description": "PV curtailment mode. If `managed`, NOX Energy manages the PV curtailment. If `external`, we follow the curtailment schedule provided by the external party. If `off`, PV curtailment is disabled. Devices without stored settings default to `off`."
+          }
+        },
+        "type": "object",
+        "required": [
+          "pv_curtailment_mode"
+        ],
+        "title": "PVOptimizationSettingsResponse"
+      },
       "PVPForecastData": {
         "properties": {
           "forecast_time": {
@@ -6517,64 +6558,6 @@
         "type": "object",
         "title": "RoomSettings"
       },
-      "SteeringMethod": {
-        "properties": {
-          "description": {
-            "type": "string",
-            "title": "Description",
-            "description": "Short English explanation, for end users, of what NOX changes on the heat pump to steer it. Devices steered the same way always get the same text."
-          },
-          "space_heating": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/FunctionSteering"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "How space heating is steered. `null` when NOX does not steer space heating on this device, including when the room `reason` is `No room control available on this device.`"
-          },
-          "cooling": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/FunctionSteering"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "How cooling is steered. `null` when the device cannot cool or NOX does not steer its cooling, including when the room `reason` is `No room control available on this device.`"
-          },
-          "domestic_hot_water": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/FunctionSteering"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "How hot water is steered. `null` when the device has no hot water tank or NOX does not steer its hot water, including when the DHW `reason` is `No DHW control available on this device.`"
-          }
-        },
-        "type": "object",
-        "required": [
-          "description"
-        ],
-        "title": "SteeringMethod"
-      },
-      "SteeringSetting": {
-        "type": "string",
-        "enum": [
-          "operation_mode",
-          "room_setpoint",
-          "flow_temperature_setpoint",
-          "dhw_setpoint",
-          "dhw_boost"
-        ],
-        "title": "SteeringSetting"
-      },
       "TemperatureControlMode": {
         "type": "string",
         "enum": [
@@ -6616,13 +6599,6 @@
           "type": {
             "type": "string",
             "title": "Error Type"
-          },
-          "input": {
-            "title": "Input"
-          },
-          "ctx": {
-            "type": "object",
-            "title": "Context"
           }
         },
         "type": "object",
@@ -6850,17 +6826,6 @@
             ],
             "title": "Being Steered Start Date",
             "description": "Start date of when we first started steering this device."
-          },
-          "steering_method": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/SteeringMethod"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "What NOX changes on the heat pump when it steers it, to show end users. Set only when `steerable` is `true`; `null` otherwise, for air-to-air heat pumps, and when NOX controls none of the device's functions."
           }
         },
         "type": "object",

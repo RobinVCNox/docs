@@ -3,6 +3,26 @@ title: 'Product updates'
 description: 'Updates and Changes'
 ---
 
+<Update label="November 2026">
+  ## PV settings endpoint
+
+  * Added the [/devices/pv/settings](/api-docs/pv/asset-info/get-devices-pv-settings) endpoint, which returns the settings of a specific pv device or of all pv devices of a user. Provide either a `device_id` or a `user_id`.
+  * The response contains `optimization_settings.pv_curtailment_mode` (`managed`, `external` or `off`) and `updated_at`. Devices that have no stored settings are returned with the default `off`.
+
+  ## `updated_at` on device settings
+
+  * When `updated_at` is `null` in the settings responses, the user has not yet updated their settings for that device and the values returned are our default values. This is now documented for both heat pump and pv settings.
+
+  ## `last_updated_at` on devices
+
+  * The heat pump [/devices](/api-docs/hp/asset-info/get-devices) and pv [/devices/pv](/api-docs/pv/asset-info/get-devices-pv) endpoints now return a `last_updated_at` field, indicating when NOX Energy last received an update for the device (UTC). The field is `null` when unknown.
+
+  ## PV hybrid information
+
+  * The [/devices/pv](/api-docs/pv/asset-info/get-devices-pv) device schema now includes the `is_hybrid` field, matching the heat pump device schema. It is `false` when NOX Energy has no hybrid information for the device.
+
+</Update>
+
 <Update label="October 2026">
   ## Offset pagination
 
