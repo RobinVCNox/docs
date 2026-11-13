@@ -293,6 +293,88 @@ If you want higher granularity telemetry data then we recommend you to use our [
 A lot of query parameters exist on the [/devices](/api-docs/hp/asset-info/get-devices) we recommend you to use them
 if relevant, to reduces the size of data transfer.
 
+#### 1.1 Showing how NOX steers a device
+
+`steerable_status.steering_method` on [/devices](/api-docs/hp/asset-info/get-devices) tells you which settings NOX changes on the heat pump when it steers it. Use it to explain to your users why, for example, their target room temperature changes during the day.
+
+Every value is a code, so you write the text your users see, in their language. Here is a Daikin with a fixed leaving water temperature, cooling and a hot water tank:
+
+```json
+{
+  "space_heating": {
+    "schedule_paused": true,
+    "settings": {
+      "room_setpoint": {"use": "every_action", "reasons": []},
+      "flow_temperature_setpoint": {"use": "every_action", "reasons": []},
+      "operation_mode": {"use": "rarely", "reasons": ["comfort_start"]}
+    }
+  },
+  "cooling": {
+    "schedule_paused": false,
+    "settings": {
+      "room_setpoint": {"use": "every_action", "reasons": []},
+      "operation_mode": {"use": "user_controlled", "reasons": []}
+    }
+  },
+  "domestic_hot_water": {
+    "schedule_paused": true,
+    "settings": {
+      "dhw_setpoint": {"use": "every_action", "reasons": []},
+      "operation_mode": {"use": "when_needed", "reasons": ["schedule_would_override"]}
+    }
+  }
+}
+```
+
+- `steering_method` is `null` when the device isn't `steerable`, and when NOX doesn't describe how it steers the device: air to air heat pumps, and brands or models NOX doesn't steer.
+- A function (`space_heating`, `cooling`, `domestic_hot_water`) is `null` when NOX doesn't steer it on this device, for example cooling on a heat pump that can't cool.
+- `schedule_paused`: while NOX steers this function, the user's own schedule for it on the device is paused. It is restored when NOX hands control back.
+- `settings`: the settings NOX changes for this function. A setting that isn't listed is never touched by NOX.
+- The order of settings and of reasons carries no meaning. Pick your own display order.
+
+##### Settings
+
+The operation mode and flow temperature mean something different per function, so name them per function: "heating mode", "cooling mode", "hot water mode".
+
+| Code | Setting on the device |
+| --- | --- |
+| `operation_mode` | The mode of the function, such as heating, cooling, hot water, manual, standby or off |
+| `room_setpoint` | Target room temperature |
+| `flow_temperature_setpoint` | Temperature of the water in the heating or cooling system |
+| `dhw_setpoint` | Target hot water temperature |
+| `dhw_boost` | Hot water boost |
+
+##### Uses
+
+How often NOX changes a setting. `when_needed` and `rarely` always come with at least one reason, the other uses never have one. Only `operation_mode` can be `rarely` or `user_controlled`.
+
+| Code | Meaning |
+| --- | --- |
+| `every_action` | NOX changes the setting every time it starts or stops the function. The user sees the value change throughout the day. For the operation mode this usually means NOX starts the function by switching to heating, cooling or hot water, and stops it by switching to standby or off. |
+| `when_needed` | NOX leaves the setting alone while the device is already in a state it can steer, and only changes it in the situations listed in `reasons`. A user will see it change now and then, typically the first time NOX steers after they changed it. |
+| `rarely` | The operation mode belongs to the user and NOX steers within the heating or cooling mode they picked. It only changes the mode in the situations listed in `reasons`, and these are exceptions rather than part of normal steering. |
+| `user_controlled` | The operation mode belongs to the user and NOX never changes it. If the user puts the device in a mode that doesn't match what NOX wants to do, for example cooling while NOX wants to heat, NOX can't steer that function until they switch back. |
+
+##### Reasons
+
+Why NOX changes a setting that is `when_needed` or `rarely`. A setting can have several.
+
+| Code | Meaning |
+| --- | --- |
+| `mode_blocks_steering` | The device is in a mode (including off) where NOX's setting can't be written or has no effect, so NOX switches it to one where it can. For example, an LG system boiler in cooling ignores a heating setpoint. If the device was off, this switches it out of off. |
+| `heat_pump_not_in_use` | The device is set to heat with something other than the heat pump, such as an electric element, so NOX switches it back to the heat pump. |
+| `mode_is_off_switch` | The device has no separate way to stop this function, so NOX switches the mode to one without it, such as standby. |
+| `comfort_start` | The room is below the comfort range the user agreed to, and a zone the user switched off or left in another mode can't heat. NOX switches it to heating to bring the room back to comfort. This only happens on heating. |
+| `schedule_would_override` | The user's time program would replace NOX's setpoint at its next switch point, so NOX switches the zone or tank to manual while it steers. Explain this together with `schedule_paused`. |
+
+##### New codes
+
+We may add setting, use and reason codes in any release, and we never change the meaning of an existing code. Don't fail on a code you don't know: show it as a general "NOX may change this setting".
+
+<Note>
+`steering_method.description` holds NOX's own English text for the same information. It is deprecated and will be removed in a future release. Build your text from the codes instead.
+</Note>
+
 ### 2. Retrieving Consumption Data
 
 #### 2.1 Historical Consumption
