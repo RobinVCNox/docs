@@ -2262,7 +2262,7 @@
           "Asset Info"
         ],
         "summary": "Get Devices Hp Current Telemetry",
-        "description": "Get the current telemetry data of a specific device or group of devices of a user.\nIf a device has `has_delayed_power_data_1d` equal to `True`,\nit means that the power data only gets updated once a day between 2-4 AM UTC for the full previous day.\nMeaning we cannot provide real time power data and their value will be None.\nIt is possible that the `dhw_temp` and `room_temp` values are `None` if the device \ndoes not contain this data or controls for it.",
+        "description": "Get the current telemetry data of a specific device or group of devices of a user.\nIf a device has `has_delayed_power_data_1d` equal to `True`,\nit means that the power data only gets updated once a day between 2-4 AM UTC for the full previous day.\nMeaning we cannot provide real time power data and their value will be None.\nIt is possible that the `dhw_temp` and `room_temp` values are `None` if the device\ndoes not contain this data or controls for it.\n\n`room_steering` describes what NOX steers the room towards, for example to show\n\"21.3 °C, heating to 20.0 °C\" in your app:\n- `requested_mode` is what the end user asked for (`auto`, `heating`, `cooling` or `off`).\n  It reads back your `room.temperature_control_mode` setting when you set one. Change it\n  through that setting, not here.\n- `steered_mode` is what NOX steers towards right now (`heating`, `cooling` or `off`).\n  A requested `auto` resolves to `heating` or `cooling`.\n- `heating` and `cooling` each hold the desired room temperature for that mode and its\n  `setpoint_source` (`schedule` or `static`). Show the one that matches `steered_mode`.\n  This is the user's desired temperature, not necessarily the setpoint the heat pump has\n  right now: NOX temporarily moves the setpoint away from it to shift consumption.\n\nWhen values are `null`:\n- `room_steering` is `null`: NOX does not steer the room of this device. `steerable_status`\n  on `/devices` gives the reason.\n- `steered_mode` is `off`: NOX steers the device, but the user wants no heating or cooling\n  right now. `heating` and `cooling` are then `null`.\n- `heating` or `cooling` is `null`: there is no reliable temperature to show for that mode,\n  or (for `cooling`) the device cannot cool.\n- `requested_mode` is `null`: the requested mode is not known yet.\n\n`room_steering.updated_at` is when NOX last determined these values. It is independent of\nthe top-level `updated_at`, which only applies to the measurements.",
         "operationId": "get_devices_hp_current_telemetry_v1_devices_telemetry_current_get",
         "parameters": [
           {
@@ -2318,7 +2318,20 @@
                       "dhw_temp": 45,
                       "power": 0.03,
                       "has_delayed_power_data_1d": false,
-                      "updated_at": "2026-04-17T09:27:09.224000+00:00"
+                      "updated_at": "2026-04-17T09:27:09.224000+00:00",
+                      "room_steering": {
+                        "requested_mode": "auto",
+                        "steered_mode": "heating",
+                        "heating": {
+                          "temperature": 20.5,
+                          "setpoint_source": "schedule"
+                        },
+                        "cooling": {
+                          "temperature": 24.0,
+                          "setpoint_source": "static"
+                        },
+                        "updated_at": "2026-04-17T09:25:41.118000+00:00"
+                      }
                     },
                     {
                       "device_id": "device_id_456",
@@ -4998,7 +5011,18 @@
               }
             ],
             "title": "Updated At",
-            "description": "Timestamp when the telemetry data was last updated"
+            "description": "Timestamp when the measurements (`room_temp`, `dhw_temp`, `power`) were last updated"
+          },
+          "room_steering": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What NOX steers the room towards. `null` when NOX does not steer the room of this device, for example because the device is not steerable or has no room control. See `steerable_status` on `/devices` for the reason."
           }
         },
         "type": "object",
@@ -6466,6 +6490,16 @@
         ],
         "title": "Reason"
       },
+      "RequestedMode": {
+        "type": "string",
+        "enum": [
+          "auto",
+          "heating",
+          "cooling",
+          "off"
+        ],
+        "title": "RequestedMode"
+      },
       "RoomSettings": {
         "properties": {
           "temperature_lower_bound": {
@@ -6557,6 +6591,160 @@
         },
         "type": "object",
         "title": "RoomSettings"
+      },
+      "RoomSteering": {
+        "properties": {
+          "requested_mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequestedMode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the end user wants the room to do: `auto`, `heating`, `cooling` or `off`. This is your `room.temperature_control_mode` setting when you set one. Otherwise it is the mode the user chose on the heat pump itself (Daikin, and Vaillant in thermostat function), and failing that `auto`, or `heating` for a device that cannot cool. It is read-only here: to change it, PATCH `room.temperature_control_mode` on `/devices/settings`. `null` when it is not known yet."
+          },
+          "steered_mode": {
+            "$ref": "#/components/schemas/SteeredMode",
+            "description": "What NOX steers the room towards right now: `heating` or `cooling`. A requested mode of `auto` resolves to one of the two. `off` means NOX steers the device but the user wants no heating or cooling at this moment: the unit is switched off, the current schedule slot has no demand, or the requested mode is `off`."
+          },
+          "heating": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SteeringTemperature"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The desired room temperature when heating. Show this one when `steered_mode` is `heating`. `null` when there is no reliable value to show, including whenever `steered_mode` is `off`."
+          },
+          "cooling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SteeringTemperature"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The desired room temperature when cooling. Show this one when `steered_mode` is `cooling`. `null` when the device cannot cool, when there is no reliable value to show, and whenever `steered_mode` is `off`."
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "When NOX last determined these values (UTC). This is independent of the measurements' `updated_at`."
+          }
+        },
+        "type": "object",
+        "required": [
+          "steered_mode"
+        ],
+        "title": "RoomSteering",
+        "description": "What NOX steers the room towards and what the end user asked for."
+      },
+      "SetpointSource": {
+        "type": "string",
+        "enum": [
+          "schedule",
+          "static"
+        ],
+        "title": "SetpointSource"
+      },
+      "SteeredMode": {
+        "type": "string",
+        "enum": [
+          "heating",
+          "cooling",
+          "off"
+        ],
+        "title": "SteeredMode"
+      },
+      "SteeringMethod": {
+        "properties": {
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Short English explanation, for end users, of what NOX changes on the heat pump to steer it. Devices steered the same way always get the same text."
+          },
+          "space_heating": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FunctionSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How space heating is steered. `null` when NOX does not steer space heating on this device, including when the room `reason` is `No room control available on this device.`"
+          },
+          "cooling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FunctionSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How cooling is steered. `null` when the device cannot cool or NOX does not steer its cooling, including when the room `reason` is `No room control available on this device.`"
+          },
+          "domestic_hot_water": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FunctionSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How hot water is steered. `null` when the device has no hot water tank or NOX does not steer its hot water, including when the DHW `reason` is `No DHW control available on this device.`"
+          }
+        },
+        "type": "object",
+        "required": [
+          "description"
+        ],
+        "title": "SteeringMethod"
+      },
+      "SteeringSetting": {
+        "type": "string",
+        "enum": [
+          "operation_mode",
+          "room_setpoint",
+          "flow_temperature_setpoint",
+          "dhw_setpoint",
+          "dhw_boost"
+        ],
+        "title": "SteeringSetting"
+      },
+      "SteeringTemperature": {
+        "properties": {
+          "temperature": {
+            "type": "number",
+            "title": "Temperature",
+            "description": "The desired room temperature in °C. This is not necessarily the setpoint the heat pump has right now: NOX temporarily moves the setpoint away from the desired temperature to shift consumption."
+          },
+          "setpoint_source": {
+            "$ref": "#/components/schemas/SetpointSource",
+            "description": "Where the temperature comes from: `schedule` when it follows the schedule set on the heat pump (it then changes with the schedule's time slots), `static` when it is a single fixed value."
+          }
+        },
+        "type": "object",
+        "required": [
+          "temperature",
+          "setpoint_source"
+        ],
+        "title": "SteeringTemperature",
+        "description": "The desired room temperature NOX steers towards in one mode."
       },
       "TemperatureControlMode": {
         "type": "string",
