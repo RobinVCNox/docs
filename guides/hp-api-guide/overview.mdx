@@ -1,0 +1,55 @@
+---
+title: 'Heat Pump API Guide'
+sidebarTitle: 'Overview'
+description: 'Guide on how to use the NOX API for heat pumps.'
+---
+
+## Overview
+
+The **NOX Control Package** provides access to:
+* Device information
+* Energy consumption data.
+    * Forecasted consumption (= nomination)
+    * Actual consumption
+    * Typical consumption if NOX would not have altered the device steering.
+* Changing user Settings
+* Deleting a user
+
+The **Partner Control Package** provides additional access to:
+* Heat pump current state and forecasted state expressed as a Battery.
+* Controling the heat pump by submitting a control schedule.
+
+## Getting Started
+
+### Prerequisites
+* Valid NOX API key (see [Authentication](/api-docs/authentication))
+
+### Base URL
+All endpoints use the base URL:
+- Sandbox: `https://api.sandbox.nox.energy`
+- Production: `https://api.nox.energy`
+
+## Core Workflows
+
+<Note>
+    All our collection api endpoints use a `next_token` to paginate through results if the size limit of the response has been reached.
+    To paginate through a response, you can use the `next_token` received in the response as a query parameter and call the same endpoint with
+    the same parameters again. You can repeat this process until you have received the last page of the response, which is signified
+    by the `next_token` field becoming `null`.
+    Pass the `next_token` back exactly as you received it. A token that was altered or not issued by the API returns a `400`.
+    The consumption endpoints also accept an `offset` query parameter to fetch a page directly: `limit=100&offset=200`
+    returns items 201 to 300. Use either `offset` or `next_token` in a request, not both. Sending both returns a `400`.
+    The device list (`/v1/devices`) pages by `next_token` only.
+</Note>
+
+## Guide sections
+
+- [Getting Device Information](/guides/hp-api-guide/device-information)
+- [Retrieving Consumption Data](/guides/hp-api-guide/consumption-data)
+- [Managing User/Device Settings](/guides/hp-api-guide/settings)
+- [Deleting a User](/guides/hp-api-guide/deleting-a-user)
+- [Heat Pumps as a Thermal Battery](/guides/hp-api-guide/thermal-battery)
+
+## Next Steps
+
+- Set up [Partner Webhooks](/guides/partner-webhooks) for real-time data updates.
