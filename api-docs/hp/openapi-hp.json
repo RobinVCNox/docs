@@ -12,7 +12,7 @@
           "Asset Info"
         ],
         "summary": "Get Devices",
-        "description": "Get information about all NOX connected devices associated with your energy supplier account. If you want to know the response structure or possible enum values, like steerable reasons, you can check it in the response model `schema`.",
+        "description": "Get information about all NOX connected devices associated with your energy supplier account.\nIf you want to know the response structure or possible enum values, like steerable reasons,\nyou can check it in the response model `schema`.\n\n**How NOX steers a heat pump: `steering_method`**\n\n`steerable_status.steering_method` tells you what NOX changes on the heat pump when it steers it.\nUse it to explain to your users what they will see on their heat pump or in its app, for example\nwhy their target room temperature changes during the day, or why their hot water schedule is paused.\n\nEvery value is a code, not text, so you write what your users see, in their own language.\nNew codes may be added in any release; the meaning of an existing code never changes. Show a code\nyou don't know generically, for example as \"NOX may change this setting\".\n\nIt is structured per steered function, then per setting:\n\n```\nsteering_method\n├── space_heating / space_cooling / domestic_hot_water   ← steered functions\n│   ├── schedule_paused                                  ← true / false\n│   └── settings\n│       └── <setting>                                    ← e.g. room_setpoint\n│           ├── use                                      ← how often NOX changes it\n│           └── reasons                                  ← why NOX changes it\n```\n\nFor what every function, setting, use and reason code means, and how to turn the codes into a\ntext for your users, see [Showing how NOX steers a device](/guides/hp-api-guide/device-information#showing-how-nox-steers-a-device)\nin the Heat Pump API Guide.",
         "operationId": "get_devices_v1_devices_get",
         "parameters": [
           {
@@ -5156,7 +5156,7 @@
           "schedule_paused": {
             "type": "boolean",
             "title": "Schedule Paused",
-            "description": "Whether the user's own schedule for this function is paused while NOX steers. It is restored when NOX hands control back."
+            "description": "`true` when the user's own schedule (time program) for this function on the heat pump is paused while NOX steers."
           },
           "settings": {
             "additionalProperties": {
@@ -5167,14 +5167,10 @@
             },
             "type": "object",
             "title": "Settings",
-            "description": "The settings NOX changes to steer this function, and how. A setting that is not listed is never touched by NOX. Possible settings: `operation_mode` (the mode of the function, e.g. heating, cooling, hot water, manual, standby or off), `room_setpoint` (target room temperature), `flow_temperature_setpoint` (temperature of the water in the heating or cooling system), `dhw_setpoint` (target hot water temperature), `dhw_boost` (hot water boost). New codes may be added: treat an unknown code as a generic \"NOX may change this setting\"."
+            "description": "The settings NOX changes to steer this function, each with its `use` and `reasons`. A setting that is not listed is never touched by NOX. The order carries no meaning.\n- `operation_mode`: heating mode, cooling mode or hot water mode, depending on the function\n- `room_setpoint`: target room temperature\n- `flow_temperature_setpoint`: water temperature in the heating circuit, or in the cooling circuit\n- `dhw_setpoint`: target hot water temperature\n- `dhw_boost`: hot water boost\n\nNew codes may be added. Show a code you don't know as \"NOX may change this setting\"."
           }
         },
         "type": "object",
-        "required": [
-          "schedule_paused",
-          "settings"
-        ],
         "title": "FunctionSteering"
       },
       "HPTelemetryCurrentResponse": {
@@ -6761,7 +6757,8 @@
           "Uncertain heat pump activity, waiting for more data.",
           "Cannot steer space heating when ata is off.",
           "Processing error, please contact support.",
-          "Space heating unit is turned off, cannot steer space heating."
+          "Space heating unit is turned off, cannot steer space heating.",
+          "Unknown reason, please contact support."
         ],
         "title": "Reason"
       },
@@ -6937,8 +6934,8 @@
       "SettingSteering": {
         "properties": {
           "use": {
-            "$ref": "#/components/schemas/SettingUse",
-            "description": "How often NOX changes this setting: `every_action` (on every steering action), `when_needed` (only in the situations in `reasons`), `rarely` (operation mode only: NOX follows the mode the user set and changes it only in the situations in `reasons`), `user_controlled` (operation mode only: NOX follows the mode the user set and never changes it)."
+            "$ref": "#/components/schemas/SteeringSettingUse",
+            "description": "How often NOX changes this setting:\n- `every_action`: NOX changes the setting every time it starts or stops the function. The user sees it change during the day.\n- `when_needed`: NOX only changes the setting in the situations listed in `reasons`.\n- `rarely`: operation mode only. NOX follows the mode the user set and only changes it in the situations listed in `reasons`.\n- `user_controlled`: operation mode only. NOX follows the mode the user set and never changes it.\n\nNew codes may be added. Show a code you don't know as \"NOX may change this setting\"."
           },
           "reasons": {
             "items": {
@@ -6946,25 +6943,11 @@
             },
             "type": "array",
             "title": "Reasons",
-            "description": "Why NOX changes the setting, set only when `use` is `when_needed` or `rarely`. `mode_blocks_steering`: the device is in a mode where NOX's setting cannot be written or has no effect. `mode_is_off_switch`: the mode is the only way to stop this function. `comfort_start`: a zone switched off or left in another mode is switched to heating to keep the home comfortable. `schedule_would_override`: the user's time program would undo NOX's change, so NOX switches to manual while it steers."
+            "description": "Why NOX changes this setting. At least one when `use` is `when_needed` or `rarely`, empty otherwise. The order carries no meaning.\n- `mode_blocks_steering`: if your heat pump is in a mode where NOX's settings have no effect\n- `mode_is_off_switch`: when that is the only way to stop heating\n- `comfort_start`: to start heating when your home is too cold and the heating is set to another mode\n- `schedule_would_override`: if your own time program would override NOX\n\nNew codes may be added. Leave out, or show generically, a code you don't know."
           }
         },
         "type": "object",
-        "required": [
-          "use",
-          "reasons"
-        ],
         "title": "SettingSteering"
-      },
-      "SettingUse": {
-        "type": "string",
-        "enum": [
-          "every_action",
-          "when_needed",
-          "rarely",
-          "user_controlled"
-        ],
-        "title": "SettingUse"
       },
       "SteeredMode": {
         "type": "string",
@@ -6980,8 +6963,7 @@
           "description": {
             "type": "string",
             "title": "Description",
-            "description": "Deprecated, will be removed in a future release. NOX's own English rendering of this steering method. Render your own text from the setting, use and reason codes instead.",
-            "deprecated": true
+            "description": "NOX's English rendering of this steering method, built from the settings, their use and their reasons. Show it as-is in an English app, or build your own text from the codes."
           },
           "space_heating": {
             "anyOf": [
@@ -6992,9 +6974,9 @@
                 "type": "null"
               }
             ],
-            "description": "How space heating is steered. `null` when NOX does not steer space heating on this device, including when the room `reason` is `No room control available on this device.`"
+            "description": "How NOX steers heating space. `null` when NOX does not steer space heating on this device, including when the room `reason` is `No room control available on this device.`"
           },
-          "cooling": {
+          "space_cooling": {
             "anyOf": [
               {
                 "$ref": "#/components/schemas/FunctionSteering"
@@ -7003,7 +6985,7 @@
                 "type": "null"
               }
             ],
-            "description": "How cooling is steered. `null` when the device cannot cool or NOX does not steer its cooling, including when the room `reason` is `No room control available on this device.`"
+            "description": "How NOX steers cooling space. `null` when the heat pump cannot cool or NOX does not steer its cooling, including when the room `reason` is `No room control available on this device.`"
           },
           "domestic_hot_water": {
             "anyOf": [
@@ -7014,13 +6996,10 @@
                 "type": "null"
               }
             ],
-            "description": "How hot water is steered. `null` when the device has no hot water tank or NOX does not steer its hot water, including when the DHW `reason` is `No DHW control available on this device.`"
+            "description": "How NOX steers heating the hot water tank. `null` when the device has no hot water tank or NOX does not steer its hot water, including when the DHW `reason` is `No DHW control available on this device.`"
           }
         },
         "type": "object",
-        "required": [
-          "description"
-        ],
         "title": "SteeringMethod"
       },
       "SteeringReason": {
@@ -7031,7 +7010,8 @@
           "comfort_start",
           "schedule_would_override"
         ],
-        "title": "SteeringReason"
+        "title": "SteeringReason",
+        "description": "Why NOX changes a setting whose use is `when_needed` or `rarely`."
       },
       "SteeringSetting": {
         "type": "string",
@@ -7043,7 +7023,18 @@
           "dhw_boost"
         ],
         "title": "SteeringSetting",
-        "description": "A setting on the device that NOX changes. The operation mode and flow temperature mean something\ndifferent per function, so name them per function, such as \"heating mode\" or \"hot water mode\".\n\n- `operation_mode`: the mode of the function, such as heating, cooling, hot water, manual, standby or off.\n- `room_setpoint`: target room temperature.\n- `flow_temperature_setpoint`: temperature of the water in the heating or cooling system.\n- `dhw_setpoint`: target hot water temperature.\n- `dhw_boost`: hot water boost.\n\nNew codes may be added. Show a code you don't know as a setting NOX may change."
+        "description": "A setting on the heat pump that NOX changes to steer a function."
+      },
+      "SteeringSettingUse": {
+        "type": "string",
+        "enum": [
+          "every_action",
+          "when_needed",
+          "rarely",
+          "user_controlled"
+        ],
+        "title": "SteeringSettingUse",
+        "description": "How often NOX changes a setting."
       },
       "SteeringTemperature": {
         "properties": {
@@ -7363,7 +7354,7 @@
                 "type": "null"
               }
             ],
-            "description": "What NOX changes on the heat pump when it steers it, as codes you render into your own text for end users. Set only when `steerable` is `true`; `null` otherwise, for air-to-air heat pumps and unsupported brands or models, and when NOX controls none of the device's functions."
+            "description": "How NOX steers this heat pump: for each steered function (`space_heating`, `space_cooling`, `domestic_hot_water`), which settings NOX changes, how often (`use`) and why (`reasons`). All values are codes, so you can explain it to your users in their own language. See the endpoint description for how to use it and what every code means.\n\n`null` when the device is not `steerable`, for air-to-air heat pumps, for brands or models whose steering NOX doesn't describe, and when NOX steers none of the device's functions."
           }
         },
         "type": "object",
