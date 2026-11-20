@@ -5879,6 +5879,18 @@
             ],
             "title": "Language",
             "description": "The language of the connect flow: `nl`, `en`, `fr` or `es`. Defaults to `nl`."
+          },
+          "color_scheme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color Scheme",
+            "description": "Render the connect flow `light` or `dark`. Defaults to `light`."
           }
         },
         "additionalProperties": true,
