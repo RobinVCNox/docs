@@ -1,0 +1,21 @@
+---
+title: 'Managing User/Device Settings'
+description: 'Update user preferences and optimization settings.'
+---
+
+Update user preferences and optimization settings on a per user/device basis. We recommend to directly go to the endpoint documentation of
+[/devices/settings](/api-docs/hp/user-management/patch-devices-settings) to seel all possible settings you can change.
+
+We recommend to at least implement the following settings options in your UI components of your website/app:
+
+* Preferred temperature
+* Room comfort bounds
+* Manufacturer schedule on/off
+* Optimization Settings (but not flex trading as this is mutually exclusive with other optimizations and should only be enabled if you are a supplier that is using the partner control package)
+
+We recommend to at least implement the following from a backend perspective:
+
+* Location information for better forecasting and optimization results:
+    * Country
+    * Postal code
+* [Webhooks](/guides/partner-webhooks) setup -> Real-time settings sync between all parties

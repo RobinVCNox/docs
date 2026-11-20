@@ -16,6 +16,10 @@
     {
       "source": "/guides/manufacturer-integration",
       "destination": "/guides/new-asset-integration"
+    },
+    {
+      "source": "/guides/hp-api-guide",
+      "destination": "/guides/hp-api-guide/overview"
     }
   ],
   "navigation": {
@@ -42,7 +46,17 @@
           {
             "group": "API Guides",
             "pages": [
-              "guides/hp-api-guide",
+              {
+                "group": "Heat Pump API Guide",
+                "pages": [
+                  "guides/hp-api-guide/overview",
+                  "guides/hp-api-guide/device-information",
+                  "guides/hp-api-guide/consumption-data",
+                  "guides/hp-api-guide/settings",
+                  "guides/hp-api-guide/deleting-a-user",
+                  "guides/hp-api-guide/thermal-battery"
+                ]
+              },
               "guides/pv-api-guide",
               "guides/battery-api-guide",
               "guides/partner-webhooks"
