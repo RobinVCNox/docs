@@ -4,6 +4,12 @@ description: 'Updates and Changes'
 ---
 
 <Update label="November 2026">
+  ## Steering method: `space_cooling` and a clearer guide
+
+  * **Breaking:** `steerable_status.steering_method.cooling` on [/devices](/api-docs/hp/asset-info/get-devices) is renamed `space_cooling`, next to `space_heating`.
+  * `steering_method.description` is no longer deprecated. It is NOX's English rendering of the codes; show it as-is or build your own text.
+  * The Heat Pump API Guide is now split into one page per section. [Showing how NOX steers a device](/guides/hp-api-guide/device-information#showing-how-nox-steers-a-device) explains every code, shows how a steering method becomes a text, and lists every steering method NOX returns.
+
   ## Dark mode for the connect flow
 
   * [POST /v2/connections/link](/guides/utility-connections) accepts an optional `color_scheme`: `light` (default) or `dark`, so the connect flow can match your app's theme.
