@@ -851,7 +851,7 @@
       "BatteryMode": {
         "type": "string",
         "enum": [
-          "self_consumption",
+          "auto",
           "pause_charge",
           "pause_discharge",
           "force_charge",
@@ -924,7 +924,7 @@
           "end_time": {
             "type": "string",
             "title": "End Time",
-            "description": "End of the entry in ISO 8601 UTC format. After the end, the battery falls back to `self_consumption` unless another entry starts."
+            "description": "End of the entry in ISO 8601 UTC format. After the end, the battery falls back to `auto` unless another entry starts."
           },
           "mode": {
             "$ref": "#/components/schemas/BatteryMode",
@@ -1131,6 +1131,157 @@
         },
         "type": "object",
         "title": "BatteryTelemetryCurrentResponse"
+      },
+      "Connection": {
+        "properties": {
+          "connection_id": {
+            "type": "string",
+            "title": "Connection Id",
+            "description": "The ID of the connection."
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "Your own ID of the user the connection belongs to."
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider",
+            "description": "The provider the assets are connected through, e.g. `daikin`."
+          },
+          "credential_type": {
+            "type": "string",
+            "title": "Credential Type",
+            "description": "How the connection authenticates: `oauth`, `app_credentials`, `manufacturer_identifier` or `ean`."
+          },
+          "assets": {
+            "items": {
+              "$ref": "#/components/schemas/ConnectionAsset"
+            },
+            "type": "array",
+            "title": "Assets",
+            "description": "The assets reachable through this connection."
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "`pending`: the provider is still activating the account, which can take up to a day; no assets yet. `connected`: in use. `failed`: activation never completed, see `status_reason`; have the user connect again. `needs_reauth`: the credentials stopped working; have the user connect again."
+          },
+          "status_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status Reason",
+            "description": "Why a connection is `failed` or `needs_reauth`, as a code. `null` otherwise."
+          },
+          "connected_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connected At",
+            "description": "When the connection was made."
+          }
+        },
+        "type": "object",
+        "required": [
+          "connection_id",
+          "user_id",
+          "provider",
+          "credential_type",
+          "assets",
+          "status"
+        ],
+        "title": "Connection"
+      },
+      "ConnectionAsset": {
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "title": "Asset Id",
+            "description": "The NOX ID of the asset."
+          },
+          "asset_type": {
+            "type": "string",
+            "title": "Asset Type",
+            "description": "The type of the asset: `pv`, `bat` or `hp`."
+          },
+          "external_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Id",
+            "description": "The ID of the asset at the provider."
+          }
+        },
+        "type": "object",
+        "required": [
+          "asset_id",
+          "asset_type"
+        ],
+        "title": "ConnectionAsset"
+      },
+      "ConnectionsResponse": {
+        "properties": {
+          "connections": {
+            "items": {
+              "$ref": "#/components/schemas/Connection"
+            },
+            "type": "array",
+            "title": "Connections",
+            "description": "The user's connections, empty when there are none."
+          }
+        },
+        "type": "object",
+        "required": [
+          "connections"
+        ],
+        "title": "ConnectionsResponse"
+      },
+      "Coordinates": {
+        "properties": {
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude",
+            "description": "Latitude, between -90 and 90."
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude",
+            "description": "Longitude, between -180 and 180."
+          }
+        },
+        "type": "object",
+        "title": "Coordinates"
       },
       "CycleConfig": {
         "properties": {
@@ -1423,6 +1574,30 @@
             ],
             "title": "Capacity Kw",
             "description": "Maximum measured power of the heat pump in kW"
+          },
+          "is_hybrid": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Hybrid",
+            "description": "Whether the device is a hybrid heat pump, combined with a gas boiler. `False` when NOX has no hybrid information for the device."
+          },
+          "last_updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated At",
+            "description": "When NOX last received an update for this device, in UTC time format. `None` when unknown."
           }
         },
         "type": "object",
@@ -1441,18 +1616,6 @@
             ],
             "title": "Device Id",
             "description": "Unique device identifier"
-          },
-          "household_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Household Id",
-            "description": "Household the battery belongs to"
           },
           "user_id": {
             "anyOf": [
@@ -1559,7 +1722,7 @@
               }
             ],
             "title": "Min Soc Pct",
-            "description": "Discharge limit: NOX Energy never discharges the battery below this state of charge in %, whatever the requested mode. Fixed at 20 % for now."
+            "description": "Lower limit for `force_discharge`, as a state of charge in %. Below it, NOX Energy takes control and puts the battery in the default mode `auto`. Fixed at 20 % for now."
           },
           "allowed_modes": {
             "anyOf": [
@@ -1788,6 +1951,37 @@
         },
         "type": "object",
         "title": "DevicePV"
+      },
+      "DevicePVSettings": {
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "title": "Device Id",
+            "description": "Device ID the settings belong to"
+          },
+          "optimization_settings": {
+            "$ref": "#/components/schemas/PVOptimizationSettingsResponse",
+            "description": "Optimization settings for the device"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "Timestamp of the last update of the settings in ISO format. `null` means we provide default values because the user has not yet updated their device settings."
+          }
+        },
+        "type": "object",
+        "required": [
+          "device_id",
+          "optimization_settings"
+        ],
+        "title": "DevicePVSettings"
       },
       "DevicesBatteryGetSettings": {
         "properties": {
@@ -2073,6 +2267,46 @@
         "type": "object",
         "title": "DevicesBatterySettingsRequest"
       },
+      "DevicesGetPVSettingsMetadata": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name"
+          }
+        },
+        "type": "object",
+        "title": "DevicesGetPVSettingsMetadata"
+      },
+      "DevicesGetPVSettingsResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/DevicePVSettings"
+            },
+            "type": "array",
+            "title": "Data",
+            "description": "List of pv device settings"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/DevicesGetPVSettingsMetadata",
+            "description": "Metadata related to the pv device settings response"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "DevicesGetPVSettingsResponse"
+      },
       "DevicesGetSettingsMetadata": {
         "properties": {
           "energy_supplier": {
@@ -2160,7 +2394,7 @@
               }
             ],
             "title": "Updated At",
-            "description": "Timestamp of the last update of the settings in ISO format"
+            "description": "Timestamp of the last update of the settings in ISO format. If `null`, the user has not yet updated their settings and the default values are returned."
           }
         },
         "additionalProperties": false,
@@ -2783,6 +3017,55 @@
         "type": "object",
         "title": "DevicesSettingsRequest"
       },
+      "DirectConnectRequest": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "Your own ID of the user to connect."
+          },
+          "identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identifier",
+            "description": "The identifier of the user's assets at your platform, e.g. a serial number. Defaults to `user_id`."
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "title": "DirectConnectRequest"
+      },
+      "FunctionSteering": {
+        "properties": {
+          "schedule_paused": {
+            "type": "boolean",
+            "title": "Schedule Paused",
+            "description": "`true` when the user's own schedule (time program) for this function on the heat pump is paused while NOX steers."
+          },
+          "settings": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/SettingSteering"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/SteeringSetting"
+            },
+            "type": "object",
+            "title": "Settings",
+            "description": "The settings NOX changes to steer this function, each with its `use` and `reasons`. A setting that is not listed is never touched by NOX. The order carries no meaning.\n- `operation_mode`: heating mode, cooling mode or hot water mode, depending on the function\n- `room_setpoint`: target room temperature\n- `flow_temperature_setpoint`: water temperature in the heating circuit, or in the cooling circuit\n- `dhw_setpoint`: target hot water temperature\n- `dhw_boost`: hot water boost\n\nNew codes may be added. Show a code you don't know as \"NOX may change this setting\"."
+          }
+        },
+        "type": "object",
+        "title": "FunctionSteering"
+      },
       "HPTelemetryCurrentResponse": {
         "properties": {
           "data": {
@@ -2878,7 +3161,18 @@
               }
             ],
             "title": "Updated At",
-            "description": "Timestamp when the telemetry data was last updated"
+            "description": "Timestamp when the measurements (`room_temp`, `dhw_temp`, `power`) were last updated"
+          },
+          "room_steering": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What NOX steers the room towards. `null` when NOX does not steer the room of this device, for example because the device is not steerable or has no room control. See `steerable_status` on `/devices` for the reason."
           }
         },
         "type": "object",
@@ -3065,63 +3359,6 @@
         "type": "object",
         "title": "HouseLoadForecastResponse"
       },
-      "Household": {
-        "properties": {
-          "household_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Household Id",
-            "description": "Unique household identifier"
-          },
-          "user_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "User Id",
-            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
-          },
-          "grid_metering": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Grid Metering",
-            "description": "Whether NOX Energy measures the household's grid import and export"
-          },
-          "devices": {
-            "anyOf": [
-              {
-                "items": {
-                  "$ref": "#/components/schemas/HouseholdDevice"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Devices",
-            "description": "NOX-connected devices in the household"
-          }
-        },
-        "type": "object",
-        "title": "Household"
-      },
       "HouseholdDevice": {
         "properties": {
           "device_id": {
@@ -3150,6 +3387,89 @@
         },
         "type": "object",
         "title": "HouseholdDevice"
+      },
+      "HouseholdLocation": {
+        "properties": {
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country",
+            "description": "The country. Accepts a name in any language, answered as an ISO code."
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City",
+            "description": "The city."
+          },
+          "postal_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postal Code",
+            "description": "The postal code."
+          },
+          "coordinates": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Coordinates"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The coordinates of the household."
+          }
+        },
+        "type": "object",
+        "title": "HouseholdLocation"
+      },
+      "HouseholdOwner": {
+        "properties": {
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name",
+            "description": "The owner's first name."
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name",
+            "description": "The owner's last name."
+          }
+        },
+        "type": "object",
+        "title": "HouseholdOwner"
       },
       "HouseholdTelemetryCurrent": {
         "properties": {
@@ -3267,6 +3587,36 @@
         "type": "object",
         "title": "HouseholdTelemetryCurrentResponse"
       },
+      "HouseholdUpdateRequest": {
+        "properties": {
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseholdLocation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Where the household is."
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseholdOwner"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Who owns the household."
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "HouseholdUpdateRequest",
+        "description": "Only the fields sent change; a field sent as `null` is cleared."
+      },
       "HouseholdsMeta": {
         "properties": {
           "energy_supplier": {
@@ -3303,7 +3653,7 @@
             "anyOf": [
               {
                 "items": {
-                  "$ref": "#/components/schemas/Household"
+                  "$ref": "#/components/schemas/app__models__household__household_model__Household"
                 },
                 "type": "array"
               },
@@ -3370,6 +3720,95 @@
         },
         "type": "object",
         "title": "LegionellaConfig"
+      },
+      "LinkRequest": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "Your own ID of the user to connect."
+          },
+          "redirect_url": {
+            "type": "string",
+            "title": "Redirect Url",
+            "description": "The `https` URL the user returns to when the flow ends."
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider",
+            "description": "The provider to connect, e.g. `daikin`. Send this, `connection_type`, or both."
+          },
+          "connection_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connection Type",
+            "description": "The kind of provider the user picks from: `oem`, `oem.hp`, `oem.pv`, `oem.bat` or `utility`."
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "description": "The language of the connect flow: `nl`, `en`, `fr` or `es`. Defaults to `nl`."
+          },
+          "color_scheme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color Scheme",
+            "description": "Render the connect flow `light` or `dark`. Defaults to `light`."
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "user_id",
+          "redirect_url"
+        ],
+        "title": "LinkRequest"
+      },
+      "LinkResponse": {
+        "properties": {
+          "link_token": {
+            "type": "string",
+            "title": "Link Token",
+            "description": "The token of the connect session."
+          },
+          "link_url": {
+            "type": "string",
+            "title": "Link Url",
+            "description": "The URL to send the user to. It expires after an hour."
+          }
+        },
+        "type": "object",
+        "required": [
+          "link_token",
+          "link_url"
+        ],
+        "title": "LinkResponse"
       },
       "LocationSettings": {
         "properties": {
@@ -3607,6 +4046,19 @@
         },
         "type": "object",
         "title": "PVFleetTypicalProductionResponse"
+      },
+      "PVOptimizationSettingsResponse": {
+        "properties": {
+          "pv_curtailment_mode": {
+            "$ref": "#/components/schemas/PVCurtailmentMode",
+            "description": "PV curtailment mode. If `managed`, NOX Energy manages the PV curtailment. If `external`, we follow the curtailment schedule provided by the external party. If `off`, PV curtailment is disabled. Devices without stored settings default to `off`."
+          }
+        },
+        "type": "object",
+        "required": [
+          "pv_curtailment_mode"
+        ],
+        "title": "PVOptimizationSettingsResponse"
       },
       "PVPForecastData": {
         "properties": {
@@ -4179,9 +4631,11 @@
         "type": "string",
         "enum": [
           "No flexibility available based on current device state.",
+          "No flexibility available as air to air device is off.",
           "Cycle constraints prevent a new action at this time.",
           "Cycle constraints forced stop of current cycle.",
           "No DHW control available on this device.",
+          "No DHW comfort bounds available for this device.",
           "No room control available on this device.",
           "Outside comfort band, Nox takes over until within comfort.",
           "No schedule available, Nox takes over to assure comfort.",
@@ -4196,9 +4650,20 @@
           "Uncertain heat pump activity, waiting for more data.",
           "Cannot steer space heating when ata is off.",
           "Processing error, please contact support.",
-          "Space heating unit is turned off, cannot steer space heating."
+          "Space heating unit is turned off, cannot steer space heating.",
+          "Unknown reason, please contact support."
         ],
         "title": "Reason"
+      },
+      "RequestedMode": {
+        "type": "string",
+        "enum": [
+          "auto",
+          "heating",
+          "cooling",
+          "off"
+        ],
+        "title": "RequestedMode"
       },
       "RoomSettings": {
         "properties": {
@@ -4292,6 +4757,198 @@
         "type": "object",
         "title": "RoomSettings"
       },
+      "RoomSteering": {
+        "properties": {
+          "requested_mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequestedMode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the end user wants the room to do: `auto`, `heating`, `cooling` or `off`. This is your `room.temperature_control_mode` setting when you set one. Otherwise it is the mode the user chose on the heat pump itself (Daikin, and Vaillant in thermostat function), and failing that `auto`, or `heating` for a device that cannot cool. It is read-only here: to change it, PATCH `room.temperature_control_mode` on `/devices/settings`. `null` when it is not known yet."
+          },
+          "steered_mode": {
+            "$ref": "#/components/schemas/SteeredMode",
+            "description": "What NOX steers the room towards right now: `heating` or `cooling`. A requested mode of `auto` resolves to one of the two. `off` means NOX steers the device but the user wants no heating or cooling at this moment: the unit is switched off, the current schedule slot has no demand, or the requested mode is `off`."
+          },
+          "heating": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SteeringTemperature"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The desired room temperature when heating. Show this one when `steered_mode` is `heating`. `null` when there is no reliable value to show, including whenever `steered_mode` is `off`."
+          },
+          "cooling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SteeringTemperature"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The desired room temperature when cooling. Show this one when `steered_mode` is `cooling`. `null` when the device cannot cool, when there is no reliable value to show, and whenever `steered_mode` is `off`."
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "When NOX last determined these values (UTC). This is independent of the measurements' `updated_at`."
+          }
+        },
+        "type": "object",
+        "required": [
+          "steered_mode"
+        ],
+        "title": "RoomSteering",
+        "description": "What NOX steers the room towards and what the end user asked for."
+      },
+      "SetpointSource": {
+        "type": "string",
+        "enum": [
+          "schedule",
+          "static"
+        ],
+        "title": "SetpointSource"
+      },
+      "SettingSteering": {
+        "properties": {
+          "use": {
+            "$ref": "#/components/schemas/SteeringSettingUse",
+            "description": "How often NOX changes this setting:\n- `every_action`: NOX changes the setting every time it starts or stops the function. The user sees it change during the day.\n- `when_needed`: NOX only changes the setting in the situations listed in `reasons`.\n- `rarely`: operation mode only. NOX follows the mode the user set and only changes it in the situations listed in `reasons`.\n- `user_controlled`: operation mode only. NOX follows the mode the user set and never changes it.\n\nNew codes may be added. Show a code you don't know as \"NOX may change this setting\"."
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/SteeringReason"
+            },
+            "type": "array",
+            "title": "Reasons",
+            "description": "Why NOX changes this setting. At least one when `use` is `when_needed` or `rarely`, empty otherwise. The order carries no meaning.\n- `mode_blocks_steering`: if your heat pump is in a mode where NOX's settings have no effect\n- `mode_is_off_switch`: when that is the only way to stop heating\n- `comfort_start`: to start heating when your home is too cold and the heating is set to another mode\n- `schedule_would_override`: if your own time program would override NOX\n\nNew codes may be added. Leave out, or show generically, a code you don't know."
+          }
+        },
+        "type": "object",
+        "title": "SettingSteering"
+      },
+      "SteeredMode": {
+        "type": "string",
+        "enum": [
+          "heating",
+          "cooling",
+          "off"
+        ],
+        "title": "SteeredMode"
+      },
+      "SteeringMethod": {
+        "properties": {
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "NOX's English rendering of this steering method, built from the settings, their use and their reasons. Show it as-is in an English app, or build your own text from the codes."
+          },
+          "space_heating": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FunctionSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How NOX steers heating space. `null` when NOX does not steer space heating on this device, including when the room `reason` is `No room control available on this device.`"
+          },
+          "space_cooling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FunctionSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How NOX steers cooling space. `null` when the heat pump cannot cool or NOX does not steer its cooling, including when the room `reason` is `No room control available on this device.`"
+          },
+          "domestic_hot_water": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FunctionSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How NOX steers heating the hot water tank. `null` when the device has no hot water tank or NOX does not steer its hot water, including when the DHW `reason` is `No DHW control available on this device.`"
+          }
+        },
+        "type": "object",
+        "title": "SteeringMethod"
+      },
+      "SteeringReason": {
+        "type": "string",
+        "enum": [
+          "mode_blocks_steering",
+          "mode_is_off_switch",
+          "comfort_start",
+          "schedule_would_override"
+        ],
+        "title": "SteeringReason",
+        "description": "Why NOX changes a setting whose use is `when_needed` or `rarely`."
+      },
+      "SteeringSetting": {
+        "type": "string",
+        "enum": [
+          "operation_mode",
+          "room_setpoint",
+          "flow_temperature_setpoint",
+          "dhw_setpoint",
+          "dhw_boost"
+        ],
+        "title": "SteeringSetting",
+        "description": "A setting on the heat pump that NOX changes to steer a function."
+      },
+      "SteeringSettingUse": {
+        "type": "string",
+        "enum": [
+          "every_action",
+          "when_needed",
+          "rarely",
+          "user_controlled"
+        ],
+        "title": "SteeringSettingUse",
+        "description": "How often NOX changes a setting."
+      },
+      "SteeringTemperature": {
+        "properties": {
+          "temperature": {
+            "type": "number",
+            "title": "Temperature",
+            "description": "The desired room temperature in °C. This is not necessarily the setpoint the heat pump has right now: NOX temporarily moves the setpoint away from the desired temperature to shift consumption."
+          },
+          "setpoint_source": {
+            "$ref": "#/components/schemas/SetpointSource",
+            "description": "Where the temperature comes from: `schedule` when it follows the schedule set on the heat pump (it then changes with the schedule's time slots), `static` when it is a single fixed value."
+          }
+        },
+        "type": "object",
+        "required": [
+          "temperature",
+          "setpoint_source"
+        ],
+        "title": "SteeringTemperature",
+        "description": "The desired room temperature NOX steers towards in one mode."
+      },
       "TemperatureControlMode": {
         "type": "string",
         "enum": [
@@ -4333,6 +4990,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",
@@ -4342,6 +5006,103 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "app__models__connections__connections_model__Household": {
+        "properties": {
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseholdLocation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Where the household is."
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseholdOwner"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Who owns the household."
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Unique household identifier"
+          }
+        },
+        "type": "object",
+        "title": "Household"
+      },
+      "app__models__household__household_model__Household": {
+        "properties": {
+          "household_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Household Id",
+            "description": "Unique household identifier"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "Your own identifier of the user, as used internally by you (supplier, OEM or other partner)"
+          },
+          "grid_metering": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grid Metering",
+            "description": "Whether NOX Energy measures the household's grid import and export"
+          },
+          "devices": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/HouseholdDevice"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Devices",
+            "description": "NOX-connected devices in the household"
+          }
+        },
+        "type": "object",
+        "title": "Household"
       },
       "app__models__hp__device_models__GeneralReason": {
         "type": "string",
@@ -4359,6 +5120,7 @@
           "Air to Water Heat pumps not supported for this brand yet.",
           "Water to Water Heat pumps not supported for this brand yet.",
           "Multi zone air to air devices not supported yet.",
+          "Air to Air Heat pump with supported model but without a schedule.",
           "Device gateway model does not allow steering.",
           "Important data missing, this might improve with future updates.",
           "Important data missing, will not be supported in future updates.",
@@ -4475,6 +5237,17 @@
             ],
             "title": "Being Steered Start Date",
             "description": "Start date of when we first started steering this device."
+          },
+          "steering_method": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SteeringMethod"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How NOX steers this heat pump: for each steered function (`space_heating`, `space_cooling`, `domestic_hot_water`), which settings NOX changes, how often (`use`) and why (`reasons`). All values are codes, so you can explain it to your users in their own language. See the endpoint description for how to use it and what every code means.\n\n`null` when the device is not `steerable`, for air-to-air heat pumps, for brands or models whose steering NOX doesn't describe, and when NOX steers none of the device's functions."
           }
         },
         "type": "object",
