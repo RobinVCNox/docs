@@ -4,6 +4,10 @@ description: 'Updates and Changes'
 ---
 
 <Update label="November 2026">
+  ## `updated_at` on manufacturer device settings
+
+  * The Manufacturer API reference for [GET /devices/settings](/api-docs/manufacturer/user-management/get-devices-settings) now documents that `updated_at` is `null` when the user has not yet updated their settings for that device. The values returned are then our default values.
+
   ## Steering method: `space_cooling` and a clearer guide
 
   * **Breaking:** `steerable_status.steering_method.cooling` on [/devices](/api-docs/hp/asset-info/get-devices) is renamed `space_cooling`, next to `space_heating`.
