@@ -4,6 +4,10 @@ description: 'Updates and Changes'
 ---
 
 <Update label="November 2026">
+  ## Battery API preview: `max_soc_pct` removed
+
+  * `max_soc_pct` is removed from [/devices/battery](/api-docs/battery/asset-info/get-devices-battery) and from the [Battery API Guide](/guides/battery-api-guide). The API does not return it.
+
   ## Steering method: `space_cooling` and a clearer guide
 
   * **Breaking:** `steerable_status.steering_method.cooling` on [/devices](/api-docs/hp/asset-info/get-devices) is renamed `space_cooling`, next to `space_heating`.
