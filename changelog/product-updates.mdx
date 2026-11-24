@@ -4,6 +4,10 @@ description: 'Updates and Changes'
 ---
 
 <Update label="November 2026">
+  ## Household `id` in the Connections API
+
+  * The household returned by [GET](/api-docs/connections/connections/read-a-users-household) and [PATCH](/api-docs/connections/connections/describe-a-users-household) `/v2/connections/household` now includes `id`, the unique identifier of the household.
+
   ## Steering method: `space_cooling` and a clearer guide
 
   * **Breaking:** `steerable_status.steering_method.cooling` on [/devices](/api-docs/hp/asset-info/get-devices) is renamed `space_cooling`, next to `space_heating`.
