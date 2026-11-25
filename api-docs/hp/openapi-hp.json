@@ -6743,6 +6743,7 @@
           "Cycle constraints forced stop of current cycle.",
           "No DHW control available on this device.",
           "No DHW comfort bounds available for this device.",
+          "DHW temperature range too narrow to steer.",
           "No room control available on this device.",
           "Outside comfort band, Nox takes over until within comfort.",
           "No schedule available, Nox takes over to assure comfort.",
@@ -7234,6 +7235,7 @@
           "Unauthorized country, steering not allowed in this country.",
           "Reauthentication required.",
           "Too many heating zones, steering not supported for this configuration.",
+          "DHW temperature range too narrow to steer.",
           "Unknown reason, please contact support."
         ],
         "title": "GeneralReason"
