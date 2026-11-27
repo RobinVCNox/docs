@@ -4,9 +4,24 @@ description: 'Updates and Changes'
 ---
 
 <Update label="November 2026">
+  ## Steering method: `space_cooling` and a clearer guide
+
+  * **Breaking:** `steerable_status.steering_method.cooling` on [/devices](/api-docs/hp/asset-info/get-devices) is renamed `space_cooling`, next to `space_heating`.
+  * `steering_method.description` is no longer deprecated. It is NOX's English rendering of the codes; show it as-is or build your own text.
+  * The Heat Pump API Guide is now split into one page per section. [Showing how NOX steers a device](/guides/hp-api-guide/device-information#showing-how-nox-steers-a-device) explains every code, shows how a steering method becomes a text, and lists every steering method NOX returns.
+
+  ## Dark mode for the connect flow
+
+  * [POST /v2/connections/link](/guides/utility-connections) accepts an optional `color_scheme`: `light` (default) or `dark`, so the connect flow can match your app's theme.
+
+  ## New reason messages for air to air heat pumps
+
+  * Two new flexibility reasons are possible in the `Reason` messages: `No flexibility available as air to air device is off.` and `No DHW comfort bounds available for this device.`
+  * A new general reason is possible in the heat pump device status: `Air to Air Heat pump with supported model but without a schedule.`
+
   ## Steering method codes on heat pump devices
 
-  * `steerable_status.steering_method` on [/devices](/api-docs/hp/asset-info/get-devices) now describes how NOX steers a heat pump with codes, so you can show it to your users in their own language. See [Showing how NOX steers a device](/guides/hp-api-guide#1-1-showing-how-nox-steers-a-device) for every code and what it means.
+  * `steerable_status.steering_method` on [/devices](/api-docs/hp/asset-info/get-devices) now describes how NOX steers a heat pump with codes, so you can show it to your users in their own language. See [Showing how NOX steers a device](/guides/hp-api-guide/device-information#showing-how-nox-steers-a-device) for every code and what it means.
   * Each function (`space_heating`, `cooling`, `domestic_hot_water`) has `schedule_paused` and `settings`, a map from setting code to `use` (how often NOX changes it) and `reasons` (why).
   * **Breaking:** `changed_settings` is removed. Read the keys of `settings` instead.
   * `steering_method.description` is deprecated and will be removed in a future release.
@@ -85,7 +100,7 @@ description: 'Updates and Changes'
 
   ## Heat Pump API Guide
 
-  * Added a [Heat Pump API Guide](/guides/hp-api-guide) documenting the thermal-battery endpoints: current state, forecast, and submitting a control schedule, with request examples in 7 languages.
+  * Added a [Heat Pump API Guide](/guides/hp-api-guide/overview) documenting the thermal-battery endpoints: current state, forecast, and submitting a control schedule, with request examples in 7 languages.
   * Documented polling [/devices/telemetry/current](/api-docs/hp/asset-info/get-devices-hp-current-telemetry) for temporary real-time telemetry in the UI; recommended the [webhook](/guides/partner-webhooks) solution instead for consistently higher-granularity telemetry.
 
   ## PV API Guide

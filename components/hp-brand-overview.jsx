@@ -87,43 +87,6 @@ export const SupportedBrandOverviewTable = () => {
           "hpType": "-"
         }
       ],
-      "Atlantic": [
-        {
-          "model": "Alfea Extensa A.I. R32",
-          "status": "Beta",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "Alfea Extensa Duo A.I. R32",
-          "status": "Beta",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "Alfea Excellia A.I.",
-          "status": "Beta",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "Alfea Excellia Duo A.I.",
-          "status": "Beta",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "Alfea Excellia HP A.I.",
-          "status": "Beta",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "Alfea Excellia HP Duo A.I.",
-          "status": "Beta",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "Alfea Hybrid Duo Fuel Oil A.I.",
-          "status": "Beta",
-          "hpType": "Air to Water"
-        }
-      ],
       "Bosch": [
         {
           "model": "Compress 3000 AWS",
@@ -356,95 +319,6 @@ export const SupportedBrandOverviewTable = () => {
           "hpType": "Air to Water"
         }
       ],
-      "Fujitsu": [
-        {
-          "model": "ASYG wall-mounted split series",
-          "status": "Alpha",
-          "hpType": "Air to Air"
-        },
-        {
-          "model": "ARXG multi-split indoor units",
-          "status": "Alpha",
-          "hpType": "Air to Air"
-        },
-        {
-          "model": "AUYG / AOHG ducted units",
-          "status": "Alpha",
-          "hpType": "Air to Air"
-        },
-        {
-          "model": "AJYG cassette units",
-          "status": "Alpha",
-          "hpType": "Air to Air"
-        },
-        {
-          "model": "KGTG / KMTG ceiling units",
-          "status": "Alpha",
-          "hpType": "Air to Air"
-        }
-      ],
-      "Hitachi": [
-        {
-          "model": "Yutaki S",
-          "status": "Alpha",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "Yutaki S Combi",
-          "status": "Alpha",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "Yutaki S Combi 2.0",
-          "status": "Alpha",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "Yutaki S80",
-          "status": "Alpha",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "Yutaki M",
-          "status": "Alpha",
-          "hpType": "Air to Water"
-        },
-        {
-            "model": "airHome 400 series",
-            "status": "Alpha",
-            "hpType": "Air to Air"
-        },
-        {
-            "model": "airHome 600 series",
-            "status": "Alpha",
-            "hpType": "Air to Air"
-        },
-        {
-            "model": "Shirokuma",
-            "status": "Alpha",
-            "hpType": "Air to Air"
-        },
-        {
-            "model": "Light Commercial series",
-            "status": "Alpha",
-            "hpType": "Air to Air"
-        },
-        {
-            "model": "S-Series / Summit",
-            "status": "Alpha",
-            "hpType": "Air to Air"
-        },
-        {
-            "model": "Airhome multi-split",
-            "status": "Alpha",
-            "hpType": "Air to Air"
-        },
-        {
-            "model": "Utopia ES indoor units",
-            "status": "Alpha",
-            "hpType": "Air to Air"
-        }
-      ],
       "Intergas": [
         {
           "model": "Xtend Split",
@@ -610,23 +484,6 @@ export const SupportedBrandOverviewTable = () => {
         {
           "model": "Therma V R32 Split (HU121MR / HU141MR / HU161MR + HN1616M)",
           "status": "Supported",
-          "hpType": "Air to Water"
-        }
-      ],
-      "Midea": [
-        {
-          "model": "M-Thermal Monobloc R32",
-          "status": "Beta",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "M-Thermal Split R32",
-          "status": "Beta",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "M-Thermal Arctic R290",
-          "status": "Beta",
           "hpType": "Air to Water"
         }
       ],
@@ -1367,27 +1224,27 @@ export const SupportedBrandOverviewTable = () => {
       "Panasonic": [
         {
           "model": "Aquarea H-series",
-          "status": "Alpha",
+          "status": "Beta",
           "hpType": "Air to Water"
         },
         {
           "model": "Aquarea J-series (T-CAP)",
-          "status": "Alpha",
+          "status": "Beta",
           "hpType": "Air to Water"
         },
         {
           "model": "Aquarea K-series",
-          "status": "Alpha",
+          "status": "Beta",
           "hpType": "Air to Water"
         },
         {
           "model": "Aquarea L-series",
-          "status": "Alpha",
+          "status": "Beta",
           "hpType": "Air to Water"
         },
         {
           "model": "Aquarea M-series",
-          "status": "Alpha",
+          "status": "Beta",
           "hpType": "Air to Water"
         }
       ],
@@ -1460,17 +1317,17 @@ export const SupportedBrandOverviewTable = () => {
       "Stiebel Eltron": [
         {
           "model": "WPL 13 ACS classic Hybrid Set",
-          "status": "Alpha",
+          "status": "Beta",
           "hpType": "Hybrid"
         },
         {
           "model": "WPL 17 ACS classic Hybrid Set",
-          "status": "Alpha",
+          "status": "Beta",
           "hpType": "Hybrid"
         },
         {
           "model": "WPL-A 07 HK 230 Premium Hybrid Set",
-          "status": "Alpha",
+          "status": "Beta",
           "hpType": "Hybrid"
         }
       ],
@@ -1549,23 +1406,6 @@ export const SupportedBrandOverviewTable = () => {
           "model": "Atria Optimum",
           "status": "Limited",
           "hpType": "Ground to Water"
-        }
-      ],
-      "Thermor": [
-        {
-          "model": "Aérolia",
-          "status": "Beta",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "Aérolia 2",
-          "status": "Beta",
-          "hpType": "Air to Water"
-        },
-        {
-          "model": "Auréa",
-          "status": "Beta",
-          "hpType": "Air to Water"
         }
       ],
       "Toshiba": [
@@ -1674,18 +1514,6 @@ export const SupportedBrandOverviewTable = () => {
           "hpType": "-"
         }
       ],
-      "Weheat": [
-        {
-          "model": "Blackbird",
-          "status": "Alpha",
-          "hpType": "Hybrid"
-        },
-        {
-          "model": "Sparrow",
-          "status": "Alpha",
-          "hpType": "Hybrid"
-        }
-      ]
     };
         return deviceData[brandName] || [];
     };
@@ -1707,20 +1535,6 @@ export const SupportedBrandOverviewTable = () => {
                 </tr>
                 {expandedRows.has("Alpha Innotec") &&
                     getDeviceModels("Alpha Innotec").map((device, index) => (
-                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
-                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
-                            <td>{getStatusBadge(device.status)}</td>
-                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
-                        </tr>
-                    ))
-                }
-                <tr onClick={() => toggleRow("Atlantic")} style={{ cursor: 'pointer' }}>
-                    <td>Atlantic</td>
-                    <td>{getStatusBadge("Beta")}</td>
-                    <td>Air to Water</td>
-                </tr>
-                {expandedRows.has("Atlantic") &&
-                    getDeviceModels("Atlantic").map((device, index) => (
                         <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
                             <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
                             <td>{getStatusBadge(device.status)}</td>
@@ -1812,34 +1626,6 @@ export const SupportedBrandOverviewTable = () => {
                         </tr>
                     ))
                 }
-                <tr onClick={() => toggleRow("Fujitsu")} style={{ cursor: 'pointer' }}>
-                    <td>Fujitsu</td>
-                    <td>{getStatusBadge("Alpha")}</td>
-                    <td>Air to Air</td>
-                </tr>
-                {expandedRows.has("Fujitsu") &&
-                    getDeviceModels("Fujitsu").map((device, index) => (
-                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
-                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
-                            <td>{getStatusBadge(device.status)}</td>
-                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
-                        </tr>
-                    ))
-                }
-                <tr onClick={() => toggleRow("Hitachi")} style={{ cursor: 'pointer' }}>
-                    <td>Hitachi</td>
-                    <td>{getStatusBadge("Alpha")}</td>
-                    <td>Air to Water, Air to Air</td>
-                </tr>
-                {expandedRows.has("Hitachi") &&
-                    getDeviceModels("Hitachi").map((device, index) => (
-                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
-                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
-                            <td>{getStatusBadge(device.status)}</td>
-                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
-                        </tr>
-                    ))
-                }
                 <tr onClick={() => toggleRow("Intergas")} style={{ cursor: 'pointer' }}>
                     <td>Intergas</td>
                     <td>{getStatusBadge("Alpha")}</td>
@@ -1896,20 +1682,6 @@ export const SupportedBrandOverviewTable = () => {
                         </tr>
                     ))
                 }
-                <tr onClick={() => toggleRow("Midea")} style={{ cursor: 'pointer' }}>
-                    <td>Midea</td>
-                    <td>{getStatusBadge("Beta")}</td>
-                    <td>Air to Water, Air to Air</td>
-                </tr>
-                {expandedRows.has("Midea") &&
-                    getDeviceModels("Midea").map((device, index) => (
-                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
-                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
-                            <td>{getStatusBadge(device.status)}</td>
-                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
-                        </tr>
-                    ))
-                }
                 <tr onClick={() => toggleRow("Mitsubishi")} style={{ cursor: 'pointer' }}>
                     <td>Mitsubishi</td>
                     <td>{getStatusBadge("Production")}</td>
@@ -1940,7 +1712,7 @@ export const SupportedBrandOverviewTable = () => {
                 }
                 <tr onClick={() => toggleRow("Panasonic")} style={{ cursor: 'pointer' }}>
                     <td>Panasonic</td>
-                    <td>{getStatusBadge("Alpha")}</td>
+                    <td>{getStatusBadge("Beta")}</td>
                     <td>Air to Water</td>
                 </tr>
                 {expandedRows.has("Panasonic") &&
@@ -1996,7 +1768,7 @@ export const SupportedBrandOverviewTable = () => {
                 }
                 <tr onClick={() => toggleRow("Stiebel Eltron")} style={{ cursor: 'pointer' }}>
                     <td>Stiebel Eltron</td>
-                    <td>{getStatusBadge("Alpha")}</td>
+                    <td>{getStatusBadge("Beta")}</td>
                     <td>Hybrid</td>
                 </tr>
                 {expandedRows.has("Stiebel Eltron") &&
@@ -2015,20 +1787,6 @@ export const SupportedBrandOverviewTable = () => {
                 </tr>
                 {expandedRows.has("Thermia") &&
                     getDeviceModels("Thermia").map((device, index) => (
-                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
-                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
-                            <td>{getStatusBadge(device.status)}</td>
-                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
-                        </tr>
-                    ))
-                }
-                <tr onClick={() => toggleRow("Thermor")} style={{ cursor: 'pointer' }}>
-                    <td>Thermor</td>
-                    <td>{getStatusBadge("Beta")}</td>
-                    <td>Air to Water</td>
-                </tr>
-                {expandedRows.has("Thermor") &&
-                    getDeviceModels("Thermor").map((device, index) => (
                         <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
                             <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
                             <td>{getStatusBadge(device.status)}</td>
@@ -2071,20 +1829,6 @@ export const SupportedBrandOverviewTable = () => {
                 </tr>
                 {expandedRows.has("Viessmann") &&
                     getDeviceModels("Viessmann").map((device, index) => (
-                        <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
-                            <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
-                            <td>{getStatusBadge(device.status)}</td>
-                            <td style={{ paddingLeft: '20px' }}>{device.hpType}</td>
-                        </tr>
-                    ))
-                }
-                <tr onClick={() => toggleRow("Weheat")} style={{ cursor: 'pointer' }}>
-                    <td>Weheat</td>
-                    <td>{getStatusBadge("Alpha")}</td>
-                    <td>Hybrid</td>
-                </tr>
-                {expandedRows.has("Weheat") &&
-                    getDeviceModels("Weheat").map((device, index) => (
                         <tr key={index} style={{ backgroundColor: 'rgba(249, 249, 249, 0)' }}>
                             <td style={{ paddingLeft: '20px' }}>└ {device.model}</td>
                             <td>{getStatusBadge(device.status)}</td>

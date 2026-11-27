@@ -1,0 +1,401 @@
+---
+title: 'Getting Device Information'
+description: 'Fetch your heat pumps and how NOX steers them.'
+---
+
+import SteeringCatalogue from "/snippets/hp-steering-catalogue.mdx";
+
+To fetch all devices configuration data you can call the following endpoint:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl -X GET "https://api.nox.energy/v1/devices" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+```python Python
+
+import requests
+
+url = "https://api.nox.energy/v1/devices"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.request("GET", url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/devices', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices?limit=1000",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices?limit=1000"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/devices?limit=1000")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/devices?limit=1000")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+However, how you should use the [/devices](/api-docs/hp/asset-info/get-devices) endpoint is to fetch device info
+after the user completed the [authentication flow](/guides/new-asset-integration). You should have received the `user_id` and/or `device_id` in the
+redirect_uri callback parameters. Use the parameters received from the redirect and the
+[/devices](/api-docs/hp/asset-info/get-devices) endpoint to fetch on a per `user_id` or per `device_id` basis.
+This can be done using the query parameters like the below example:
+
+<CodeGroup dropdown>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1' \
+  --header 'x-api-key: <api-key>'
+```
+
+```python Python
+import requests
+
+url = "https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1"
+
+headers = {"x-api-key": "<api-key>"}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+```
+
+```javascript JavasScript
+const options = {method: 'GET', headers: {'x-api-key': '<api-key>'}};
+
+fetch('https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "x-api-key: <api-key>"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+```
+
+```go Go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io"
+)
+
+func main() {
+
+	url := "https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-api-key", "<api-key>")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+
+}
+```
+
+```java Java
+HttpResponse<String> response = Unirest.get("https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1")
+  .header("x-api-key", "<api-key>")
+  .asString();
+```
+
+```ruby Ruby
+require 'uri'
+require 'net/http'
+
+url = URI("https://api.nox.energy/v1/devices?limit=1000&user_id=user_id_1")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["x-api-key"] = '<api-key>'
+
+response = http.request(request)
+puts response.read_body
+```
+
+</CodeGroup>
+
+**Key response fields:**
+- `device_id` - Unique identifier per device. Each nox user_id can have multiple device_id's.
+- `brand` - Manufacturer brand of the device. We currently only support 1 heat pump brand per user. If a user has multiple brands, during the auth process, a new user_id is created.
+- `model_type` - Signifies the type of device (e.g. air-to-water/air-to-air/... device)
+- `has_delayed_power_data_1d` - Signifies if the device can or cannot provide real-time power data but instead
+provides its power data with a delay of 1 day between 2-4 AM UTC of the full previous day.
+
+If there is a need to have real-time data updates on specific fields.
+You can request us to see data change events from some of these fields like
+`needs_reauthentication` through our [webhook](/guides/partner-webhooks). You can communicate to us which fields you are interested in and
+we can set up a custom webhook with a POST endpoint you provide to us and you will receive real-time updates on change events.
+
+We suggest you read [Partner webhooks](/guides/partner-webhooks) page for more info.
+
+Alternatively, you can also use the [/devices/telemetry/current](/api-docs/hp/asset-info/get-devices-hp-current-telemetry) endpoint to poll for current telemetry data.
+This is only recommended if you are interested to show real time data temporarily for users when they are interacting with your app. This is not meant as a solution to have consistently higher granularity telemetry data.
+If you want higher granularity telemetry data then we recommend you to use our [webhook](/guides/partner-webhooks) solution to receive real-time updates on change events.
+
+A lot of query parameters exist on the [/devices](/api-docs/hp/asset-info/get-devices) we recommend you to use them
+if relevant, to reduces the size of data transfer.
+
+## Showing how NOX steers a device
+
+`steerable_status.steering_method` on [/devices](/api-docs/hp/asset-info/get-devices) tells you what NOX changes on the heat pump when it steers it. Use it to explain to your users what they will see on their heat pump or in its app, for example why their target room temperature changes during the day, or why their hot water schedule is paused.
+
+Every value is a code, not text, so you write what your users see, in their own language. New codes may be added in any release; the meaning of an existing code never changes. Show a code you don't know generically, for example as "NOX may change this setting".
+
+It is structured per steered function, then per setting:
+
+```
+steering_method
+├── space_heating / space_cooling / domestic_hot_water   ← steered functions
+│   ├── schedule_paused                                  ← true / false
+│   └── settings
+│       └── <setting>                                    ← e.g. room_setpoint
+│           ├── use                                      ← how often NOX changes it
+│           └── reasons                                  ← why NOX changes it
+```
+
+`steering_method` is `null` when the device isn't `steerable`, for air to air heat pumps, and for brands or models whose steering NOX doesn't describe. The order of settings and of reasons carries no meaning.
+
+### Steered functions
+
+What the heat pump does for the home. A function is `null` when NOX does not steer it on this device.
+
+| Field | Description |
+| --- | --- |
+| `space_heating` | heating space |
+| `space_cooling` | cooling space. `null` when the heat pump cannot cool. |
+| `domestic_hot_water` | heating the hot water tank. `null` when there is no tank. |
+
+Each function holds:
+- `schedule_paused`: `true` when the user's own schedule (time program) for this function is paused while NOX steers.
+- `settings`: the settings NOX changes for this function. A setting that isn't listed is never touched by NOX.
+
+### Settings
+
+A value on the heat pump that NOX changes to steer a function.
+
+| Field | Description |
+| --- | --- |
+| `operation_mode` | heating mode, cooling mode or hot water mode, depending on the function |
+| `room_setpoint` | target room temperature |
+| `flow_temperature_setpoint` | water temperature in the heating circuit, or in the cooling circuit |
+| `dhw_setpoint` | target hot water temperature |
+| `dhw_boost` | hot water boost |
+
+### Uses
+
+How often NOX changes a setting. `when_needed` and `rarely` always come with at least one reason; the other uses never have one.
+
+| Field | Description |
+| --- | --- |
+| `every_action` | Changed every time NOX starts or stops the function. |
+| `when_needed` | Only changed in the situations listed in `reasons`. |
+| `rarely` | Operation mode only. NOX follows the mode the user set and only changes it in the situations listed in `reasons`. |
+| `user_controlled` | Operation mode only. NOX follows the mode the user set and never changes it. |
+
+### Reasons
+
+Why NOX changes a setting whose use is `when_needed` or `rarely`. A setting can have several.
+
+| Field | Description |
+| --- | --- |
+| `mode_blocks_steering` | The device is in a mode where NOX's setting has no effect, so NOX switches the mode. |
+| `mode_is_off_switch` | Switching the mode is the only way to stop the function. |
+| `comfort_start` | The home is too cold and heating is set to another mode, so NOX switches it to heating. Only used for `space_heating`, on the `operation_mode` setting. |
+| `schedule_would_override` | The user's time program would override NOX, so NOX switches to manual while it steers. |
+
+### Example: from codes to text
+
+NOX builds the English `description` from four building blocks. You can do the same in any language.
+
+| Field | Becomes in the text |
+| --- | --- |
+| Function | Who the sentence is about: "space heating", "cooling", "hot water" |
+| Setting | What changes, using the descriptions in the [settings table](#settings) |
+| Use | The sentence pattern, see below |
+| Reasons | The end of a `when_needed` or `rarely` sentence, saying when it happens |
+| `schedule_paused` | One extra sentence when `true` |
+
+| Use | Sentence pattern |
+| --- | --- |
+| `every_action` | For **function**, NOX changes the **setting**. |
+| `rarely` | NOX follows the **setting** you set on your heat pump. It only changes this mode **reasons**. |
+| `user_controlled` | NOX follows the **setting** you set on your heat pump. |
+| `when_needed` | To keep steering reliable, NOX may also switch the **setting** **reasons**. |
+| `schedule_paused: true` | Your own **function** schedule is paused while NOX steers. |
+
+| Reason | Clause |
+| --- | --- |
+| `mode_blocks_steering` | if your heat pump is in a mode where NOX's settings have no effect |
+| `mode_is_off_switch` | when that is the only way to stop heating |
+| `comfort_start` | to start heating when your home is too cold and the heating is set to another mode |
+| `schedule_would_override` | if your own time program would override NOX |
+
+Take this steering method:
+
+```json
+{
+  "space_heating": {
+    "schedule_paused": true,
+    "settings": {
+      "room_setpoint": {"use": "every_action", "reasons": []},
+      "operation_mode": {"use": "rarely", "reasons": ["comfort_start"]}
+    }
+  },
+  "space_cooling": null,
+  "domestic_hot_water": {
+    "schedule_paused": false,
+    "settings": {
+      "dhw_setpoint": {"use": "every_action", "reasons": []},
+      "operation_mode": {"use": "when_needed", "reasons": ["mode_blocks_steering"]}
+    }
+  }
+}
+```
+
+Each field becomes one part of the text:
+
+| Field in the steering method | Text |
+| --- | --- |
+| `space_heating` → `room_setpoint`: `every_action` | For space heating, NOX changes the target room temperature. |
+| `domestic_hot_water` → `dhw_setpoint`: `every_action` | For hot water, NOX changes the target hot water temperature. |
+| `space_heating` → `operation_mode`: `rarely` | NOX follows the heating mode you set on your heat pump. It only changes this mode … |
+| … reason `comfort_start` | … to start heating when your home is too cold and the heating is set to another mode. |
+| `domestic_hot_water` → `operation_mode`: `when_needed` | To keep steering reliable, NOX may also switch the hot water mode … |
+| … reason `mode_blocks_steering` | … if your heat pump is in a mode where NOX's settings have no effect. |
+| `space_heating` → `schedule_paused`: `true` | Your own space heating schedule is paused while NOX steers. |
+| `domestic_hot_water` → `schedule_paused`: `false` | *(nothing)* |
+| `space_cooling`: `null` | *(nothing)* |
+
+Together, this is the `description` NOX returns:
+
+> For space heating, NOX changes the target room temperature. For hot water, NOX changes the target hot water temperature. NOX follows the heating mode you set on your heat pump. It only changes this mode to start heating when your home is too cold and the heating is set to another mode. To keep steering reliable, NOX may also switch the hot water mode if your heat pump is in a mode where NOX's settings have no effect. Your own space heating schedule is paused while NOX steers.
+
+<Note>
+`steering_method.description` is NOX's English rendering of the same information, built from the settings, their use and their reasons. Show it as-is in an English app, or build your own text from the codes.
+</Note>
+
+### All steering methods
+
+Every steering method NOX currently returns, with the `description` that comes with it. Expand the table to see, per function, each setting with its use and reasons. When NOX adds a brand, a model or a code, this list is updated.
+
+<SteeringCatalogue />
