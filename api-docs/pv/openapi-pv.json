@@ -641,6 +641,131 @@
         }
       }
     },
+    "/v1/pv/fleet/nomination": {
+      "get": {
+        "tags": [
+          "Asset Info"
+        ],
+        "summary": "Get Pv Fleet Nomination",
+        "description": "Get the day-ahead nomination of the PV systems in your pool.\n\n\n The nomination is made before noon for the next day (D-1) and is one total for the pool of your\n energy supplier account, in kWh with 15min granularity.\n\n\n Positive values are taken from the grid, negative values are fed into it.\n\n\n A day that has not been nominated yet, or an account without a pool, returns an empty `data` list.\n\n\n All timestamps are in UTC.",
+        "operationId": "get_pv_fleet_nomination_v1_pv_fleet_nomination_get",
+        "parameters": [
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Start of the window (inclusive) of 15min buckets to return, UTC in ISO 8601 format.",
+              "title": "Start Time"
+            },
+            "description": "Start of the window (inclusive) of 15min buckets to return, UTC in ISO 8601 format."
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "End of the window (inclusive) of 15min buckets to return, UTC in ISO 8601 format.",
+              "title": "End Time"
+            },
+            "description": "End of the window (inclusive) of 15min buckets to return, UTC in ISO 8601 format."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter, or the `offset` parameter where the\nendpoint offers it, to paginate through results.\n\nRead the pagination parameter documentation for more details.\n",
+              "default": 1000,
+              "title": "Limit"
+            },
+            "description": "\nThe maximum number of items to return per page of results.\n\nThis should be used together with the `next_token` parameter, or the `offset` parameter where the\nendpoint offers it, to paginate through results.\n\nRead the pagination parameter documentation for more details.\n"
+          },
+          {
+            "name": "next_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n",
+              "title": "Next Token"
+            },
+            "description": "\nThe `next_token` is a token used to retrieve the next page of results when there are more results\nthan can fit in a single page(=API response).\n\nBy default, the API will return a `next_token` of the first page if no token was given as a parameter.\n\nIf the token is `null` you have reached the end of the results.\n\nThis should be used together with the `limit` parameter to paginate through results.\n\n\n\nTo get all results of your call, you can keep calling the same API call with the previously returned `next_token` until it returns `null`.\n\nPass the `next_token` back unchanged. A token that was altered or not issued by the API returns `400`.\n"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "\nThe number of items to skip before the first item of the page. Defaults to `0`.\n\nUse it together with the `limit` parameter to fetch a specific page, for example `limit=100&offset=200`\nreturns items 201 to 300.\n\nUse either `offset` or `next_token`, not both. Sending both returns `400`.\n",
+              "title": "Offset"
+            },
+            "description": "\nThe number of items to skip before the first item of the page. Defaults to `0`.\n\nUse it together with the `limit` parameter to fetch a specific page, for example `limit=100&offset=200`\nreturns items 201 to 300.\n\nUse either `offset` or `next_token`, not both. Sending both returns `400`.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PVFleetNominationResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "forecast_time": "2026-11-24 10:00",
+                      "nomination": "-6.10"
+                    },
+                    {
+                      "forecast_time": "2026-11-24 10:15",
+                      "nomination": "-6.85"
+                    }
+                  ],
+                  "meta": {
+                    "energy_supplier": "Energy Supplier A",
+                    "nomination_unit": "kWh",
+                    "granularity": "15min",
+                    "output_timezone": "UTC"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/devices/pv/production/typical-production": {
       "get": {
         "tags": [
@@ -4034,6 +4159,156 @@
         ],
         "title": "DirectConnectRequest"
       },
+      "FunctionSteering": {
+        "properties": {
+          "schedule_paused": {
+            "type": "boolean",
+            "title": "Schedule Paused",
+            "description": "`true` when the user's own schedule (time program) for this function on the heat pump is paused while NOX steers."
+          },
+          "settings": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/SettingSteering"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/SteeringSetting"
+            },
+            "type": "object",
+            "title": "Settings",
+            "description": "The settings NOX changes to steer this function, each with its `use` and `reasons`. A setting that is not listed is never touched by NOX. The order carries no meaning.\n- `operation_mode`: heating mode, cooling mode or hot water mode, depending on the function\n- `room_setpoint`: target room temperature\n- `flow_temperature_setpoint`: water temperature in the heating circuit, or in the cooling circuit\n- `dhw_setpoint`: target hot water temperature\n- `dhw_boost`: hot water boost\n\nNew codes may be added. Show a code you don't know as \"NOX may change this setting\"."
+          }
+        },
+        "type": "object",
+        "title": "FunctionSteering"
+      },
+      "HPFleetNominationData": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Timestamp of the 15min bucket (start of the interval)."
+          },
+          "nomination": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomination",
+            "description": "Nominated energy of the pool for the bucket in kWh."
+          }
+        },
+        "type": "object",
+        "title": "HPFleetNominationData"
+      },
+      "HPFleetNominationMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name."
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for the next page, or null on the last page."
+          },
+          "nomination_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomination Unit",
+            "description": "Unit of the nomination values, kWh."
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "HPFleetNominationMeta"
+      },
+      "HPFleetNominationResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/HPFleetNominationData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of nominated 15min buckets."
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HPFleetNominationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "HPFleetNominationResponse"
+      },
       "HPTelemetryCurrentResponse": {
         "properties": {
           "data": {
@@ -4129,7 +4404,18 @@
               }
             ],
             "title": "Updated At",
-            "description": "Timestamp when the telemetry data was last updated"
+            "description": "Timestamp when the measurements (`room_temp`, `dhw_temp`, `power`) were last updated"
+          },
+          "room_steering": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What NOX steers the room towards. `null` when NOX does not steer the room of this device, for example because the device is not steerable or has no room control. See `steerable_status` on `/devices` for the reason."
           }
         },
         "type": "object",
@@ -4344,6 +4630,134 @@
         },
         "type": "object",
         "title": "HouseholdDevice"
+      },
+      "HouseholdFleetNominationData": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Timestamp of the 15min bucket (start of the interval)."
+          },
+          "nomination": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomination",
+            "description": "Nominated energy of the pool for the bucket in kWh."
+          }
+        },
+        "type": "object",
+        "title": "HouseholdFleetNominationData"
+      },
+      "HouseholdFleetNominationMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name."
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for the next page, or null on the last page."
+          },
+          "nomination_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomination Unit",
+            "description": "Unit of the nomination values, kWh."
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "HouseholdFleetNominationMeta"
+      },
+      "HouseholdFleetNominationResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/HouseholdFleetNominationData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of nominated 15min buckets."
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseholdFleetNominationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "HouseholdFleetNominationResponse"
       },
       "HouseholdLocation": {
         "properties": {
@@ -4725,6 +5139,18 @@
             ],
             "title": "Language",
             "description": "The language of the connect flow: `nl`, `en`, `fr` or `es`. Defaults to `nl`."
+          },
+          "color_scheme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color Scheme",
+            "description": "Render the connect flow `light` or `dark`. Defaults to `light`."
           }
         },
         "additionalProperties": true,
@@ -4863,6 +5289,134 @@
           "off"
         ],
         "title": "PVCurtailmentMode"
+      },
+      "PVFleetNominationData": {
+        "properties": {
+          "forecast_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Time",
+            "description": "Timestamp of the 15min bucket (start of the interval)."
+          },
+          "nomination": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomination",
+            "description": "Nominated energy of the pool for the bucket in kWh."
+          }
+        },
+        "type": "object",
+        "title": "PVFleetNominationData"
+      },
+      "PVFleetNominationMeta": {
+        "properties": {
+          "energy_supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Supplier",
+            "description": "Energy supplier name."
+          },
+          "next_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Token",
+            "description": "Token for the next page, or null on the last page."
+          },
+          "nomination_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomination Unit",
+            "description": "Unit of the nomination values, kWh."
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity",
+            "description": "Granularity of the data."
+          },
+          "output_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Timezone",
+            "description": "Timezone of the output data."
+          }
+        },
+        "type": "object",
+        "title": "PVFleetNominationMeta"
+      },
+      "PVFleetNominationResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PVFleetNominationData"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "List of nominated 15min buckets."
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PVFleetNominationMeta"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Response metadata"
+          }
+        },
+        "type": "object",
+        "title": "PVFleetNominationResponse"
       },
       "PVFleetTypicalProductionData": {
         "properties": {
@@ -5576,9 +6130,12 @@
         "type": "string",
         "enum": [
           "No flexibility available based on current device state.",
+          "No flexibility available as air to air device is off.",
           "Cycle constraints prevent a new action at this time.",
           "Cycle constraints forced stop of current cycle.",
           "No DHW control available on this device.",
+          "No DHW comfort bounds available for this device.",
+          "DHW temperature range too narrow to steer.",
           "No room control available on this device.",
           "Outside comfort band, Nox takes over until within comfort.",
           "No schedule available, Nox takes over to assure comfort.",
@@ -5593,9 +6150,20 @@
           "Uncertain heat pump activity, waiting for more data.",
           "Cannot steer space heating when ata is off.",
           "Processing error, please contact support.",
-          "Space heating unit is turned off, cannot steer space heating."
+          "Space heating unit is turned off, cannot steer space heating.",
+          "Unknown reason, please contact support."
         ],
         "title": "Reason"
+      },
+      "RequestedMode": {
+        "type": "string",
+        "enum": [
+          "auto",
+          "heating",
+          "cooling",
+          "off"
+        ],
+        "title": "RequestedMode"
       },
       "RoomSettings": {
         "properties": {
@@ -5689,6 +6257,198 @@
         "type": "object",
         "title": "RoomSettings"
       },
+      "RoomSteering": {
+        "properties": {
+          "requested_mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequestedMode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the end user wants the room to do: `auto`, `heating`, `cooling` or `off`. This is your `room.temperature_control_mode` setting when you set one. Otherwise it is the mode the user chose on the heat pump itself (Daikin, and Vaillant in thermostat function), and failing that `auto`, or `heating` for a device that cannot cool. It is read-only here: to change it, PATCH `room.temperature_control_mode` on `/devices/settings`. `null` when it is not known yet."
+          },
+          "steered_mode": {
+            "$ref": "#/components/schemas/SteeredMode",
+            "description": "What NOX steers the room towards right now: `heating` or `cooling`. A requested mode of `auto` resolves to one of the two. `off` means NOX steers the device but the user wants no heating or cooling at this moment: the unit is switched off, the current schedule slot has no demand, or the requested mode is `off`."
+          },
+          "heating": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SteeringTemperature"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The desired room temperature when heating. Show this one when `steered_mode` is `heating`. `null` when there is no reliable value to show, including whenever `steered_mode` is `off`."
+          },
+          "cooling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SteeringTemperature"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The desired room temperature when cooling. Show this one when `steered_mode` is `cooling`. `null` when the device cannot cool, when there is no reliable value to show, and whenever `steered_mode` is `off`."
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "When NOX last determined these values (UTC). This is independent of the measurements' `updated_at`."
+          }
+        },
+        "type": "object",
+        "required": [
+          "steered_mode"
+        ],
+        "title": "RoomSteering",
+        "description": "What NOX steers the room towards and what the end user asked for."
+      },
+      "SetpointSource": {
+        "type": "string",
+        "enum": [
+          "schedule",
+          "static"
+        ],
+        "title": "SetpointSource"
+      },
+      "SettingSteering": {
+        "properties": {
+          "use": {
+            "$ref": "#/components/schemas/SteeringSettingUse",
+            "description": "How often NOX changes this setting:\n- `every_action`: NOX changes the setting every time it starts or stops the function. The user sees it change during the day.\n- `when_needed`: NOX only changes the setting in the situations listed in `reasons`.\n- `rarely`: operation mode only. NOX follows the mode the user set and only changes it in the situations listed in `reasons`.\n- `user_controlled`: operation mode only. NOX follows the mode the user set and never changes it.\n\nNew codes may be added. Show a code you don't know as \"NOX may change this setting\"."
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/SteeringReason"
+            },
+            "type": "array",
+            "title": "Reasons",
+            "description": "Why NOX changes this setting. At least one when `use` is `when_needed` or `rarely`, empty otherwise. The order carries no meaning.\n- `mode_blocks_steering`: if your heat pump is in a mode where NOX's settings have no effect\n- `mode_is_off_switch`: when that is the only way to stop heating\n- `comfort_start`: to start heating when your home is too cold and the heating is set to another mode\n- `schedule_would_override`: if your own time program would override NOX\n\nNew codes may be added. Leave out, or show generically, a code you don't know."
+          }
+        },
+        "type": "object",
+        "title": "SettingSteering"
+      },
+      "SteeredMode": {
+        "type": "string",
+        "enum": [
+          "heating",
+          "cooling",
+          "off"
+        ],
+        "title": "SteeredMode"
+      },
+      "SteeringMethod": {
+        "properties": {
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "NOX's English rendering of this steering method, built from the settings, their use and their reasons. Show it as-is in an English app, or build your own text from the codes."
+          },
+          "space_heating": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FunctionSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How NOX steers heating space. `null` when NOX does not steer space heating on this device, including when the room `reason` is `No room control available on this device.`"
+          },
+          "space_cooling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FunctionSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How NOX steers cooling space. `null` when the heat pump cannot cool or NOX does not steer its cooling, including when the room `reason` is `No room control available on this device.`"
+          },
+          "domestic_hot_water": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FunctionSteering"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How NOX steers heating the hot water tank. `null` when the device has no hot water tank or NOX does not steer its hot water, including when the DHW `reason` is `No DHW control available on this device.`"
+          }
+        },
+        "type": "object",
+        "title": "SteeringMethod"
+      },
+      "SteeringReason": {
+        "type": "string",
+        "enum": [
+          "mode_blocks_steering",
+          "mode_is_off_switch",
+          "comfort_start",
+          "schedule_would_override"
+        ],
+        "title": "SteeringReason",
+        "description": "Why NOX changes a setting whose use is `when_needed` or `rarely`."
+      },
+      "SteeringSetting": {
+        "type": "string",
+        "enum": [
+          "operation_mode",
+          "room_setpoint",
+          "flow_temperature_setpoint",
+          "dhw_setpoint",
+          "dhw_boost"
+        ],
+        "title": "SteeringSetting",
+        "description": "A setting on the heat pump that NOX changes to steer a function."
+      },
+      "SteeringSettingUse": {
+        "type": "string",
+        "enum": [
+          "every_action",
+          "when_needed",
+          "rarely",
+          "user_controlled"
+        ],
+        "title": "SteeringSettingUse",
+        "description": "How often NOX changes a setting."
+      },
+      "SteeringTemperature": {
+        "properties": {
+          "temperature": {
+            "type": "number",
+            "title": "Temperature",
+            "description": "The desired room temperature in °C. This is not necessarily the setpoint the heat pump has right now: NOX temporarily moves the setpoint away from the desired temperature to shift consumption."
+          },
+          "setpoint_source": {
+            "$ref": "#/components/schemas/SetpointSource",
+            "description": "Where the temperature comes from: `schedule` when it follows the schedule set on the heat pump (it then changes with the schedule's time slots), `static` when it is a single fixed value."
+          }
+        },
+        "type": "object",
+        "required": [
+          "temperature",
+          "setpoint_source"
+        ],
+        "title": "SteeringTemperature",
+        "description": "The desired room temperature NOX steers towards in one mode."
+      },
       "TemperatureControlMode": {
         "type": "string",
         "enum": [
@@ -5730,6 +6490,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",
@@ -5763,6 +6530,18 @@
               }
             ],
             "description": "Who owns the household."
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Unique household identifier"
           }
         },
         "type": "object",
@@ -5841,12 +6620,14 @@
           "Air to Water Heat pumps not supported for this brand yet.",
           "Water to Water Heat pumps not supported for this brand yet.",
           "Multi zone air to air devices not supported yet.",
+          "Air to Air Heat pump with supported model but without a schedule.",
           "Device gateway model does not allow steering.",
           "Important data missing, this might improve with future updates.",
           "Important data missing, will not be supported in future updates.",
           "Unauthorized country, steering not allowed in this country.",
           "Reauthentication required.",
           "Too many heating zones, steering not supported for this configuration.",
+          "DHW temperature range too narrow to steer.",
           "Unknown reason, please contact support."
         ],
         "title": "GeneralReason"
@@ -5957,6 +6738,17 @@
             ],
             "title": "Being Steered Start Date",
             "description": "Start date of when we first started steering this device."
+          },
+          "steering_method": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SteeringMethod"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How NOX steers this heat pump: for each steered function (`space_heating`, `space_cooling`, `domestic_hot_water`), which settings NOX changes, how often (`use`) and why (`reasons`). All values are codes, so you can explain it to your users in their own language. See the endpoint description for how to use it and what every code means.\n\n`null` when the device is not `steerable`, for air-to-air heat pumps, for brands or models whose steering NOX doesn't describe, and when NOX steers none of the device's functions."
           }
         },
         "type": "object",
